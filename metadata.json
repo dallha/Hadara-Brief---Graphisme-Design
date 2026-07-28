@@ -1,0 +1,6 @@
+{
+  "name": "Hadara Brief - Graphisme & Design",
+  "description": "Formulaire de brief créatif complet et gestionnaire de demandes pour le Graphiste de la Hadara.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

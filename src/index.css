@@ -1,0 +1,296 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  --color-bleu-profond: #335A79;
+  --color-or-olive: #816C07;
+  --color-creme-doux: #F5F5DC;
+  --color-blanc-casse: #F8F8F8;
+  --color-vert-foret: #224A33;
+  --color-bourgogne: #800020;
+  --color-rouge-rouille: #A6472F;
+  --color-gris-chaud: #C1C1BD;
+  --color-taupe-clair: #D4C9BF;
+  
+  --color-deep-bg: #0d131f;
+  --color-surface: #141c2e;
+}
+
+@layer base {
+  :root {
+    --bg-deep-space: #0d131f;
+    --bg-surface: #141c2e;
+    --bg-card: rgba(20, 28, 46, 0.75);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-accent: rgba(129, 108, 7, 0.35);
+    --text-primary: #f8f8f8;
+    --text-muted: #d4c9bf;
+    --hadara-or: #816C07;
+    --hadara-bleu: #335A79;
+    --hadara-vert: #224A33;
+    --hadara-creme: #F5F5DC;
+    --hadara-rouge: #800020;
+    --hadara-rouille: #A6472F;
+  }
+
+  /* === MODE CLAIR : Parchemin Lumineux === */
+  [data-theme="light"] {
+    --bg-deep-space: #faf7f2;
+    --bg-surface: #ffffff;
+    --bg-card: #ffffff;
+    --border-subtle: rgba(51, 90, 121, 0.18);
+    --border-accent: rgba(129, 108, 7, 0.45);
+    --text-primary: #0f172a;
+    --text-muted: #335A79;
+    color-scheme: light;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-deep-space);
+    color: var(--text-primary);
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(51, 90, 121, 0.28) 0px, transparent 55%),
+      radial-gradient(at 100% 0%, rgba(129, 108, 7, 0.22) 0px, transparent 45%),
+      radial-gradient(at 50% 100%, rgba(34, 74, 51, 0.18) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(13, 19, 31, 0.85) 0px, transparent 100%);
+    background-attachment: fixed;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Mode clair : fond parchemin chaud */
+  [data-theme="light"] body {
+    background-color: #faf7f2 !important;
+    color: #0f172a !important;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(51, 90, 121, 0.10) 0px, transparent 65%),
+      radial-gradient(at 100% 0%, rgba(129, 108, 7, 0.14) 0px, transparent 55%),
+      radial-gradient(at 50% 100%, rgba(245, 245, 220, 0.85) 0px, transparent 70%),
+      radial-gradient(at 50% 50%, #faf7f2 0px, transparent 100%) !important;
+  }
+
+  /* Ensure high contrast on all dark backgrounds in default (dark) mode */
+  .glass-panel,
+  .glass-card,
+  .bg-\[\#0d131f\],
+  .bg-\[\#141c2e\],
+  .bg-slate-900,
+  .bg-slate-950 {
+    color: #f8f8f8;
+  }
+
+  /* Gris clair sur les paragraphes : uniquement en mode sombre (pas en mode clair) */
+  :not([data-theme="light"]) .glass-panel p,
+  :not([data-theme="light"]) .glass-card p,
+  :not([data-theme="light"]) .bg-\[\#0d131f\] p,
+  :not([data-theme="light"]) .bg-\[\#141c2e\] p,
+  :not([data-theme="light"]) .bg-slate-900 p,
+  :not([data-theme="light"]) .bg-slate-950 p {
+    color: #d4c9bf;
+  }
+
+  /* ================================================================
+   * MODE CLAIR — PARCHEMIN LUMINEUX
+   * Stratégie : NE PAS toucher les containers sombres Hadara
+   * (#141c2e, #0d131f) — ils gardent leur fond sombre et leur texte clair.
+   * Seuls les éléments natifs (header, footer, nav, body) s'adaptent.
+   * ================================================================ */
+
+  /* Navbar & Header en mode clair */
+  [data-theme="light"] header {
+    background-color: rgba(13, 19, 31, 0.96) !important;
+    border-color: rgba(129, 108, 7, 0.35) !important;
+  }
+
+  /* Inputs & forms en mode clair — fond blanc lisible */
+  [data-theme="light"] input:not([class*="bg-\\["]),
+  [data-theme="light"] textarea:not([class*="bg-\\["]),
+  [data-theme="light"] select:not([class*="bg-\\["]) {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(51, 90, 121, 0.40) !important;
+  }
+
+  [data-theme="light"] input::placeholder,
+  [data-theme="light"] textarea::placeholder {
+    color: #64748b !important;
+  }
+
+  [data-theme="light"] label {
+    color: #F5F5DC;
+  }
+
+  /* Texte Tailwind slate-* en mode clair → gris foncé lisible */
+  [data-theme="light"] .text-slate-100,
+  [data-theme="light"] .text-slate-200,
+  [data-theme="light"] .text-slate-300 {
+    color: #e2e8f0 !important;
+  }
+
+  [data-theme="light"] .text-slate-400,
+  [data-theme="light"] .text-slate-500,
+  [data-theme="light"] .text-slate-600 {
+    color: #cbd5e1 !important;
+  }
+
+  /* Gold & amber en mode clair */
+  [data-theme="light"] .text-amber-400,
+  [data-theme="light"] .text-amber-500 {
+    color: #d4a017;
+  }
+
+  /* Scrollbar */
+  [data-theme="light"] ::-webkit-scrollbar-track {
+    background: #e2e8f0;
+  }
+  [data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: #335a79;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif);
+    letter-spacing: -0.015em;
+  }
+
+  p {
+    line-height: 1.68;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* Custom Hadara Brand Styles */
+.badge-or-olive {
+  background-color: rgba(129, 108, 7, 0.15);
+  color: #D4C9BF;
+  border: 1px solid rgba(129, 108, 7, 0.35);
+}
+
+.badge-bleu-profond {
+  background-color: rgba(51, 90, 121, 0.2);
+  color: #F8F8F8;
+  border: 1px solid rgba(51, 90, 121, 0.4);
+}
+
+.badge-vert-foret {
+  background-color: rgba(34, 74, 51, 0.25);
+  color: #F5F5DC;
+  border: 1px solid rgba(34, 74, 51, 0.45);
+}
+
+/* Glassmorphism & Gradient Border Utilities */
+.glass-panel {
+  background: rgba(20, 28, 46, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(20, 28, 46, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: rgba(20, 28, 46, 0.85);
+  border-color: rgba(129, 108, 7, 0.45);
+  box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0d131f;
+}
+::-webkit-scrollbar-thumb {
+  background: #335A79;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #816C07;
+}
+
+/* Explicit Hadara Styling for Mobile Fixed Bottom Navigation and Floating WhatsApp Elements */
+nav.fixed.bottom-0 {
+  background-color: rgba(51, 90, 121, 0.92) !important;
+  border-top-color: #816C07 !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+nav.fixed.bottom-0 span,
+nav.fixed.bottom-0 button,
+nav.fixed.bottom-0 p {
+  font-family: 'Playfair Display', Georgia, serif !important;
+}
+
+/* Behance Action Button Styling */
+.behance-btn {
+  background-color: #335A79 !important;
+  border: 1px solid rgba(129, 108, 7, 0.8) !important;
+  color: #F5F5DC !important;
+  box-shadow: 0 4px 14px 0 rgba(51, 90, 121, 0.35) !important;
+}
+
+.behance-btn:hover {
+  background-color: #284963 !important;
+  border-color: #816C07 !important;
+  color: #FFFFFF !important;
+}
+
+.behance-btn *,
+[data-theme="light"] .behance-btn *,
+[data-theme="dark"] .behance-btn * {
+  color: #F5F5DC !important;
+}
+
+.behance-btn .behance-gold-icon,
+[data-theme="light"] .behance-btn .behance-gold-icon,
+[data-theme="dark"] .behance-btn .behance-gold-icon {
+  color: #816C07 !important;
+}
+
+/* Guarantee high-contrast Hadara colors inside bottom navbar and Floating WhatsApp in BOTH light & dark modes */
+.floating-whatsapp-container .bg-\[\#335A79\],
+[data-theme="light"] .floating-whatsapp-container .bg-\[\#335A79\],
+[data-theme="dark"] .floating-whatsapp-container .bg-\[\#335A79\] {
+  background-color: #335A79 !important;
+  border-color: rgba(129, 108, 7, 0.7) !important;
+}
+
+.floating-whatsapp-container .text-\[\#F5F5DC\],
+nav.fixed.bottom-0 .text-\[\#F5F5DC\],
+[data-theme="light"] .floating-whatsapp-container .text-\[\#F5F5DC\],
+[data-theme="light"] nav.fixed.bottom-0 .text-\[\#F5F5DC\],
+[data-theme="light"] .bg-\[\#335A79\] .text-\[\#F5F5DC\],
+[data-theme="light"] .bg-\[\#224A33\] .text-\[\#F5F5DC\],
+[data-theme="light"] .bg-\[\#816C07\] .text-\[\#F5F5DC\] {
+  color: #F5F5DC !important;
+}
+
+.floating-whatsapp-container .text-\[\#816C07\],
+nav.fixed.bottom-0 .text-\[\#816C07\],
+[data-theme="light"] .floating-whatsapp-container .text-\[\#816C07\],
+[data-theme="light"] nav.fixed.bottom-0 .text-\[\#816C07\],
+[data-theme="light"] .bg-\[\#335A79\] .text-\[\#816C07\] {
+  color: #816C07 !important;
+}
+
+/* Ensure Floating WhatsApp never overlaps the mobile bottom navigation bar on small screens */
+@media (max-width: 767px) {
+  .floating-whatsapp-container,
+  .fixed.bottom-20 {
+    bottom: 5.5rem !important; /* 88px offset to comfortably clear the bottom navigation bar */
+  }
+}
+
+
+
+

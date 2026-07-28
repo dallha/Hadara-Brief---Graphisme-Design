@@ -1,6 +1,6 @@
-# 🎨 Graphiste de la Hadara — Plateforme de Brief Créatif & Gestion de Projets
+# 🎨 Le Graphiste de la Hadara — Plateforme de Brief Créatif & Gestion de Projets
 
-Une application web complète conçue spécialement pour le **Graphiste de la Hadara** (Dakar, Sénégal). Elle permet de collecter les briefs créatifs des clients pour la conception d'affiches, bâches grand format, banderoles, flyers et identités visuelles pour événements religieux, cérémonies (Gamou, Magal, Ziarra), dahiras et complexes, puis de livrer les fichiers HD prêts pour l'impression.
+Une application web complète (PWA) conçue spécialement pour le **Graphiste de la Hadara** (Dakar, Sénégal). Elle permet de collecter les briefs créatifs des clients pour la conception d'affiches, bâches grand format, banderoles, flyers et identités visuelles pour événements religieux, cérémonies (Gamou, Magal, Ziarra), dahiras et complexes, puis de livrer les fichiers HD prêts pour l'impression.
 
 ---
 
@@ -17,60 +17,86 @@ Cette application résout le défi de la collecte d'informations imprécises ou 
 
 ## 🚀 2. Fonctionnalités Clés
 
-### 📱 A. Navigation Ergonomique (Menu Fixe en Bas)
-- Positionné en `fixed bottom-0 left-0 right-0 z-50` pour une accessibilité mobile optimale.
-- 4 onglets principaux :
-  1. **Accueil** : Présentation du studio et du processus de création.
-  2. **Portfolio** : Galerie de réalisations avec modèles indicatifs.
-  3. **Créer Brief** (Bouton central en surbrillance) : Formulaire guidé pas-à-pas.
-  4. **Graphiste** : Tableau de bord d'administration des briefs clients.
+### 📱 A. Progressive Web App (PWA) & Splash Screen
+- **Splash Screen Immersif** : Une page d'accueil d'impact mettant en valeur le logo officiel, la devise et l'identité de marque avant d'entrer dans l'application.
+- **PWA Intégrée** : Application installable sur mobile et bureau (manifest.webmanifest, icônes Apple et favicons haute définition, offline-ready).
 
 ### 📝 B. Formulaire de Brief Express (5 Étapes Fluides)
-- **Étape 1 : Contact Client** (Coordonnées, Dahira, WhatsApp, Ville/Pays).
-- **Étape 2 : Choix du Projet** (Affiche, Bâche grand format, Flyer, Pack Event, Contexte).
-- **Étape 3 : Titre & Contenu** (Titre principal en grandes lettres, textes complets à imprimer, publics cibles).
-- **Étape 4 : Style & Fichiers** (Ambiance visuelle, palette de couleurs, téléversement des logos & photos).
-- **Étape 5 : Devis & Validation** (Format technique, demande de devis FCFA, délai de livraison & validation).
+- Formulaire guidé de bout en bout pour extraire le besoin exact du client (Contact, Type de projet, Contenus textes, Ambiance, Devis/Délais).
+- Génération PDF automatique du dossier client en fin de parcours.
 
-### 💬 C. Intégration WhatsApp Instantanée
-- À la validation du brief, un bouton dédié génère automatiquement un lien WhatsApp (`wa.me`) pré-rempli avec la synthèse complète du dossier pour un échange immédiat avec le graphiste.
+### 💬 C. Notifications WhatsApp Instantanées (CallMeBot)
+- À la validation d'un brief, le backend Django envoie **automatiquement une alerte WhatsApp gratuite** à l'administrateur avec les détails essentiels (Client, Budget, Urgence) via l'API CallMeBot.
 
 ### 🤖 D. Assistant IA Directeur Artistique (Gemini)
 - Analyse automatique de la cohérence du brief.
 - Génération d'une **palette de couleurs recommandée** (codes HEX & dénominations).
-- Recommandations typographiques et de mise en page.
-- Rédaction d'une **proposition de devis au format WhatsApp** prête à être copiée-collée.
+- Recommandations typographiques et de mise en page, prêtes à être copiées-collées pour le devis.
 
 ### 📊 E. Tableau de Bord Graphiste & Bibliothèque de Modèles
-- **Gestion des Briefs Clients** : Suivi des statuts (*Nouveau Brief*, *Devis Envoyé*, *Acompte Reçu*, *En Création*, *En Validation*, *Terminé / Livré HD*), recherche rapide, édition du tarif devisé en FCFA et impression PDF de fiche brief.
-- **Bibliothèque de Modèles Récurrents** : Section dédiée permettant de créer, modifier et stocker des briefs préconfigurés pour les grands événements (Grand Magal, Gamou Annuel, Conférences & Ziarra, Appels aux dons Dahira).
-- **Génération Express de Projets** : Création en 1 clic d'un dossier client à partir d'un modèle type pré-rempli, avec compteur d'utilisation automatique.
+- **Gestion des Briefs Clients** : Statuts d'avancement, recherche rapide, édition des tarifs.
+- **Protection Anti-Spam** : Le backend sécurise la soumission des briefs (idempotence de 5 minutes) et auto-génère des identifiants (ex: `HADARA-2026-001`).
 
 ---
 
 ## 🛠️ 3. Architecture Technique
 
-- **Frontend** : React 18, TypeScript, Tailwind CSS, Lucide React (Icônes).
-- **Backend API** : Express.js (`server.ts`) avec routes REST `/api/briefs`.
-- **IA** : SDK `@google/genai` avec Gemini 2.5 Flash pour l'analyse des briefs.
-- **Port** : Binds sur `0.0.0.0:3000`.
+- **Frontend** : React 18, TypeScript, Tailwind CSS, Vite (PWA plugin).
+- **Backend API** : **Python / Django REST Framework** avec base de données SQLite3.
+- **IA** : API Google Gemini (`gemini-2.5-flash`).
+- **Notifications** : API HTTP CallMeBot pour WhatsApp.
 
 ---
 
-## 🔄 4. Workflow de Travail (Du Brief à la Livraison)
+## ⚙️ 4. Installation et Lancement en Local
 
-```
-[Client rempli le Brief] ➔ [Génération Référence HADARA-2026-XXX] ➔ [Notification WhatsApp / Admin]
-                                                                        │
-[Livraison des fichiers HD] ◄─ [Paiement Solde] ◄─ [Validation Visuel] ◄─ [Acompte 50% & Création]
+### Prérequis
+- Node.js (v18+)
+- Python 3.10+
+- Un compte Google AI Studio (clé API Gemini)
+- Une clé API CallMeBot (pour les alertes WhatsApp)
+
+### A. Frontend (React / Vite)
+```bash
+# Installation des dépendances
+npm install
+
+# Lancement du serveur de développement (Port 5173)
+npm run dev
 ```
 
-1. **Soumission** : Le client remplit le formulaire et envoie le résumé au graphiste par WhatsApp.
-2. **Analyse & Devis** : Le graphiste examine le besoin (avec l'aide de l'IA) et valide le tarif en FCFA.
-3. **Création** : Dès réception de l'acompte (50%), le travail de conception démarre.
-4. **Validation & Livraison HD** : Une fois le visuel validé et le solde réglé, le fichier numérique HD (PDF CMJN 300 DPI, PNG) est transmis au client pour impression chez son imprimeur.
+### B. Backend (Django)
+```bash
+# Se placer dans le dossier backend
+cd backend
+
+# Créer un environnement virtuel
+python3 -m venv venv
+source venv/bin/activate  # Sur Windows: venv\Scripts\activate
+
+# Installer les dépendances (django, djangorestframework, django-cors-headers, requests, google-genai)
+pip install django djangorestframework django-cors-headers requests google-genai
+
+# Effectuer les migrations de la base de données
+python manage.py migrate
+
+# Lancer le serveur Django (Port 8000)
+python manage.py runserver
+```
+
+### C. Variables d'Environnement & Sécurité (IMPORTANT)
+> 🚨 **Ne commitez JAMAIS vos clés API sur GitHub !**
+
+Dans le dossier `backend/`, créez un fichier nommé **`.env`** (ce fichier est ignoré par `.gitignore`). Remplissez-le avec vos propres clés privées :
+```env
+# backend/.env
+GEMINI_API_KEY=votre_cle_api_gemini_secrete
+CALLMEBOT_PHONE=+221770000000
+CALLMEBOT_API_KEY=votre_cle_api_callmebot_secrete
+```
+Un fichier `.env.example` est fourni dans le code pour vous servir de modèle.
 
 ---
 
 ## 📄 Licence & Crédits
-Développé pour **Graphiste de la Hadara** — Dakar, Sénégal.
+Développé pour **Le Graphiste de la Hadara** — Dakar, Sénégal.

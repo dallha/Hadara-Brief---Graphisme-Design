@@ -16,13 +16,14 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { SplashEntry } from './components/SplashEntry';
 import { BriefData, BriefStatus, AIAnalysisResult } from './types';
-import { Sparkles, Heart, Lock, Eye, EyeOff } from 'lucide-react';
+import { Lock, Eye, EyeOff } from 'lucide-react';
 import API_BASE from './config';
+import { useRouter, AppRoute } from './router';
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'hadara2026';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'splash' | 'home' | 'brief' | 'confirmation' | 'portfolio' | 'admin' | 'cv'>('splash');
+  const { route, navigate } = useRouter();
   const [briefs, setBriefs] = useState<BriefData[]>([]);
   const [currentBrief, setCurrentBrief] = useState<BriefData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,10 +50,12 @@ export default function App() {
     fetchBriefs();
   }, []);
 
-  // Scroll to top whenever active tab changes
+  // Fetch briefs when navigating to admin
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [activeTab]);
+    if (route === 'admin' && isAdminAuthenticated) {
+      fetchBriefs();
+    }
+  }, [route, isAdminAuthenticated]);
 
   // Handle Brief Submission
   const handleSubmitBrief = async (briefData: Omit<BriefData, 'id' | 'createdAt' | 'status'>) => {
@@ -70,8 +73,7 @@ export default function App() {
         if (createdBrief && createdBrief.id) {
           setCurrentBrief(createdBrief);
           setBriefs((prev) => [createdBrief, ...prev]);
-          setActiveTab('confirmation');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          navigate('confirmation');
           return;
         }
       }
@@ -86,8 +88,7 @@ export default function App() {
       };
       setBriefs((prev) => [newBrief, ...prev]);
       setCurrentBrief(newBrief);
-      setActiveTab('confirmation');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      navigate('confirmation');
     } catch (err) {
       console.error('Error submitting brief:', err);
     } finally {
@@ -115,12 +116,9 @@ export default function App() {
 
       if (res.ok) {
         const data = await res.json();
-        if (data.brief) {
-          setBriefs((prev) =>
-            prev.map((b) => (b.id === briefId ? data.brief : b))
-          );
-          return;
-        }
+        const updated = data.brief || data;
+        setBriefs((prev) => prev.map((b) => (b.id === briefId ? updated : b)));
+        return;
       }
 
       // Fallback
@@ -136,7 +134,7 @@ export default function App() {
     }
   };
 
-  // Run AI Brief Analysis via Gemini API server route
+  // Run AI Brief Analysis
   const handleAnalyzeWithAI = async (briefId: string): Promise<AIAnalysisResult | null> => {
     try {
       const res = await fetch(`${API_BASE}/api/briefs/${briefId}/analyze/`, {
@@ -145,7 +143,7 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         if (data.analysis) {
-          fetchBriefs(); // Refresh state
+          fetchBriefs();
           return data.analysis;
         }
       }
@@ -165,69 +163,78 @@ export default function App() {
     }
   };
 
-  if (activeTab === 'splash') {
+  const handleAdminLogin = () => {
+    if (adminPasswordInput === ADMIN_PASSWORD) {
+      sessionStorage.setItem('hadara_admin', 'true');
+      setIsAdminAuthenticated(true);
+      fetchBriefs();
+    } else {
+      setAdminPasswordError(true);
+    }
+  };
+
+  // ── SPLASH SCREEN ─────────────────────────────────────────────────────────
+  if (route === 'splash') {
     return (
-      <div className="min-h-screen bg-[#0d131f] text-[#F5F5DC] font-sans selection:bg-[#816C07] selection:text-[#0d131f]">
-        <SplashEntry onEnter={() => {
-          setActiveTab('home');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }} />
+      <div className="min-h-screen bg-[#0d131f] text-[#F5F5DC] font-sans">
+        <SplashEntry onEnter={() => navigate('home')} />
         <FloatingWhatsApp />
         <PWAReloadPrompt />
       </div>
     );
   }
 
+  // ── MAIN APP ──────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-amber-400 selection:text-slate-950 flex flex-col justify-between">
-      
+
       {/* Top Navigation */}
       <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        activeTab={route as any}
+        setActiveTab={(tab) => navigate(tab as AppRoute)}
         briefsCount={briefs.length}
         newBriefsCount={briefs.filter((b) => b.status === 'nouveau').length}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 pb-32 md:pb-16">
-        
-        {activeTab === 'home' && (
+
+        {route === 'home' && (
           <LandingHero
-            onStartBrief={() => setActiveTab('brief')}
-            onViewPortfolio={() => setActiveTab('portfolio')}
-            onOpenAdmin={() => setActiveTab('admin')}
-            onOpenCV={() => setActiveTab('cv')}
+            onStartBrief={() => navigate('brief')}
+            onViewPortfolio={() => navigate('portfolio')}
+            onOpenAdmin={() => navigate('admin')}
+            onOpenCV={() => navigate('cv')}
           />
         )}
 
-        {activeTab === 'brief' && (
+        {route === 'brief' && (
           <BriefForm
             onSubmitBrief={handleSubmitBrief}
             isSubmitting={isSubmitting}
-            onCancel={() => setActiveTab('home')}
+            onCancel={() => navigate('home')}
           />
         )}
 
-        {activeTab === 'confirmation' && currentBrief && (
+        {route === 'confirmation' && currentBrief && (
           <BriefConfirmation
             brief={currentBrief}
-            onNewBrief={() => setActiveTab('brief')}
-            onViewAllBriefs={() => setActiveTab('admin')}
+            onNewBrief={() => navigate('brief')}
+            onViewAllBriefs={() => navigate('admin')}
             onPrintBrief={(brief) => setPrintableBrief(brief)}
           />
         )}
 
-        {activeTab === 'portfolio' && (
+        {route === 'portfolio' && (
           <PortfolioShowcase
-            onSelectCategoryForBrief={(category) => {
-              setActiveTab('brief');
+            onSelectCategoryForBrief={() => {
+              navigate('brief');
               window.scrollTo({ top: 120, behavior: 'smooth' });
             }}
           />
         )}
 
-        {activeTab === 'admin' && (
+        {route === 'admin' && (
           isAdminAuthenticated ? (
             <AdminDashboard
               briefs={briefs}
@@ -245,25 +252,18 @@ export default function App() {
                     <Lock className="w-6 h-6 text-amber-400" />
                   </div>
                   <h2 className="text-xl font-bold text-slate-100">Espace Réservé</h2>
-                  <p className="text-slate-400 text-sm text-center">Cette section est réservée au graphiste. Veuillez entrer votre mot de passe.</p>
+                  <p className="text-slate-400 text-sm text-center">
+                    Cette section est réservée au graphiste. Veuillez entrer votre mot de passe.
+                  </p>
                 </div>
                 <div className="relative mb-3">
                   <input
                     type={showAdminPassword ? 'text' : 'password'}
                     value={adminPasswordInput}
                     onChange={e => { setAdminPasswordInput(e.target.value); setAdminPasswordError(false); }}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        if (adminPasswordInput === ADMIN_PASSWORD) {
-                          sessionStorage.setItem('hadara_admin', 'true');
-                          setIsAdminAuthenticated(true);
-                          fetchBriefs();
-                        } else {
-                          setAdminPasswordError(true);
-                        }
-                      }
-                    }}
+                    onKeyDown={e => { if (e.key === 'Enter') handleAdminLogin(); }}
                     placeholder="Mot de passe"
+                    autoFocus
                     className={`w-full bg-slate-800 border ${adminPasswordError ? 'border-red-500' : 'border-slate-600'} rounded-xl px-4 py-3 text-slate-100 pr-12 focus:outline-none focus:border-amber-400`}
                   />
                   <button onClick={() => setShowAdminPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
@@ -272,15 +272,7 @@ export default function App() {
                 </div>
                 {adminPasswordError && <p className="text-red-400 text-sm mb-3">Mot de passe incorrect.</p>}
                 <button
-                  onClick={() => {
-                    if (adminPasswordInput === ADMIN_PASSWORD) {
-                      sessionStorage.setItem('hadara_admin', 'true');
-                      setIsAdminAuthenticated(true);
-                      fetchBriefs();
-                    } else {
-                      setAdminPasswordError(true);
-                    }
-                  }}
+                  onClick={handleAdminLogin}
                   className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold transition-colors"
                 >
                   Accéder au tableau de bord
@@ -290,16 +282,10 @@ export default function App() {
           )
         )}
 
-        {activeTab === 'cv' && (
+        {route === 'cv' && (
           <ResumeCV
-            onGoToBrief={() => {
-              setActiveTab('brief');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onGoToPortfolio={() => {
-              setActiveTab('portfolio');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onGoToBrief={() => navigate('brief')}
+            onGoToPortfolio={() => navigate('portfolio')}
           />
         )}
 
@@ -344,9 +330,9 @@ export default function App() {
         <p className="text-slate-500 text-[11px]">
           Identités Visuelles, Logo, Communication (Affiches/Flyers), Bâches Grand Format, Packages Booster & Création de Sites Web
         </p>
-        {/* Accès discret Admin — très discret pour le public */}
+        {/* Accès discret Admin */}
         <button
-          onClick={() => setActiveTab('admin')}
+          onClick={() => navigate('admin')}
           className="opacity-10 hover:opacity-40 transition-opacity duration-300 text-slate-500 mt-2 cursor-default select-none"
           title="Espace réservé"
         >
@@ -354,12 +340,8 @@ export default function App() {
         </button>
       </footer>
 
-      {/* Persistent Floating WhatsApp Contact Button */}
       <FloatingWhatsApp />
-
-      {/* PWA Reload and Offline Ready Prompt */}
       <PWAReloadPrompt />
-
     </div>
   );
 }

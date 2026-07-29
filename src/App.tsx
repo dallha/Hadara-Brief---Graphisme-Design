@@ -53,7 +53,7 @@ export default function App() {
   const handleSubmitBrief = async (briefData: Omit<BriefData, 'id' | 'createdAt' | 'status'>) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/briefs', {
+      const res = await fetch('/api/briefs/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(briefData),

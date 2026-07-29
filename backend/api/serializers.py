@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Brief, Template
 
 class BriefSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
     createdAt = serializers.DateTimeField(source='created_at', read_only=True)
     clientName = serializers.CharField(source='client_name')
     cityCountry = serializers.CharField(source='city_country')

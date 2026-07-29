@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_BASE from '../config';
 import { 
   LayoutDashboard, 
   Search, 
@@ -151,7 +152,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const res = await fetch('/api/templates/');
+        const res = await fetch(`${API_BASE}/api/templates/`);
         if (res.ok) {
           const data = await res.json();
           if (data.templates && data.templates.length > 0) {
@@ -281,7 +282,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       if (editingTemplate) {
         // Update existing
         const updatedTpl = { ...editingTemplate, ...templateForm };
-        const res = await fetch(`/api/templates/${editingTemplate.id}/`, {
+        const res = await fetch(`${API_BASE}/api/templates/${editingTemplate.id}/`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(templateForm),
@@ -298,7 +299,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           id: `TPL-${templateForm.category.toUpperCase().slice(0, 4)}-${Date.now().toString().slice(-3)}`,
           usageCount: 0,
         };
-        const res = await fetch('/api/templates/', {
+        const res = await fetch(`${API_BASE}/api/templates/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newTpl),
@@ -323,7 +324,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleDeleteTemplate = async (id: string) => {
     if (!confirm('Voulez-vous vraiment supprimer ce modèle de la bibliothèque ?')) return;
     try {
-      await fetch(`/api/templates/${id}/`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/api/templates/${id}/`, { method: 'DELETE' });
       setTemplates((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error('Error deleting template:', err);
@@ -369,7 +370,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         await onAddNewBriefDirectly(briefToCreate);
       } else {
         // Direct POST API fallback
-        const res = await fetch('/api/briefs/', {
+        const res = await fetch(`${API_BASE}/api/briefs/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(briefToCreate),
@@ -381,7 +382,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       // Update usage count for template
       const updatedCount = (selectedTemplateForGen.usageCount || 0) + 1;
-      fetch(`/api/templates/${selectedTemplateForGen.id}/`, {
+      fetch(`${API_BASE}/api/templates/${selectedTemplateForGen.id}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usageCount: updatedCount }),

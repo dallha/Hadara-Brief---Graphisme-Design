@@ -16,7 +16,10 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { SplashEntry } from './components/SplashEntry';
 import { BriefData, BriefStatus, AIAnalysisResult } from './types';
-import { Sparkles, Heart } from 'lucide-react';
+import { Sparkles, Heart, Lock, Eye, EyeOff } from 'lucide-react';
+import API_BASE from './config';
+
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'hadara2026';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'splash' | 'home' | 'brief' | 'confirmation' | 'portfolio' | 'admin' | 'cv'>('splash');
@@ -24,16 +27,18 @@ export default function App() {
   const [currentBrief, setCurrentBrief] = useState<BriefData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [printableBrief, setPrintableBrief] = useState<BriefData | null>(null);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => sessionStorage.getItem('hadara_admin') === 'true');
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [adminPasswordError, setAdminPasswordError] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   // Fetch all briefs from server
   const fetchBriefs = async () => {
     try {
-      const res = await fetch('/api/briefs');
+      const res = await fetch(`${API_BASE}/api/briefs/`);
       if (res.ok) {
         const data = await res.json();
-        if (data.briefs) {
-          setBriefs(data.briefs);
-        }
+        setBriefs(Array.isArray(data) ? data : (data.briefs || []));
       }
     } catch (err) {
       console.warn('Could not connect to backend API, using client state fallback.');
@@ -53,7 +58,7 @@ export default function App() {
   const handleSubmitBrief = async (briefData: Omit<BriefData, 'id' | 'createdAt' | 'status'>) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/briefs/', {
+      const res = await fetch(`${API_BASE}/api/briefs/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(briefData),
@@ -61,9 +66,10 @@ export default function App() {
 
       if (res.ok) {
         const result = await res.json();
-        if (result.brief) {
-          setCurrentBrief(result.brief);
-          setBriefs((prev) => [result.brief, ...prev]);
+        const createdBrief = result.brief || result;
+        if (createdBrief && createdBrief.id) {
+          setCurrentBrief(createdBrief);
+          setBriefs((prev) => [createdBrief, ...prev]);
           setActiveTab('confirmation');
           window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
@@ -97,7 +103,7 @@ export default function App() {
     price?: number
   ) => {
     try {
-      const res = await fetch(`/api/briefs/${briefId}`, {
+      const res = await fetch(`${API_BASE}/api/briefs/${briefId}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -133,7 +139,7 @@ export default function App() {
   // Run AI Brief Analysis via Gemini API server route
   const handleAnalyzeWithAI = async (briefId: string): Promise<AIAnalysisResult | null> => {
     try {
-      const res = await fetch(`/api/briefs/${briefId}/analyze`, {
+      const res = await fetch(`${API_BASE}/api/briefs/${briefId}/analyze/`, {
         method: 'POST',
       });
       if (res.ok) {
@@ -152,7 +158,7 @@ export default function App() {
   // Delete brief
   const handleDeleteBrief = async (briefId: string) => {
     try {
-      await fetch(`/api/briefs/${briefId}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/api/briefs/${briefId}/`, { method: 'DELETE' });
       setBriefs((prev) => prev.filter((b) => b.id !== briefId));
     } catch (err) {
       console.error('Error deleting brief:', err);
@@ -222,14 +228,66 @@ export default function App() {
         )}
 
         {activeTab === 'admin' && (
-          <AdminDashboard
-            briefs={briefs}
-            onUpdateStatus={handleUpdateStatus}
-            onAnalyzeWithAI={handleAnalyzeWithAI}
-            onDeleteBrief={handleDeleteBrief}
-            onPrintBrief={(brief) => setPrintableBrief(brief)}
-            onAddNewBriefDirectly={handleSubmitBrief}
-          />
+          isAdminAuthenticated ? (
+            <AdminDashboard
+              briefs={briefs}
+              onUpdateStatus={handleUpdateStatus}
+              onAnalyzeWithAI={handleAnalyzeWithAI}
+              onDeleteBrief={handleDeleteBrief}
+              onPrintBrief={(brief) => setPrintableBrief(brief)}
+              onAddNewBriefDirectly={handleSubmitBrief}
+            />
+          ) : (
+            <div className="min-h-[60vh] flex items-center justify-center">
+              <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 w-full max-w-md shadow-2xl">
+                <div className="flex flex-col items-center gap-4 mb-6">
+                  <div className="w-14 h-14 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center">
+                    <Lock className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-100">Espace Réservé</h2>
+                  <p className="text-slate-400 text-sm text-center">Cette section est réservée au graphiste. Veuillez entrer votre mot de passe.</p>
+                </div>
+                <div className="relative mb-3">
+                  <input
+                    type={showAdminPassword ? 'text' : 'password'}
+                    value={adminPasswordInput}
+                    onChange={e => { setAdminPasswordInput(e.target.value); setAdminPasswordError(false); }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        if (adminPasswordInput === ADMIN_PASSWORD) {
+                          sessionStorage.setItem('hadara_admin', 'true');
+                          setIsAdminAuthenticated(true);
+                          fetchBriefs();
+                        } else {
+                          setAdminPasswordError(true);
+                        }
+                      }
+                    }}
+                    placeholder="Mot de passe"
+                    className={`w-full bg-slate-800 border ${adminPasswordError ? 'border-red-500' : 'border-slate-600'} rounded-xl px-4 py-3 text-slate-100 pr-12 focus:outline-none focus:border-amber-400`}
+                  />
+                  <button onClick={() => setShowAdminPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                    {showAdminPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {adminPasswordError && <p className="text-red-400 text-sm mb-3">Mot de passe incorrect.</p>}
+                <button
+                  onClick={() => {
+                    if (adminPasswordInput === ADMIN_PASSWORD) {
+                      sessionStorage.setItem('hadara_admin', 'true');
+                      setIsAdminAuthenticated(true);
+                      fetchBriefs();
+                    } else {
+                      setAdminPasswordError(true);
+                    }
+                  }}
+                  className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold transition-colors"
+                >
+                  Accéder au tableau de bord
+                </button>
+              </div>
+            </div>
+          )
         )}
 
         {activeTab === 'cv' && (

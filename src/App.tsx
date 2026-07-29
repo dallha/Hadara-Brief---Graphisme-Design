@@ -344,6 +344,14 @@ export default function App() {
         <p className="text-slate-500 text-[11px]">
           Identités Visuelles, Logo, Communication (Affiches/Flyers), Bâches Grand Format, Packages Booster & Création de Sites Web
         </p>
+        {/* Accès discret Admin — invisible pour le public */}
+        <button
+          onClick={() => setActiveTab('admin')}
+          className="opacity-0 hover:opacity-20 transition-opacity duration-500 text-[10px] text-slate-600 mt-1 cursor-default"
+          title="Espace réservé"
+        >
+          ©
+        </button>
       </footer>
 
       {/* Persistent Floating WhatsApp Contact Button */}

@@ -1,4 +1,9 @@
 import React from 'react';
+import logoBleu from '../assets/logos/logo-bleu.png';
+import logoOr from '../assets/logos/logo-or.png';
+import logoH from '../assets/logos/logo-h.png';
+import logoPicto from '../assets/logos/logo-picto.png';
+import logoDefault from '../assets/logos/logo.png';
 
 interface HadaraLogoProps {
   className?: string;
@@ -16,12 +21,12 @@ export const HadaraLogo: React.FC<HadaraLogoProps> = ({ className = '', size = '
 
   const getLogoSrc = () => {
     switch (variant) {
-      case 'bleu': return '/logos/logo-bleu.png';
-      case 'or': return '/logos/logo-or.png';
-      case 'h': return '/logos/logo-h.png';
-      case 'picto': return '/logos/logo-picto.png';
-      case 'default': return '/logos/logo.png';
-      default: return '/logos/logo-or.png';
+      case 'bleu': return logoBleu;
+      case 'or': return logoOr;
+      case 'h': return logoH;
+      case 'picto': return logoPicto;
+      case 'default': return logoDefault;
+      default: return logoOr;
     }
   };
 

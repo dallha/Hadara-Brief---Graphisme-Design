@@ -286,7 +286,7 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
 
               <div className="flex items-center justify-end">
                 <button
-                  onClick={handleSaveChanges}
+                  onClick={handleSaveStatus}
                   disabled={isSaving}
                   className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition-all"
                 >

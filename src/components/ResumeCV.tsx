@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { HadaraLogo } from './HadaraLogo';
 import { 
   User, 
@@ -297,8 +298,16 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
       {/* ========================================================================= */}
       {/* MODE 1: INTERACTIVE MINI-SITE CV */}
       {/* ========================================================================= */}
-      {viewMode === 'interactive' && (
-        <div className="space-y-12 print:hidden">
+      <AnimatePresence mode="wait">
+        {viewMode === 'interactive' && (
+          <motion.div
+            key="interactive"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.4 }}
+            className="space-y-12 print:hidden"
+          >
           
           {/* Hero Header Card */}
           <section className="relative overflow-hidden p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 border border-emerald-800/60 shadow-2xl space-y-8">
@@ -307,7 +316,7 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             {/* Quranic Verse Banner */}
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-center space-y-1">
               <p className="text-amber-300 font-serif text-lg sm:text-xl font-bold tracking-wider dir-rtl" lang="ar">
-                ﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾
+                <span dir="rtl" lang="ar" className="inline-block">﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾</span>
               </p>
               <p className="text-amber-200/90 text-xs italic font-serif">
                 « Ma réussite ne dépend que d’Allah. » (Sourate Hûd, verset 88)
@@ -485,9 +494,18 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </button>
           </div>
 
-          {/* TAB 1: DOMAINES D'EXPERTISE & LOGICIELS */}
-          {activeTab === 'expertise' && (
-            <div className="space-y-10">
+          {/* TAB CONTENT AREA */}
+          <AnimatePresence mode="wait">
+            {/* TAB 1: DOMAINES D'EXPERTISE & LOGICIELS */}
+            {activeTab === 'expertise' && (
+              <motion.div
+                key="expertise"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-10"
+              >
               
               {/* Domaines d'Expertise */}
               <div className="space-y-4">
@@ -583,12 +601,19 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
 
               </div>
 
-            </div>
-          )}
+              </motion.div>
+            )}
 
-          {/* TAB 2: EXPÉRIENCES PROFESSIONNELLES */}
-          {activeTab === 'experience' && (
-            <div className="space-y-6">
+            {/* TAB 2: EXPÉRIENCES PROFESSIONNELLES */}
+            {activeTab === 'experience' && (
+              <motion.div
+                key="experience"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
               <h3 className="text-lg font-serif font-bold text-slate-100 flex items-center space-x-2">
                 <Briefcase className="w-5 h-5 text-amber-400" />
                 <span>Expériences Professionnelles</span>
@@ -627,12 +652,19 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+              </motion.div>
+            )}
 
-          {/* TAB 3: FORMATIONS & CERTIFICATIONS */}
-          {activeTab === 'education' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* TAB 3: FORMATIONS & CERTIFICATIONS */}
+            {activeTab === 'education' && (
+              <motion.div
+                key="education"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-8"
+              >
               
               {/* Formations */}
               <div className="space-y-4">
@@ -681,12 +713,19 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
                 </div>
               </div>
 
-            </div>
-          )}
+              </motion.div>
+            )}
 
-          {/* TAB 4: LANGUES, QUALITÉS & INTÉRÊTS */}
-          {activeTab === 'qualities' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* TAB 4: LANGUES, QUALITÉS & INTÉRÊTS */}
+            {activeTab === 'qualities' && (
+              <motion.div
+                key="qualities"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              >
               
               {/* Langues */}
               <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
@@ -742,17 +781,25 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
                 </ul>
               </div>
 
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        </div>
+        </motion.div>
       )}
 
       {/* ========================================================================= */}
       {/* MODE 2: CLASSIC ATS SINGLE-PAGE PRINTABLE CV */}
       {/* ========================================================================= */}
       {viewMode === 'ats' && (
-        <div className="space-y-6">
+        <motion.div
+          key="ats"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.4 }}
+          className="space-y-6"
+        >
           
           <div className="flex items-center justify-between bg-slate-900 p-4 rounded-2xl border border-slate-800 print:hidden">
             <div className="flex items-center space-x-2 text-xs text-slate-300">
@@ -774,7 +821,7 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             {/* Verse Citation */}
             <div className="text-center pb-2 border-b border-slate-200">
               <p className="font-serif text-sm font-bold text-slate-800">
-                ﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾
+                <span dir="rtl" lang="ar" className="inline-block">﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾</span>
               </p>
               <p className="text-[10px] text-slate-600 italic">
                 « Ma réussite ne dépend que d’Allah. » (Sourate Hûd, verset 88)
@@ -921,8 +968,9 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </div>
 
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
     </div>
   );

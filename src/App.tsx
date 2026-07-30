@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import { LandingHero } from './components/LandingHero';
 import { BriefForm } from './components/BriefForm';
@@ -17,10 +18,10 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { SplashEntry } from './components/SplashEntry';
 import { BriefData, BriefStatus, AIAnalysisResult } from './types';
-import { Lock, Eye, EyeOff } from 'lucide-react';
+import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
 import API_BASE from './config';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'hadara2026';
 
 // Derive active tab from URL path for Navbar highlighting
 function pathToTab(pathname: string): string {
@@ -41,10 +42,58 @@ export default function App() {
   const [currentBrief, setCurrentBrief] = useState<BriefData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [printableBrief, setPrintableBrief] = useState<BriefData | null>(null);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => sessionStorage.getItem('hadara_admin') === 'true');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => !!sessionStorage.getItem('hadara_admin_token'));
+  const [adminUsernameInput, setAdminUsernameInput] = useState('');
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [adminPasswordError, setAdminPasswordError] = useState(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
+
+  // Brute-force state
+  const [failedAttempts, setFailedAttempts] = useState(() => parseInt(localStorage.getItem('admin_failed_attempts') || '0', 10));
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(() => {
+    const lockout = localStorage.getItem('admin_lockout_until');
+    return lockout ? parseInt(lockout, 10) : null;
+  });
+  const [lockoutRemaining, setLockoutRemaining] = useState(0);
+
+  // Countdown timer
+  useEffect(() => {
+    if (lockoutUntil) {
+      const interval = setInterval(() => {
+        const remaining = Math.max(0, Math.ceil((lockoutUntil - Date.now()) / 1000));
+        setLockoutRemaining(remaining);
+        if (remaining === 0) {
+          setLockoutUntil(null);
+          setFailedAttempts(0);
+          localStorage.removeItem('admin_lockout_until');
+          localStorage.removeItem('admin_failed_attempts');
+          clearInterval(interval);
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [lockoutUntil]);
+
+  // Auto-logout
+  useEffect(() => {
+    if (!isAdminAuthenticated) return;
+    let inactivityTimer: NodeJS.Timeout;
+    const resetTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        setIsAdminAuthenticated(false);
+        sessionStorage.removeItem('hadara_admin_token');
+        navigate('/');
+      }, 30 * 60 * 1000);
+    };
+    const events = ['mousemove', 'keydown', 'mousedown', 'touchstart'];
+    events.forEach(e => window.addEventListener(e, resetTimer));
+    resetTimer();
+    return () => {
+      events.forEach(e => window.removeEventListener(e, resetTimer));
+      clearTimeout(inactivityTimer);
+    };
+  }, [isAdminAuthenticated, navigate]);
 
   const goTo = (tab: string) => {
     const routes: Record<string, string> = {
@@ -88,17 +137,19 @@ export default function App() {
           setCurrentBrief(created);
           setBriefs(prev => [created, ...prev]);
           navigate('/confirmation');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
       }
       // Fallback
       const fallback: BriefData = {
-        ...briefData, id: `HADARA-2026-${String(briefs.length + 1).padStart(3, '0')}`,
+        ...briefData, id: `HDR-${String(briefs.length + 1).padStart(4, '0')}`,
         createdAt: new Date().toISOString(), status: 'nouveau',
       };
       setBriefs(prev => [fallback, ...prev]);
       setCurrentBrief(fallback);
       navigate('/confirmation');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('Error submitting brief:', err);
     } finally {
@@ -128,17 +179,52 @@ export default function App() {
 
   const handleDeleteBrief = async (briefId: string) => {
     try {
-      await fetch(`${API_BASE}/api/briefs/${briefId}/`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/api/briefs/${briefId}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token')}` } });
       setBriefs(prev => prev.filter(b => b.id !== briefId));
     } catch (err) { console.error(err); }
   };
 
-  const handleAdminLogin = () => {
-    if (adminPasswordInput === ADMIN_PASSWORD) {
-      sessionStorage.setItem('hadara_admin', 'true');
-      setIsAdminAuthenticated(true);
-      fetchBriefs();
-    } else { setAdminPasswordError(true); }
+  const handleAdminLogin = async () => {
+    if (lockoutUntil && Date.now() < lockoutUntil) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: adminUsernameInput, password: adminPasswordInput })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        sessionStorage.setItem('hadara_admin_token', data.token);
+        setIsAdminAuthenticated(true);
+        setFailedAttempts(0);
+        localStorage.removeItem('admin_failed_attempts');
+        fetchBriefs();
+      } else if (res.status === 429) {
+        // Backend Rate Limit triggered
+        const lTime = Date.now() + 15 * 60 * 1000;
+        setLockoutUntil(lTime);
+        localStorage.setItem('admin_lockout_until', lTime.toString());
+      } else {
+        setAdminPasswordError(true);
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+        localStorage.setItem('admin_failed_attempts', newAttempts.toString());
+        if (newAttempts >= 5) {
+          const lTime = Date.now() + 15 * 60 * 1000;
+          setLockoutUntil(lTime);
+          localStorage.setItem('admin_lockout_until', lTime.toString());
+        }
+      }
+    } catch (err) {
+      setAdminPasswordError(true);
+    }
+  };
+
+  const handleAdminLogout = () => {
+    sessionStorage.removeItem('hadara_admin_token');
+    setIsAdminAuthenticated(false);
+    navigate('/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // ── SPLASH SCREEN ─────────────────────────────────────────────
@@ -153,33 +239,87 @@ export default function App() {
 
   // ── ADMIN LOCK SCREEN ─────────────────────────────────────────
   const AdminLockScreen = (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 w-full max-w-md shadow-2xl">
-        <div className="flex flex-col items-center gap-4 mb-6">
-          <div className="w-14 h-14 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center">
-            <Lock className="w-6 h-6 text-amber-400" />
+    <div className="min-h-[60vh] flex items-center justify-center px-4">
+      <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
+        
+        {/* Glow effect */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col items-center gap-4 mb-8 relative">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#816C07] to-amber-600 p-[2px] shadow-lg shadow-amber-500/20">
+            <div className="w-full h-full rounded-[22px] bg-slate-900 flex items-center justify-center">
+              <Lock className="w-8 h-8 text-amber-400" />
+            </div>
           </div>
-          <h2 className="text-xl font-bold text-slate-100">Espace Réservé</h2>
-          <p className="text-slate-400 text-sm text-center">Cette section est réservée au graphiste.</p>
+          <div className="text-center space-y-1">
+            <h2 className="text-3xl font-serif font-bold text-slate-100">La Hadara</h2>
+            <p className="text-amber-500/90 font-mono text-sm tracking-widest uppercase font-bold">Studio Access</p>
+            <p className="text-slate-400 text-xs mt-2 max-w-[250px] mx-auto">Veuillez vous identifier pour accéder à l'administration sécurisée.</p>
+          </div>
         </div>
-        <div className="relative mb-3">
-          <input
-            type={showAdminPassword ? 'text' : 'password'}
-            value={adminPasswordInput}
-            onChange={e => { setAdminPasswordInput(e.target.value); setAdminPasswordError(false); }}
-            onKeyDown={e => { if (e.key === 'Enter') handleAdminLogin(); }}
-            placeholder="Mot de passe"
-            autoFocus
-            className={`w-full bg-slate-800 border ${adminPasswordError ? 'border-red-500' : 'border-slate-600'} rounded-xl px-4 py-3 text-slate-100 pr-12 focus:outline-none focus:border-amber-400`}
-          />
-          <button onClick={() => setShowAdminPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
-            {showAdminPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-          </button>
-        </div>
-        {adminPasswordError && <p className="text-red-400 text-sm mb-3">Mot de passe incorrect.</p>}
-        <button onClick={handleAdminLogin} className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold transition-colors">
-          Accéder au tableau de bord
-        </button>
+
+        {lockoutUntil ? (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-400 mx-auto flex items-center justify-center mb-2">
+              <Lock className="w-6 h-6" />
+            </div>
+            <p className="text-red-400 font-bold">Sécurité activée</p>
+            <p className="text-slate-300 text-sm">Trop de tentatives. Veuillez patienter :</p>
+            <p className="text-3xl font-mono font-bold text-red-300">
+              {Math.floor(lockoutRemaining / 60).toString().padStart(2, '0')}:{(lockoutRemaining % 60).toString().padStart(2, '0')}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4 relative">
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <input
+                type="text"
+                value={adminUsernameInput}
+                onChange={e => { setAdminUsernameInput(e.target.value); setAdminPasswordError(false); }}
+                onKeyDown={e => { if (e.key === 'Enter') handleAdminLogin(); }}
+                placeholder="Email ou nom d'utilisateur"
+                autoFocus
+                className="w-full bg-slate-950/50 border border-slate-700 rounded-2xl px-5 py-4 pl-12 text-slate-100 focus:outline-none focus:border-amber-400 transition-colors placeholder:text-slate-600"
+              />
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <input
+                type={showAdminPassword ? 'text' : 'password'}
+                value={adminPasswordInput}
+                onChange={e => { setAdminPasswordInput(e.target.value); setAdminPasswordError(false); }}
+                onKeyDown={e => { if (e.key === 'Enter') handleAdminLogin(); }}
+                placeholder="Mot de passe d'administration"
+                className={`w-full bg-slate-950/50 border ${adminPasswordError ? 'border-red-500' : 'border-slate-700'} rounded-2xl px-5 py-4 pl-12 text-slate-100 pr-12 focus:outline-none focus:border-amber-400 transition-colors placeholder:text-slate-600`}
+              />
+              <button 
+                onClick={() => setShowAdminPassword(p => !p)} 
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                title={showAdminPassword ? "Masquer" : "Afficher"}
+              >
+                {showAdminPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            
+            {adminPasswordError && (
+              <p className="text-red-400 text-sm px-1 animate-pulse">Mot de passe incorrect. Tentative {failedAttempts}/5</p>
+            )}
+            
+            <button 
+              onClick={handleAdminLogin} 
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-110 text-slate-950 font-extrabold shadow-xl shadow-amber-500/20 active:scale-[0.98] transition-all"
+            >
+              Déverrouiller le panneau
+            </button>
+            <button
+              onClick={() => goTo('home')}
+              className="w-full py-3 rounded-2xl bg-slate-800/50 hover:bg-slate-800 text-slate-300 font-medium transition-colors border border-transparent hover:border-slate-700 text-sm"
+            >
+              Retourner au site public
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -194,61 +334,95 @@ export default function App() {
         newBriefsCount={briefs.filter(b => b.status === 'nouveau').length}
       />
 
-      <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 pb-32 md:pb-16">
-        <Routes>
-          <Route path="/" element={
-            <LandingHero
-              onStartBrief={() => goTo('brief')}
-              onViewPortfolio={() => goTo('portfolio')}
-              onOpenAdmin={() => goTo('admin')}
-              onOpenCV={() => goTo('cv')}
-            />
-          } />
-          <Route path="/brief" element={
-            <BriefForm onSubmitBrief={handleSubmitBrief} isSubmitting={isSubmitting} onCancel={() => goTo('home')} />
-          } />
-          <Route path="/portfolio" element={
-            <PortfolioShowcase onSelectCategoryForBrief={() => goTo('brief')} />
-          } />
-          <Route path="/cv" element={
-            <ResumeCV onGoToBrief={() => goTo('brief')} onGoToPortfolio={() => goTo('portfolio')} />
-          } />
-          <Route path="/confirmation" element={
-            currentBrief
-              ? <BriefConfirmation brief={currentBrief} onNewBrief={() => goTo('brief')} onViewAllBriefs={() => goTo('admin')} onPrintBrief={b => setPrintableBrief(b)} />
-              : <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
-          } />
-          <Route path="/admin" element={
-            isAdminAuthenticated
-              ? <AdminDashboard briefs={briefs} onUpdateStatus={handleUpdateStatus} onAnalyzeWithAI={handleAnalyzeWithAI} onDeleteBrief={handleDeleteBrief} onPrintBrief={b => setPrintableBrief(b)} onAddNewBriefDirectly={handleSubmitBrief} />
-              : AdminLockScreen
-          } />
-          <Route path="*" element={<LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />} />
-        </Routes>
+      <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 pb-32 md:pb-16 relative">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
+              </motion.div>
+            } />
+            <Route path="/brief" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                <BriefForm onSubmitBrief={handleSubmitBrief} isSubmitting={isSubmitting} onCancel={() => goTo('home')} />
+              </motion.div>
+            } />
+            <Route path="/portfolio" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                <PortfolioShowcase onSelectCategoryForBrief={() => goTo('brief')} />
+              </motion.div>
+            } />
+            <Route path="/cv" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                <ResumeCV onGoToBrief={() => goTo('brief')} onGoToPortfolio={() => goTo('portfolio')} />
+              </motion.div>
+            } />
+            <Route path="/confirmation" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                {currentBrief
+                  ? <BriefConfirmation brief={currentBrief} onNewBrief={() => goTo('brief')} onViewAllBriefs={() => goTo('admin')} onPrintBrief={b => setPrintableBrief(b)} />
+                  : <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
+                }
+              </motion.div>
+            } />
+            <Route path="/admin" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                {isAdminAuthenticated
+                  ? <ErrorBoundary fallbackLabel="AdminDashboard"><AdminDashboard briefs={briefs} onUpdateStatus={handleUpdateStatus} onAnalyzeWithAI={handleAnalyzeWithAI} onDeleteBrief={handleDeleteBrief} onPrintBrief={b => setPrintableBrief(b)} onAddNewBriefDirectly={handleSubmitBrief} onLogout={handleAdminLogout} /></ErrorBoundary>
+                  : AdminLockScreen
+                }
+              </motion.div>
+            } />
+            <Route path="*" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
+              </motion.div>
+            } />
+          </Routes>
+        </AnimatePresence>
       </main>
 
       {printableBrief && <PrintableBrief brief={printableBrief} onClose={() => setPrintableBrief(null)} />}
 
-      <footer className="border-t border-slate-900 bg-slate-950/80 pt-8 pb-32 text-center text-xs text-slate-400 space-y-3">
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <span className="font-serif font-bold text-amber-400">Graphiste de la Hadara — El Hadji Abdoulaye Niass</span>
-          <span>•</span><span>Dakar, Sénégal</span><span>•</span>
-          <a href="https://wa.me/221776232741" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline font-bold">+221 77 623 27 41</a>
-          <span>|</span>
-          <a href="tel:+221763756363" className="text-emerald-400 hover:underline font-bold">+221 76 375 63 63</a>
-          <span>•</span>
-          <a href="mailto:mrniass@gmail.com" className="text-amber-300 hover:underline font-semibold">mrniass@gmail.com</a>
-          <span>|</span>
-          <a href="mailto:abouniass@hotmail.com" className="text-amber-300 hover:underline font-semibold">abouniass@hotmail.com</a>
-          <span>•</span>
-          <a href="https://www.behance.net/mrniasse" target="_blank" rel="noopener noreferrer" className="px-2.5 py-1 rounded-md bg-[#335A79] border border-[#816C07] text-[#F5F5DC] hover:bg-[#284963] font-serif font-bold transition-all inline-flex items-center space-x-1">
-            <span className="text-[#816C07]">🎨</span><span>behance.net/mrniasse</span>
+      <footer className="border-t border-slate-800 bg-slate-950/80 backdrop-blur-md pt-8 pb-32 text-center text-xs text-slate-400 space-y-4">
+        <div className="flex flex-col items-center justify-center space-y-2 mb-4">
+          <p className="font-serif font-bold text-amber-400 text-sm sm:text-base tracking-wide">
+            Graphiste de la Hadara — El Hadji Abdoulaye Niass
+          </p>
+          <p className="text-slate-500 font-medium">
+            Identités Visuelles, Logos, Communication, Bâches Grand Format & Création de Sites Web
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-medium">
+          <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-slate-500" /> Dakar, Sénégal</span>
+          <span className="hidden sm:inline text-slate-700">•</span>
+          <a href="https://wa.me/221776232741" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 transition-colors">
+            <Phone className="w-3.5 h-3.5" /> +221 77 623 27 41
+          </a>
+          <span className="hidden sm:inline text-slate-700">•</span>
+          <a href="tel:+221763756363" className="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 transition-colors">
+            <Phone className="w-3.5 h-3.5" /> +221 76 375 63 63
+          </a>
+          <span className="hidden sm:inline text-slate-700">•</span>
+          <a href="mailto:mrniass@gmail.com" className="flex items-center gap-1.5 text-amber-300 hover:text-amber-200 transition-colors">
+            <Mail className="w-3.5 h-3.5" /> mrniass@gmail.com
           </a>
         </div>
-        <p className="text-slate-500 text-[11px]">Identités Visuelles, Logo, Communication, Bâches Grand Format, Packages Booster & Création de Sites Web</p>
-        <button onClick={() => goTo('admin')} className="opacity-10 hover:opacity-40 transition-opacity duration-300 text-slate-500 mt-2 cursor-default select-none" title="Espace réservé">
-          <Lock className="w-3 h-3 inline" />
-        </button>
+
+        <div className="flex items-center justify-center pt-4">
+          <a href="https://www.behance.net/mrniasse" target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white font-bold transition-all inline-flex items-center gap-2">
+            <Palette className="w-4 h-4 text-amber-400" />
+            <span>behance.net/mrniasse</span>
+          </a>
+        </div>
+
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-slate-500">
+          <p>© {new Date().getFullYear()} Hadara Brief. Tous droits réservés.</p>
+          <button onClick={() => goTo('admin')} className="p-2 rounded-full hover:bg-slate-800 transition-colors group" title="Espace réservé">
+            <Lock className="w-3.5 h-3.5 text-slate-600 group-hover:text-amber-400 transition-colors" />
+          </button>
+        </div>
       </footer>
 
       <FloatingWhatsApp />

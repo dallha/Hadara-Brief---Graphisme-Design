@@ -1,6 +1,6 @@
-// URL de base de l'API backend
-// En production, utilise la variable d'environnement VITE_API_URL
-// En développement local, utilise le proxy Vite (vide = relatif)
-const API_BASE = import.meta.env.VITE_API_URL || '';
+// Dynamic API Base depending on the environment
+const API_BASE = import.meta.env.DEV 
+  ? 'http://127.0.0.1:8000' 
+  : 'https://hadara-backend.onrender.com';
 
 export default API_BASE;

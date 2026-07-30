@@ -34,10 +34,22 @@ import {
   FileImage,
   Maximize2,
   CreditCard,
-  Monitor
+  Monitor,
+  Users,
+  Settings,
+  Download,
+  LogOut
 } from 'lucide-react';
 import { BriefData, BriefStatus, AIAnalysisResult, BriefTemplate, ProjectType, TechnicalFormat, StylePreference, BudgetRange } from '../types';
 import { INITIAL_TEMPLATES } from '../data/templateData';
+import { AnalyticsTab } from './admin/AnalyticsTab';
+import { CRMTab } from './admin/CRMTab';
+import { SettingsTab } from './admin/SettingsTab';
+import { BriefDetailsModal } from './admin/modals/BriefDetailsModal';
+import { NewBriefModal } from './admin/modals/NewBriefModal';
+import { TemplateModals } from './admin/modals/TemplateModals';
+
+
 
 interface AdminDashboardProps {
   briefs: BriefData[];
@@ -46,6 +58,7 @@ interface AdminDashboardProps {
   onDeleteBrief: (briefId: string) => Promise<void>;
   onPrintBrief: (brief: BriefData) => void;
   onAddNewBriefDirectly?: (briefData: Omit<BriefData, 'id' | 'createdAt' | 'status'>) => Promise<void>;
+  onLogout?: () => void;
 }
 
 const STATUS_CONFIG: Record<BriefStatus, { label: string; bg: string; text: string; border: string }> = {
@@ -58,6 +71,7 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; bg: string; text: stri
 };
 
 const getProjectTypeBadge = (type: ProjectType | string) => {
+  if (!type) type = 'autre';
   switch (type.toLowerCase()) {
     case 'affiche':
       return { label: 'Affiche', icon: <FileImage className="w-3.5 h-3.5 text-[#816C07]" />, bg: 'bg-[#816C07]/15 border-[#816C07]/30 text-[#F5F5DC]' };
@@ -83,9 +97,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onDeleteBrief,
   onPrintBrief,
   onAddNewBriefDirectly,
+  onLogout,
 }) => {
   // Main Navigation Tabs
-  const [adminTab, setAdminTab] = useState<'briefs' | 'templates'>('briefs');
+  const [adminTab, setAdminTab] = useState<'analytics' | 'briefs' | 'crm' | 'templates' | 'settings'>('briefs');
+  
+  // New Brief Admin Modal
+  const [isNewBriefModalOpen, setIsNewBriefModalOpen] = useState(false);
+  const [newBriefForm, setNewBriefForm] = useState<Partial<BriefData>>({
+    clientName: '', whatsapp: '', projectType: 'affiche', mainTitle: '', budgetRange: 'sur_devis'
+  });
 
   // Briefs Tab State
   const [searchTerm, setSearchTerm] = useState('');
@@ -113,14 +134,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [selectedTemplateForGen, setSelectedTemplateForGen] = useState<BriefTemplate | null>(null);
 
   // WhatsApp Availability Status State ('available' | 'busy')
-  const [whatsappStatus, setWhatsappStatus] = useState<'available' | 'busy'>(() => {
-    return (localStorage.getItem('hadara_designer_whatsapp_status') as 'available' | 'busy') || 'available';
-  });
+  const [whatsappStatus, setWhatsappStatus] = useState<'available' | 'busy'>(
+    () => (localStorage.getItem('hadara_designer_whatsapp_status') as 'available' | 'busy') || 'available'
+  );
 
   const handleUpdateWhatsAppStatus = (newStatus: 'available' | 'busy') => {
     setWhatsappStatus(newStatus);
     localStorage.setItem('hadara_designer_whatsapp_status', newStatus);
     window.dispatchEvent(new Event('whatsappStatusChange'));
+  };
+
+  const exportCSV = () => {
+    const headers = ['ID', 'Date', 'Client', 'WhatsApp', 'Projet', 'Statut', 'Prix FCFA'];
+    const rows = briefs.map(b => [b.id, b.createdAt, b.clientName, b.whatsapp, b.projectType, b.status, b.quotedPriceFCFA || 0]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "hadara_briefs.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const [quickGenForm, setQuickGenForm] = useState({
@@ -167,11 +201,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   }, []);
 
   const filteredBriefs = briefs.filter((b) => {
+    const sTerm = searchTerm.toLowerCase();
     const matchesSearch = 
-      b.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.mainTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.whatsapp.includes(searchTerm);
+      (b.clientName && b.clientName.toLowerCase().includes(sTerm)) ||
+      (b.id && b.id.toLowerCase().includes(sTerm)) ||
+      (b.mainTitle && b.mainTitle.toLowerCase().includes(sTerm)) ||
+      (b.whatsapp && b.whatsapp.includes(searchTerm));
 
     const matchesStatus = statusFilter === 'all' || b.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -182,11 +217,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Filter templates
   const filteredTemplates = templates.filter((tpl) => {
-    const matchesCategory = templateCategoryFilter === 'all' || tpl.category.toLowerCase() === templateCategoryFilter.toLowerCase();
+    const matchesCategory = templateCategoryFilter === 'all' || (tpl.category && tpl.category.toLowerCase() === templateCategoryFilter.toLowerCase());
     const matchesSearch = 
-      tpl.title.toLowerCase().includes(templateSearchTerm.toLowerCase()) ||
-      tpl.description.toLowerCase().includes(templateSearchTerm.toLowerCase()) ||
-      tpl.defaultMainTitle.toLowerCase().includes(templateSearchTerm.toLowerCase());
+      (tpl.title && tpl.title.toLowerCase().includes(templateSearchTerm.toLowerCase())) ||
+      (tpl.description && tpl.description.toLowerCase().includes(templateSearchTerm.toLowerCase())) ||
+      (tpl.defaultMainTitle && tpl.defaultMainTitle.toLowerCase().includes(templateSearchTerm.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
@@ -416,31 +451,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </h2>
           </div>
 
-          {/* Navigation Tabs (Demandes Clients vs Bibliothèque de modèles) */}
-          <div className="flex items-center space-x-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 w-full sm:w-auto">
-            <button
-              onClick={() => setAdminTab('briefs')}
-              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center space-x-2 ${
-                adminTab === 'briefs'
-                  ? 'bg-amber-400 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-              }`}
-            >
-              <FileText className="w-4 h-4" />
-              <span>Demandes Clients ({briefs.length})</span>
-            </button>
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+            {/* Navigation Tabs */}
+            <div className="flex flex-wrap items-center gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 w-full sm:w-auto">
+              {[
+                { id: 'analytics', icon: LayoutDashboard, label: 'Analytics' },
+                { id: 'briefs', icon: FileText, label: 'Briefs' },
+                { id: 'crm', icon: Users, label: 'CRM' },
+                { id: 'templates', icon: BookOpen, label: 'Modèles' },
+                { id: 'settings', icon: Settings, label: 'Réglages' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setAdminTab(tab.id as any)}
+                  className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center space-x-2 ${
+                    adminTab === tab.id
+                      ? 'bg-amber-400 text-slate-950 shadow-md'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              ))}
+            </div>
 
-            <button
-              onClick={() => setAdminTab('templates')}
-              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center space-x-2 ${
-                adminTab === 'templates'
-                  ? 'bg-amber-400 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-              }`}
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>Bibliothèque de Modèles ({templates.length})</span>
-            </button>
+            {/* Logout Button */}
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                title="Se déconnecter"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-red-950/30 text-red-400 hover:bg-red-500 hover:text-slate-50 border border-red-500/20 hover:border-red-500 transition-all flex items-center justify-center space-x-2 font-bold text-xs"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Quitter</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -496,7 +542,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
 
         {/* Dynamic Stats Grid - Briefs Tab */}
-        {adminTab === 'briefs' ? (
+        {adminTab !== 'templates' ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* Card 1: Briefs en attente */}
             <div className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#816C07]/40 shadow-lg hover:shadow-[#816C07]/10 hover:border-[#816C07]/70 transition-all duration-300 space-y-3">
@@ -627,6 +673,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         )}
       </div>
 
+      {/* ================= NEW SECTIONS ================= */}
+      {adminTab === 'analytics' && <AnalyticsTab briefs={briefs} />}
+      {adminTab === 'crm' && <CRMTab briefs={briefs} />}
+      {adminTab === 'settings' && <SettingsTab />}
+
       {/* ================= SECTION 1: DEMANDES CLIENTS ================= */}
       {adminTab === 'briefs' && (
         <div className="space-y-6">
@@ -669,6 +720,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </button>
               ))}
             </div>
+            <div className="flex items-center gap-2 w-full lg:w-auto">
+              <button onClick={exportCSV} className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors flex items-center gap-2">
+                <Download className="w-4 h-4 text-amber-400" /> <span className="hidden sm:inline">Export CSV</span>
+              </button>
+              <button onClick={() => setIsNewBriefModalOpen(true)} className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold transition-colors flex items-center gap-2 ml-auto">
+                <Plus className="w-4 h-4" /> <span>Nouveau Brief</span>
+              </button>
+            </div>
           </div>
 
           {/* Briefs Grid */}
@@ -684,7 +743,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 const statusCfg = STATUS_CONFIG[brief.status] || STATUS_CONFIG.nouveau;
                 const typeBadge = getProjectTypeBadge(brief.projectType);
 
-                return (
+                  const exportCSV = () => {
+    const headers = ['ID', 'Date', 'Client', 'WhatsApp', 'Projet', 'Statut', 'Prix FCFA'];
+    const rows = briefs.map(b => [b.id, b.createdAt, b.clientName, b.whatsapp, b.projectType, b.status, b.quotedPriceFCFA || 0]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "hadara_briefs.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
                   <div
                     key={brief.id}
                     className="p-5 sm:p-6 rounded-2xl bg-[#141c2e]/80 border border-[#335A79]/40 hover:border-[#816C07]/60 backdrop-blur-md transition-all flex flex-col justify-between gap-4 shadow-xl group"
@@ -894,601 +966,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {/* ================= MODAL 1: DETAIL BRIEF MODAL ================= */}
-      {selectedBrief && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div className="space-y-1">
-                <div className="flex items-center space-x-2">
-                  <span className="font-mono text-xs font-bold text-amber-400 px-2 py-0.5 rounded bg-slate-950 border border-slate-800">
-                    {selectedBrief.id}
-                  </span>
-                  <span className="text-xs text-slate-400">Soumis le {new Date(selectedBrief.createdAt).toLocaleDateString('fr-FR')}</span>
-                </div>
-                <h3 className="text-xl font-serif font-bold text-slate-100">
-                  Brief : {selectedBrief.mainTitle}
-                </h3>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => onPrintBrief(selectedBrief)}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center space-x-1"
-                >
-                  <Printer className="w-3.5 h-3.5 text-amber-400" />
-                  <span>PDF Print</span>
-                </button>
-
-                <button
-                  onClick={() => setSelectedBrief(null)}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* AI Assistant Section */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-950 to-slate-950 border border-emerald-800/80 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Bot className="w-5 h-5 text-amber-400" />
-                  <span className="font-bold text-sm text-slate-100">Assistant IA Directeur Artistique</span>
-                </div>
-
-                <button
-                  onClick={handleRunAIAnalysis}
-                  disabled={isAnalyzing}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-emerald-400 text-slate-950 font-extrabold text-xs shadow hover:brightness-110 flex items-center space-x-2 disabled:opacity-50"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Analyse en cours...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>{selectedBrief.aiAnalysis ? 'Réanalyser le Brief' : 'Générer Diagnostic & Palette IA'}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {selectedBrief.aiAnalysis && (
-                <div className="space-y-4 pt-2 text-xs text-slate-200">
-                  <p className="text-slate-300 leading-relaxed font-medium">
-                    {selectedBrief.aiAnalysis.summary}
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Recommended Palette */}
-                    <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-                      <p className="font-bold text-amber-300 flex items-center space-x-1">
-                        <Palette className="w-3.5 h-3.5" />
-                        <span>Palette de Couleurs Suggérée :</span>
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedBrief.aiAnalysis.recommendedColors.map((col, idx) => (
-                          <div key={idx} className="flex items-center space-x-1.5 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
-                            <span className="w-3.5 h-3.5 rounded-full border border-slate-700" style={{ backgroundColor: col.hex }} />
-                            <span className="font-mono text-[10px] text-slate-300">{col.name} ({col.hex})</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Layout & Typography */}
-                    <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                      <p className="font-bold text-emerald-400">Recommandation Typographie & Lay-out :</p>
-                      <p className="text-[11px] text-slate-300 leading-relaxed">{selectedBrief.aiAnalysis.suggestedTypography}</p>
-                      <p className="text-[11px] text-slate-400 mt-1">{selectedBrief.aiAnalysis.layoutAdvice}</p>
-                    </div>
-                  </div>
-
-                  {/* 3 Visual Concepts Section */}
-                  {selectedBrief.aiAnalysis.concepts && selectedBrief.aiAnalysis.concepts.length > 0 && (
-                    <div className="space-y-3 pt-2">
-                      <div className="flex items-center space-x-2 border-b border-slate-800 pb-2">
-                        <Sparkles className="w-4 h-4 text-amber-400" />
-                        <h5 className="font-serif font-bold text-sm text-slate-100">
-                          Exploration Conceptuelle — 3 Pistes Créatives (Tradition & Modernité)
-                        </h5>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {selectedBrief.aiAnalysis.concepts.map((concept) => (
-                          <div
-                            key={concept.number}
-                            className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-500/40 transition-all space-y-3 flex flex-col justify-between shadow-md"
-                          >
-                            <div className="space-y-2">
-                              <p className="font-serif font-bold text-xs text-amber-300 leading-snug">
-                                💡 CONCEPT {concept.number} : {concept.name}
-                              </p>
-
-                              {concept.metaphorSymbol && (
-                                <p className="text-[10px] text-amber-400/90 italic bg-slate-950 p-2 rounded-lg border border-amber-900/30">
-                                  <strong>Métaphore visuelle :</strong> {concept.metaphorSymbol}
-                                </p>
-                              )}
-
-                              <div className="space-y-1 text-[11px] text-slate-300">
-                                <p>
-                                  <strong className="text-slate-100">👁️ Description Visuelle :</strong>{' '}
-                                  {concept.visualDescription}
-                                </p>
-                              </div>
-
-                              <div className="space-y-1 text-[11px] text-slate-300">
-                                <p>
-                                  <strong className="text-emerald-400">🎨 Direction Artistique :</strong>{' '}
-                                  {concept.artDirection}
-                                </p>
-                              </div>
-
-                              <div className="space-y-1 text-[11px] text-slate-300">
-                                <p>
-                                  <strong className="text-amber-400">🧠 Angle Marketing :</strong>{' '}
-                                  {concept.marketingAngle}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Pre-formatted WhatsApp draft */}
-                  <div className="p-3.5 rounded-xl bg-slate-950 border border-emerald-900/60 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-amber-400">Proposition de Devis Prête pour WhatsApp</span>
-                      <button
-                        onClick={() => handleCopyWhatsAppQuote(selectedBrief.aiAnalysis!.whatsappQuoteDraft)}
-                        className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold flex items-center space-x-1"
-                      >
-                        {copiedQuote ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                        <span>{copiedQuote ? 'Copié !' : 'Copier Réponse'}</span>
-                      </button>
-                    </div>
-                    <p className="font-mono text-[11px] text-slate-300 whitespace-pre-wrap leading-relaxed">
-                      {selectedBrief.aiAnalysis.whatsappQuoteDraft}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Quick Status & Price Editor */}
-            <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
-              <h4 className="font-bold text-sm text-slate-100">Gestion du Statut & Tarif Devis</h4>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                <div>
-                  <label className="text-slate-400 font-bold block mb-1">Statut du Dossier</label>
-                  <select
-                    value={editStatus}
-                    onChange={(e) => setEditStatus(e.target.value as BriefStatus)}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:outline-none"
-                  >
-                    <option value="nouveau">Nouveau Brief</option>
-                    <option value="devis_envoye">Devis Envoyé</option>
-                    <option value="acompte_recu">Acompte Reçu (50%)</option>
-                    <option value="en_creation">En Création</option>
-                    <option value="validation">En Validation</option>
-                    <option value="termine">Terminé / Livré HD</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-slate-400 font-bold block mb-1">Tarif Devisé (FCFA)</label>
-                  <input
-                    type="number"
-                    value={editPrice}
-                    onChange={(e) => setEditPrice(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs font-mono font-bold focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-slate-400 font-bold block mb-1">Notes du Graphiste</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: Acompte Wave reçu, logo vectorisé..."
-                    value={editNotes}
-                    onChange={(e) => setEditNotes(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end">
-                <button
-                  onClick={handleSaveChanges}
-                  disabled={isSaving}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition-all"
-                >
-                  {isSaving ? 'Mise à jour...' : 'Enregistrer le Statut'}
-                </button>
-              </div>
-            </div>
-
-            {/* Complete Brief Details Breakdown */}
-            <div className="space-y-4 pt-2">
-              <h4 className="font-bold text-sm text-slate-100 border-b border-slate-800 pb-2">
-                Détails complets du Brief
-              </h4>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                  <p className="text-slate-400 uppercase font-bold text-[10px]">Client</p>
-                  <p className="font-bold text-slate-100">{selectedBrief.clientName} ({selectedBrief.organization || 'Particulier'})</p>
-                  <p className="text-emerald-400">{selectedBrief.whatsapp} | {selectedBrief.cityCountry}</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                  <p className="text-slate-400 uppercase font-bold text-[10px]">Livrable & Format</p>
-                  <p className="font-bold text-amber-300">{selectedBrief.projectType} ({selectedBrief.technicalFormat})</p>
-                  <p className="text-slate-300">Dimensions : {selectedBrief.customDimensions || 'Standard'}</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1 sm:col-span-2">
-                  <p className="text-slate-400 uppercase font-bold text-[10px]">Contexte & Objectif</p>
-                  <p className="text-slate-200">{selectedBrief.contextDescription}</p>
-                  <p className="text-amber-300 font-semibold mt-1">Objectif : {selectedBrief.primaryObjective}</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1 sm:col-span-2">
-                  <p className="text-slate-400 uppercase font-bold text-[10px]">Texte Brut à Afficher</p>
-                  <p className="font-mono text-slate-200 whitespace-pre-wrap bg-slate-900 p-3 rounded-lg border border-slate-800 mt-1">
-                    {selectedBrief.fullTextContent}
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                  <p className="text-slate-400 uppercase font-bold text-[10px]">Styles & Couleurs</p>
-                  <p className="text-slate-200">Styles : {selectedBrief.stylePreferences.join(', ')}</p>
-                  <p className="text-emerald-400">Préférées : {selectedBrief.preferredColors}</p>
-                  <p className="text-rose-400">À éviter : {selectedBrief.avoidColors}</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                  <p className="text-slate-400 uppercase font-bold text-[10px]">Budget & Échéances</p>
-                  <p className="text-amber-400 font-bold">Budget indicatif : {selectedBrief.budgetRange}</p>
-                  <p className="text-slate-200">Livraison : {selectedBrief.desiredDeliveryDate}</p>
-                  {selectedBrief.criticalDeadline && (
-                    <p className="text-rose-400">Impression : {selectedBrief.criticalDeadline}</p>
-                  )}
-                </div>
-              </div>
-
-              {selectedBrief.attachments.length > 0 && (
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
-                  <p className="text-slate-400 uppercase font-bold text-[10px]">Fichiers Attachés ({selectedBrief.attachments.length})</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedBrief.attachments.map((file) => (
-                      <div key={file.id} className="p-2 rounded bg-slate-900 border border-slate-800 flex items-center space-x-2">
-                        <FileText className="w-4 h-4 text-amber-400" />
-                        <span className="font-bold text-slate-200">{file.name}</span>
-                        {file.dataUrl && (
-                          <a href={file.dataUrl} download={file.name} className="text-emerald-400 hover:underline text-[10px]">
-                            [Télécharger]
-                          </a>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
-              <button
-                onClick={async () => {
-                  if (confirm("Voulez-vous vraiment supprimer ce brief ?")) {
-                    await onDeleteBrief(selectedBrief.id);
-                    setSelectedBrief(null);
-                  }
-                }}
-                className="px-4 py-2 rounded-xl bg-rose-950 hover:bg-rose-900 text-rose-300 font-bold text-xs flex items-center space-x-1"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Supprimer</span>
-              </button>
-
-              <button
-                onClick={() => setSelectedBrief(null)}
-                className="px-6 py-2 rounded-xl bg-slate-800 text-slate-200 font-bold text-xs"
-              >
-                Fermer
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* ================= MODAL 2: EDIT/CREATE TEMPLATE MODAL ================= */}
-      {isTemplateModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <form onSubmit={handleSaveTemplateSubmit} className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <h3 className="text-lg font-serif font-bold text-slate-100 flex items-center space-x-2">
-                <BookOpen className="w-5 h-5 text-amber-400" />
-                <span>{editingTemplate ? 'Modifier le Modèle de Brief' : 'Créer un Nouveau Modèle de Brief'}</span>
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsTemplateModalOpen(false)}
-                className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-slate-200"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="sm:col-span-2">
-                <label className="text-slate-300 font-bold block mb-1">Nom du Modèle *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Affiche & Bâche Gamou Annuel Dahira"
-                  value={templateForm.title}
-                  onChange={(e) => setTemplateForm({ ...templateForm, title: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Catégorie</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Magal, Gamou, Conférences..."
-                  value={templateForm.category}
-                  onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Tarif Suggéré (FCFA)</label>
-                <input
-                  type="number"
-                  required
-                  value={templateForm.suggestedPriceFCFA}
-                  onChange={(e) => setTemplateForm({ ...templateForm, suggestedPriceFCFA: Number(e.target.value) })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-mono font-bold focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="text-slate-300 font-bold block mb-1">Description du Modèle</label>
-                <textarea
-                  rows={2}
-                  placeholder="Expliquer dans quel cas réutiliser ce modèle..."
-                  value={templateForm.description}
-                  onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Type de Projet</label>
-                <select
-                  value={templateForm.projectType}
-                  onChange={(e) => setTemplateForm({ ...templateForm, projectType: e.target.value as ProjectType })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none"
-                >
-                  <option value="affiche">Affiche événementielle</option>
-                  <option value="bache">Bâche / Banderole</option>
-                  <option value="flyer">Flyer (A5 / A6)</option>
-                  <option value="identite_visuelle">Identité Visuelle / Logo</option>
-                  <option value="pack_starter">Pack "Starter"</option>
-                  <option value="pack_event">Pack "Event Global"</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Format Technique</label>
-                <select
-                  value={templateForm.technicalFormat}
-                  onChange={(e) => setTemplateForm({ ...templateForm, technicalFormat: e.target.value as TechnicalFormat })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none"
-                >
-                  <option value="A3_A4">Affiche A3 / A4 HD</option>
-                  <option value="bache_3x1">Bâche Grand Format (3x1.5m)</option>
-                  <option value="flyer_A5">Flyer A5 Recto/Verso</option>
-                  <option value="post_RS">Post Réseaux Sociaux</option>
-                  <option value="story_vertical">Story Vertical (9:16)</option>
-                  <option value="sur_mesure">Sur Mesure</option>
-                </select>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="text-slate-300 font-bold block mb-1">Titre Principal par Défaut</label>
-                <input
-                  type="text"
-                  placeholder="Ex: MAWLID AL-NABI — GAMOU ANNUEL"
-                  value={templateForm.defaultMainTitle}
-                  onChange={(e) => setTemplateForm({ ...templateForm, defaultMainTitle: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="text-slate-300 font-bold block mb-1">Texte / Programme par Défaut</label>
-                <textarea
-                  rows={3}
-                  placeholder="Récitation du Saint Coran & Zikr..."
-                  value={templateForm.defaultFullTextContent}
-                  onChange={(e) => setTemplateForm({ ...templateForm, defaultFullTextContent: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 font-mono focus:outline-none focus:border-amber-400 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Couleurs Préférées</label>
-                <input
-                  type="text"
-                  placeholder="Vert Émeraude, Doré, Blanc"
-                  value={templateForm.preferredColors}
-                  onChange={(e) => setTemplateForm({ ...templateForm, preferredColors: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Couleurs à Éviter</label>
-                <input
-                  type="text"
-                  placeholder="Rouge vif, Fluo"
-                  value={templateForm.avoidColors}
-                  onChange={(e) => setTemplateForm({ ...templateForm, avoidColors: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-800 flex items-center justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => setIsTemplateModalOpen(false)}
-                className="px-5 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                className="px-6 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-md"
-              >
-                {editingTemplate ? 'Mettre à jour' : 'Enregistrer le Modèle'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* ================= MODAL 3: QUICK BRIEF GENERATOR FROM TEMPLATE ================= */}
-      {selectedTemplateForGen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <form onSubmit={handleGenerateBriefFromTemplate} className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wide">
-                  Génération Rapide de Projet
-                </span>
-                <h3 className="text-lg font-serif font-bold text-slate-100 flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-amber-400" />
-                  <span>Projet basé sur "{selectedTemplateForGen.title}"</span>
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedTemplateForGen(null)}
-                className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-slate-200"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Template Summary Preview */}
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
-              <p className="text-slate-400 font-bold">Préconfiguration appliquée :</p>
-              <div className="flex flex-wrap gap-2 text-[11px]">
-                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono font-bold">
-                  Tarif : {selectedTemplateForGen.suggestedPriceFCFA.toLocaleString('fr-FR')} FCFA
-                </span>
-                <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800 capitalize">
-                  {selectedTemplateForGen.projectType}
-                </span>
-              </div>
-              <p className="text-slate-300 font-mono text-[11px] truncate">
-                Titre : "{selectedTemplateForGen.defaultMainTitle}"
-              </p>
-            </div>
-
-            {/* Client Info Inputs */}
-            <div className="space-y-4 text-xs">
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Nom du Client / Responsable *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Serigne Cheikh Ndiaye"
-                  value={quickGenForm.clientName}
-                  onChange={(e) => setQuickGenForm({ ...quickGenForm, clientName: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Nom de l'Organisation / Dahira</label>
-                <input
-                  type="text"
-                  placeholder="Ex: Dahira Mafatikhul Bichri"
-                  value={quickGenForm.organization}
-                  onChange={(e) => setQuickGenForm({ ...quickGenForm, organization: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Numéro WhatsApp du Client *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: +221 77 123 45 67"
-                  value={quickGenForm.whatsapp}
-                  onChange={(e) => setQuickGenForm({ ...quickGenForm, whatsapp: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 font-mono font-bold focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Date Souhaitée de Livraison</label>
-                <input
-                  type="date"
-                  required
-                  value={quickGenForm.desiredDeliveryDate}
-                  onChange={(e) => setQuickGenForm({ ...quickGenForm, desiredDeliveryDate: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-800 flex items-center justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => setSelectedTemplateForGen(null)}
-                className="px-5 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                disabled={isGeneratingBrief}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-amber-400 hover:brightness-110 text-slate-950 font-extrabold text-xs shadow-md transition-all flex items-center space-x-2"
-              >
-                {isGeneratingBrief ? (
-                  <span>Génération...</span>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4" />
-                    <span>Créer le Brief Client</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
+      
+      <BriefDetailsModal 
+        selectedBrief={selectedBrief} 
+        onClose={() => setSelectedBrief(null)} 
+        onPrintBrief={onPrintBrief} 
+        onUpdateStatus={onUpdateStatus} 
+        onAnalyzeWithAI={onAnalyzeWithAI} 
+        onDeleteBrief={onDeleteBrief} 
+      />
+      <TemplateModals 
+        isTemplateModalOpen={isTemplateModalOpen} 
+        setIsTemplateModalOpen={setIsTemplateModalOpen} 
+        editingTemplate={editingTemplate} 
+        setEditingTemplate={setEditingTemplate} 
+        selectedTemplateForGen={selectedTemplateForGen} 
+        setSelectedTemplateForGen={setSelectedTemplateForGen} 
+        onAddNewBriefDirectly={onAddNewBriefDirectly} 
+      />
+      <NewBriefModal 
+        isOpen={isNewBriefModalOpen} 
+        onClose={() => setIsNewBriefModalOpen(false)} 
+        onAddNewBriefDirectly={onAddNewBriefDirectly} 
+      />
     </div>
   );
 };

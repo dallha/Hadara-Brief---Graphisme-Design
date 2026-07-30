@@ -8,14 +8,27 @@ from google.genai import types
 
 from .models import Brief, Template
 from .serializers import BriefSerializer, TemplateSerializer
+from .auth_views import verify_admin_token
 
 class BriefViewSet(viewsets.ModelViewSet):
     queryset = Brief.objects.all().order_by('-created_at')
     serializer_class = BriefSerializer
 
     def update(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
         kwargs['partial'] = True
         return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        return super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        return super().destroy(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         from django.utils import timezone
@@ -42,43 +55,56 @@ class BriefViewSet(viewsets.ModelViewSet):
                 
         response = super().create(request, *args, **kwargs)
         
-        # Send WhatsApp Notification via CallMeBot
+        # Send Notification via Official Telegram Bot
         if response.status_code == status.HTTP_201_CREATED:
-            phone = os.getenv("CALLMEBOT_PHONE")
-            apikey = os.getenv("CALLMEBOT_API_KEY")
+            telegram_token = os.getenv("TELEGRAM_BOT_TOKEN")
+            telegram_chat_id = os.getenv("TELEGRAM_CHAT_ID")
             
-            if phone and apikey:
-                try:
-                    data = response.data
-                    
-                    # Extraction des données avec des valeurs par défaut pour éviter les erreurs "None"
-                    dossier = data.get('id', 'N/A')
-                    client = data.get('clientName', 'N/A')
-                    orga = data.get('organization') or 'Particulier'
-                    wa_num = data.get('whatsapp', 'N/A')
-                    projet = data.get('projectType', 'N/A')
-                    format_tech = data.get('technicalFormat', '')
-                    evenement = data.get('contextDescription', 'N/A')[:50] + "..." # on coupe si trop long
-                    livraison = data.get('desiredDeliveryDate', 'N/A')
-                    budget = data.get('budgetRange', 'N/A')
-                    urgence = "Haute" if data.get('criticalDeadline') else "Normale"
-                    
-                    msg = f"🎨 *Nouveau Brief*\n"
-                    msg += f"Dossier : {dossier}\n"
-                    msg += f"👤 *Client*\n{client} ({orga})\n"
-                    msg += f"📱 *WhatsApp*\n{wa_num}\n"
-                    msg += f"📦 *Projet*\n{projet} {format_tech}\n"
-                    msg += f"📍 *Événement*\n{evenement}\n"
-                    msg += f"📅 *Livraison*\n{livraison}\n"
-                    msg += f"💰 *Budget*\n{budget}\n"
-                    msg += f"⏰ *Urgence*\n{urgence}\n"
-                    msg += f"👉 *Ouvrir le dossier :*\nhttps://graphistedelahadara.com/admin"
-                    
-                    encoded_msg = quote(msg)
-                    url = f"https://api.callmebot.com/whatsapp.php?phone={phone}&text={encoded_msg}&apikey={apikey}"
-                    requests.get(url, timeout=5)
-                except Exception as e:
-                    print(f"Erreur d'envoi WhatsApp CallMeBot: {e}")
+            if telegram_token and telegram_chat_id:
+                import threading
+                
+                def send_telegram_alert(data, token, chat_id):
+                    try:
+                        # Extraction des données
+                        dossier = data.get('id', 'N/A')
+                        client = data.get('clientName', 'N/A')
+                        orga = data.get('organization') or 'Particulier'
+                        wa_num = data.get('whatsapp', 'N/A')
+                        projet = data.get('projectType', 'N/A')
+                        format_tech = data.get('technicalFormat', '')
+                        evenement = data.get('contextDescription', 'N/A')[:50] + "..."
+                        livraison = data.get('desiredDeliveryDate', 'N/A')
+                        budget = data.get('budgetRange', 'N/A')
+                        urgence = "Haute" if data.get('criticalDeadline') else "Normale"
+                        
+                        # Message propre sans markdown ni emojis cassés
+                        titre = data.get('mainTitle', 'N/A')
+                        msg  = f"NOUVEAU BRIEF RECU\n"
+                        msg += f"{'─' * 30}\n"
+                        msg += f"N° Dossier      : {dossier}\n"
+                        msg += f"Client          : {client} ({orga})\n"
+                        msg += f"WhatsApp        : {wa_num}\n"
+                        msg += f"Type de projet  : {projet.capitalize()}\n"
+                        msg += f"Intitule        : {titre}\n"
+                        msg += f"Format          : {format_tech}\n"
+                        msg += f"Budget          : {budget}\n"
+                        msg += f"Livraison       : {livraison}\n"
+                        msg += f"Urgence         : {urgence}\n"
+                        msg += f"{'─' * 30}\n"
+                        msg += f"Ouvrir : http://localhost:5173/admin"
+                        
+                        url = f"https://api.telegram.org/bot{token}/sendMessage"
+                        payload = {
+                            "chat_id": chat_id,
+                            "text": msg,
+                        }
+                        requests.post(url, json=payload, timeout=5)
+                    except Exception as e:
+                        print(f"Erreur d'envoi Telegram asynchrone: {e}")
+                
+                # Launch thread
+                thread = threading.Thread(target=send_telegram_alert, args=(response.data, telegram_token, telegram_chat_id))
+                thread.start()
                     
         return response
 

@@ -6,7 +6,11 @@ router = DefaultRouter()
 router.register(r'briefs', BriefViewSet)
 router.register(r'templates', TemplateViewSet)
 
+from .auth_views import AdminLoginView, AdminVerifyView
+
 urlpatterns = [
     path('', include(router.urls)),
     path('ai-analyze/<str:pk>/', ai_analyze_brief, name='ai-analyze-brief'),
+    path('auth/login/', AdminLoginView.as_view(), name='auth-login'),
+    path('auth/verify/', AdminVerifyView.as_view(), name='auth-verify'),
 ]

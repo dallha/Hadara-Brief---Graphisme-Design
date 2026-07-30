@@ -59,10 +59,18 @@ class Brief(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            import datetime
-            year = datetime.datetime.now().year
-            count = Brief.objects.filter(id__startswith=f"HADARA-{year}-").count()
-            self.id = f"HADARA-{year}-{(count + 1):03d}"
+            from django.db import transaction
+            with transaction.atomic():
+                # Lock the table/row to prevent race conditions during ID generation
+                last_brief = Brief.objects.select_for_update().order_by('-created_at').first()
+                if last_brief and last_brief.id.startswith('HDR-'):
+                    try:
+                        last_id_num = int(last_brief.id.split('-')[1])
+                        self.id = f"HDR-{(last_id_num + 1):04d}"
+                    except (ValueError, IndexError):
+                        self.id = "HDR-0001"
+                else:
+                    self.id = "HDR-0001"
         super().save(*args, **kwargs)
 
     def __str__(self):

@@ -3,7 +3,7 @@ import { MessageSquare, Phone, X, Sparkles, Send, Clock, CheckCircle2 } from 'lu
 
 export const FloatingWhatsApp: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(true);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // Status detection: 'available' (green dot) or 'busy' (gray dot)
   const [status, setStatus] = useState<'available' | 'busy'>(() => {
@@ -31,7 +31,7 @@ export const FloatingWhatsApp: React.FC = () => {
   const isAvailable = status === 'available';
 
   return (
-    <div className="fixed bottom-20 md:bottom-8 right-3 sm:right-6 md:right-10 z-50 flex flex-col items-end print:hidden pointer-events-auto transition-all duration-300 floating-whatsapp-container">
+    <div className="fixed bottom-24 right-3 sm:right-6 md:right-10 z-50 flex flex-col items-end print:hidden pointer-events-auto transition-all duration-300 floating-whatsapp-container">
       
       {/* Tooltip banner (can be closed by user) */}
       {!isOpen && showTooltip && (

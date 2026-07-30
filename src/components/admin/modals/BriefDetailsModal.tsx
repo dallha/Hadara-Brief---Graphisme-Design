@@ -44,7 +44,11 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
       setEditStatus(selectedBrief.status);
       setEditNotes(selectedBrief.adminNotes || '');
       setEditPrice(selectedBrief.quotedPriceFCFA || 0);
+      document.body.style.overflow = 'hidden';
     }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, [selectedBrief]);
 
   if (!selectedBrief) return null;
@@ -72,32 +76,31 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
 
   return (
     <>
-
       {selectedBrief && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-2 sm:p-6 overflow-hidden">
+          <div className="bg-slate-900 border border-slate-800/90 rounded-2xl sm:rounded-3xl max-w-4xl w-full max-h-[92vh] sm:max-h-[88vh] flex flex-col shadow-2xl relative overflow-hidden">
             
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div className="space-y-1">
-                <div className="flex items-center space-x-2">
-                  <span className="font-mono text-xs font-bold text-amber-400 px-2 py-0.5 rounded bg-slate-950 border border-slate-800">
+            {/* Modal Sticky Header */}
+            <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between gap-2 shrink-0">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                  <span className="font-mono text-xs font-bold text-amber-400 px-2 py-0.5 rounded bg-slate-950 border border-slate-800 shrink-0">
                     {selectedBrief.id}
                   </span>
-                  <span className="text-xs text-slate-400">Soumis le {new Date(selectedBrief.createdAt).toLocaleDateString('fr-FR')}</span>
+                  <span className="text-[11px] sm:text-xs text-slate-400 truncate">Soumis le {new Date(selectedBrief.createdAt).toLocaleDateString('fr-FR')}</span>
                 </div>
-                <h3 className="text-xl font-serif font-bold text-slate-100">
+                <h3 className="text-base sm:text-xl font-serif font-bold text-slate-100 truncate">
                   Brief : {selectedBrief.mainTitle}
                 </h3>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 shrink-0">
                 <button
                   onClick={() => onPrintBrief(selectedBrief)}
                   className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center space-x-1"
                 >
                   <Printer className="w-3.5 h-3.5 text-amber-400" />
-                  <span>PDF Print</span>
+                  <span className="hidden sm:inline">PDF Print</span>
                 </button>
 
                 <button
@@ -108,6 +111,9 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
                 </button>
               </div>
             </div>
+
+            {/* Scrollable Modal Content */}
+            <div className="p-4 sm:p-8 space-y-6 overflow-y-auto flex-1">
 
             {/* AI Assistant Section */}
             <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-950 to-slate-950 border border-emerald-800/80 space-y-4">
@@ -386,12 +392,10 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
                 Fermer
               </button>
             </div>
-
           </div>
         </div>
+      </div>
       )}
-
-      
     </>
   );
 };

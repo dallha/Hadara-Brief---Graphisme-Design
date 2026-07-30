@@ -42,6 +42,12 @@ export const PortfolioTab: React.FC<PortfolioTabProps> = ({
   const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB limit
+      if (file.size > MAX_SIZE_BYTES) {
+        alert("L'image choisie dépasse la taille maximale autorisée de 5 Mo.");
+        e.target.value = '';
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === 'string') {

@@ -124,9 +124,13 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
                 </p>
               </div>
 
-              <blockquote className="text-slate-400 text-lg sm:text-xl font-serif italic border-l-2 border-amber-500/30 pl-4 py-2">
-                <span dir="rtl" lang="ar" className="inline-block">﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾</span><br/>
-                "Allier l'héritage de la tradition et l'excellence de la modernité digitale."
+              <blockquote className="text-slate-300 text-base sm:text-xl font-serif border-amber-500/40 border-l-2 pl-4 py-2 my-2 space-y-2">
+                <span dir="rtl" lang="ar" className="block text-amber-400 text-2xl sm:text-3xl font-serif leading-loose font-bold tracking-wide">
+                  ﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾
+                </span>
+                <p className="text-slate-300 text-sm sm:text-lg italic">
+                  "Allier l'héritage de la tradition et l'excellence de la modernité digitale."
+                </p>
               </blockquote>
 
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">

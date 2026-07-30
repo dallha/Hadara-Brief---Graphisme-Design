@@ -91,7 +91,7 @@ class BriefViewSet(viewsets.ModelViewSet):
                         msg += f"Livraison       : {livraison}\n"
                         msg += f"Urgence         : {urgence}\n"
                         msg += f"{'─' * 30}\n"
-                        frontend_url = os.getenv("FRONTEND_URL", "https://hadara-studio.onrender.com").rstrip('/')
+                        frontend_url = os.getenv("FRONTEND_URL", "https://mrniass.dynv6.net").rstrip('/')
                         msg += f"Ouvrir : {frontend_url}/admin"
                         
                         url = f"https://api.telegram.org/bot{token}/sendMessage"

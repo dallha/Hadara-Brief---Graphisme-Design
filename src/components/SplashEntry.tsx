@@ -29,7 +29,7 @@ const itemVariants = {
 
 export const SplashEntry: React.FC<SplashEntryProps> = ({ onEnter }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0d131f] via-[#141c2e] to-[#0a0f18] text-[#F5F5DC] flex flex-col justify-between p-6 sm:p-12 relative overflow-hidden selection:bg-amber-400 selection:text-slate-950">
+    <div className="min-h-[100dvh] bg-gradient-to-b from-[#0d131f] via-[#141c2e] to-[#0a0f18] text-[#F5F5DC] flex flex-col justify-between p-4 sm:p-12 relative overflow-hidden selection:bg-amber-400 selection:text-slate-950">
       
       {/* Ambient background glows */}
       <motion.div 
@@ -63,52 +63,51 @@ export const SplashEntry: React.FC<SplashEntryProps> = ({ onEnter }) => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full my-10 space-y-8"
+        className="relative z-10 flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full my-6 sm:my-10 space-y-6 sm:space-y-8"
       >
         
         {/* Logo with interactive hover grow and golden aura */}
         <motion.div variants={itemVariants} className="relative group cursor-pointer" onClick={onEnter} title="Cliquez pour entrer">
           <div className="absolute -inset-6 bg-[#816C07]/25 rounded-full blur-2xl group-hover:bg-[#816C07]/50 transition-all duration-700 pointer-events-none" />
-          <HadaraLogo size="xl" variant="or" className="w-44 sm:w-60 h-auto drop-shadow-[0_10px_30px_rgba(129,108,7,0.4)] transition-transform duration-500 group-hover:scale-105" />
+          <HadaraLogo size="xl" variant="or" className="w-40 sm:w-60 h-auto drop-shadow-[0_10px_30px_rgba(129,108,7,0.4)] transition-transform duration-500 group-hover:scale-105" />
         </motion.div>
 
         {/* Title Block */}
-        <motion.div variants={itemVariants} className="space-y-5">
-          <div className="inline-flex items-center space-x-2 px-5 py-2 rounded-full bg-slate-900/50 border border-slate-700/60 text-slate-200 text-xs sm:text-sm font-bold shadow-inner backdrop-blur-sm">
+        <motion.div variants={itemVariants} className="space-y-3 sm:space-y-5">
+          <div className="inline-flex items-center space-x-2 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-slate-900 border border-slate-700 text-slate-200 text-xs sm:text-sm font-bold shadow-inner">
             <Award className="w-4 h-4 text-amber-400" />
             <span className="uppercase tracking-widest font-serif">Le Graphiste de la Hadara</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-white to-amber-200 tracking-tight leading-tight drop-shadow-sm">
+          <h1 className="text-3xl sm:text-6xl lg:text-7xl font-serif font-extrabold text-amber-100 tracking-tight leading-tight drop-shadow-md">
             El Hadji Abdoulaye Niass
           </h1>
 
-          <p className="text-sm sm:text-lg text-amber-400/90 font-serif font-medium italic max-w-2xl mx-auto tracking-wide">
+          <p className="text-xs sm:text-lg text-amber-400 font-serif font-medium italic max-w-2xl mx-auto tracking-wide">
             « Allier l'héritage de la tradition et l'excellence de la modernité digitale »
           </p>
         </motion.div>
 
         {/* Quranic Verse Banner */}
-        <motion.div variants={itemVariants} className="w-full max-w-lg px-8 py-5 rounded-3xl bg-slate-900/40 border border-amber-500/20 shadow-2xl backdrop-blur-md relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
-          <p className="text-amber-300 font-serif text-xl sm:text-2xl font-bold tracking-wider dir-rtl" lang="ar">
-            <span dir="rtl" lang="ar" className="inline-block">﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾</span>
-          </p>
-          <p className="text-slate-400 text-xs sm:text-sm italic font-serif mt-2">
+        <motion.div variants={itemVariants} className="w-full max-w-lg px-6 py-4 sm:px-8 sm:py-5 rounded-2xl sm:rounded-3xl bg-slate-900 border border-amber-500/40 shadow-2xl relative">
+          <span dir="rtl" lang="ar" className="block text-amber-300 font-serif text-2xl sm:text-3xl font-bold tracking-wider text-center leading-loose">
+            ﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾
+          </span>
+          <p className="text-slate-300 text-xs sm:text-sm italic font-serif text-center mt-1">
             « Ma réussite ne dépend que d’Allah. » (Sourate Hûd, v. 88)
           </p>
         </motion.div>
 
         {/* Briefing text */}
-        <motion.p variants={itemVariants} className="text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed font-light px-4">
+        <motion.p variants={itemVariants} className="text-xs sm:text-base text-slate-300 max-w-2xl leading-relaxed font-light px-2 sm:px-4">
           Concepteur visuel haut de gamme pour vos événements institutionnels, vos identités de marque sur-mesure et vos supports grand format. Le savoir-faire artisanal combiné à la puissance du digital pour des créations qui captivent et traversent le temps.
         </motion.p>
 
         {/* Enter Button */}
-        <motion.div variants={itemVariants} className="pt-6 w-full sm:w-auto flex flex-col sm:flex-row items-center justify-center gap-4">
+        <motion.div variants={itemVariants} className="pt-4 sm:pt-6 w-full sm:w-auto flex flex-col sm:flex-row items-center justify-center gap-4 pb-safe">
           <button
             onClick={onEnter}
-            className="w-full sm:w-auto px-10 py-4 rounded-full font-sans font-bold text-slate-950 text-sm sm:text-base tracking-wider bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 shadow-[0_0_40px_rgba(251,191,36,0.3)] hover:shadow-[0_0_60px_rgba(251,191,36,0.5)] active:scale-95 transition-all duration-300 flex items-center justify-center space-x-3 group"
+            className="w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-full font-sans font-bold text-slate-950 text-sm sm:text-base tracking-wider bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 shadow-[0_0_40px_rgba(251,191,36,0.3)] hover:shadow-[0_0_60px_rgba(251,191,36,0.5)] active:scale-95 transition-all duration-300 flex items-center justify-center space-x-3 group"
           >
             <span>ENTRER DANS LE STUDIO</span>
             <ArrowRight className="w-5 h-5 text-slate-950 group-hover:translate-x-1.5 transition-transform duration-300" />

@@ -17,7 +17,8 @@ import { ResumeCV } from './components/ResumeCV';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { SplashEntry } from './components/SplashEntry';
-import { BriefData, BriefStatus, AIAnalysisResult } from './types';
+import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem } from './types';
+import { PORTFOLIO_ITEMS } from './data/portfolioData';
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
 import API_BASE from './config';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -104,6 +105,8 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const [portfolioItems, setPortfolioItems] = useState<SamplePortfolioItem[]>(PORTFOLIO_ITEMS);
+
   const fetchBriefs = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/briefs/`);
@@ -116,11 +119,64 @@ export default function App() {
     }
   };
 
-  useEffect(() => { fetchBriefs(); }, []);
+  const fetchPortfolio = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/portfolio/`);
+      if (res.ok) {
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : (data.results || data.portfolio || []);
+        if (items.length > 0) setPortfolioItems(items);
+      }
+    } catch (err) {
+      console.warn('Could not connect to portfolio backend API.');
+    }
+  };
+
+  useEffect(() => { fetchBriefs(); fetchPortfolio(); }, []);
 
   useEffect(() => {
-    if (activeTab === 'admin' && isAdminAuthenticated) fetchBriefs();
+    if (activeTab === 'admin' && isAdminAuthenticated) {
+      fetchBriefs();
+      fetchPortfolio();
+    }
   }, [activeTab, isAdminAuthenticated]);
+
+  const handleAddPortfolioItem = async (newItem: Omit<SamplePortfolioItem, 'id'>) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/portfolio/`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token')}`
+        },
+        body: JSON.stringify(newItem),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setPortfolioItems(prev => [created, ...prev]);
+        return;
+      }
+    } catch (err) {
+      console.error('Error creating portfolio item:', err);
+    }
+    const fallback: SamplePortfolioItem = {
+      ...newItem,
+      id: `PRT-${Date.now()}`,
+    };
+    setPortfolioItems(prev => [fallback, ...prev]);
+  };
+
+  const handleDeletePortfolioItem = async (id: string) => {
+    try {
+      await fetch(`${API_BASE}/api/portfolio/${id}/`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token')}` },
+      });
+      setPortfolioItems(prev => prev.filter(item => item.id !== id));
+    } catch (err) {
+      console.error('Error deleting portfolio item:', err);
+    }
+  };
 
   const handleSubmitBrief = async (briefData: Omit<BriefData, 'id' | 'createdAt' | 'status'>) => {
     setIsSubmitting(true);
@@ -349,7 +405,7 @@ export default function App() {
             } />
             <Route path="/portfolio" element={
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                <PortfolioShowcase onSelectCategoryForBrief={() => goTo('brief')} />
+                <PortfolioShowcase items={portfolioItems} onSelectCategoryForBrief={() => goTo('brief')} />
               </motion.div>
             } />
             <Route path="/cv" element={
@@ -368,7 +424,20 @@ export default function App() {
             <Route path="/admin" element={
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
                 {isAdminAuthenticated
-                  ? <ErrorBoundary fallbackLabel="AdminDashboard"><AdminDashboard briefs={briefs} onUpdateStatus={handleUpdateStatus} onAnalyzeWithAI={handleAnalyzeWithAI} onDeleteBrief={handleDeleteBrief} onPrintBrief={b => setPrintableBrief(b)} onAddNewBriefDirectly={handleSubmitBrief} onLogout={handleAdminLogout} /></ErrorBoundary>
+                  ? <ErrorBoundary fallbackLabel="AdminDashboard">
+                      <AdminDashboard 
+                        briefs={briefs} 
+                        portfolioItems={portfolioItems}
+                        onUpdateStatus={handleUpdateStatus} 
+                        onAnalyzeWithAI={handleAnalyzeWithAI} 
+                        onDeleteBrief={handleDeleteBrief} 
+                        onPrintBrief={b => setPrintableBrief(b)} 
+                        onAddNewBriefDirectly={handleSubmitBrief} 
+                        onAddPortfolioItem={handleAddPortfolioItem}
+                        onDeletePortfolioItem={handleDeletePortfolioItem}
+                        onLogout={handleAdminLogout} 
+                      />
+                    </ErrorBoundary>
                   : AdminLockScreen
                 }
               </motion.div>

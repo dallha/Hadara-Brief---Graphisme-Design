@@ -40,24 +40,26 @@ import {
   Download,
   LogOut
 } from 'lucide-react';
-import { BriefData, BriefStatus, AIAnalysisResult, BriefTemplate, ProjectType, TechnicalFormat, StylePreference, BudgetRange } from '../types';
+import { BriefData, BriefStatus, AIAnalysisResult, BriefTemplate, ProjectType, TechnicalFormat, StylePreference, BudgetRange, SamplePortfolioItem } from '../types';
 import { INITIAL_TEMPLATES } from '../data/templateData';
 import { AnalyticsTab } from './admin/AnalyticsTab';
 import { CRMTab } from './admin/CRMTab';
 import { SettingsTab } from './admin/SettingsTab';
+import { PortfolioTab } from './admin/PortfolioTab';
 import { BriefDetailsModal } from './admin/modals/BriefDetailsModal';
 import { NewBriefModal } from './admin/modals/NewBriefModal';
 import { TemplateModals } from './admin/modals/TemplateModals';
 
-
-
 interface AdminDashboardProps {
   briefs: BriefData[];
+  portfolioItems?: SamplePortfolioItem[];
   onUpdateStatus: (briefId: string, status: BriefStatus, notes?: string, price?: number) => Promise<void>;
   onAnalyzeWithAI: (briefId: string) => Promise<AIAnalysisResult | null>;
   onDeleteBrief: (briefId: string) => Promise<void>;
   onPrintBrief: (brief: BriefData) => void;
   onAddNewBriefDirectly?: (briefData: Omit<BriefData, 'id' | 'createdAt' | 'status'>) => Promise<void>;
+  onAddPortfolioItem?: (item: Omit<SamplePortfolioItem, 'id'>) => Promise<void>;
+  onDeletePortfolioItem?: (id: string) => Promise<void>;
   onLogout?: () => void;
 }
 
@@ -100,7 +102,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onLogout,
 }) => {
   // Main Navigation Tabs
-  const [adminTab, setAdminTab] = useState<'analytics' | 'briefs' | 'crm' | 'templates' | 'settings'>('briefs');
+  const [adminTab, setAdminTab] = useState<'analytics' | 'briefs' | 'crm' | 'templates' | 'portfolio' | 'settings'>('briefs');
   
   // New Brief Admin Modal
   const [isNewBriefModalOpen, setIsNewBriefModalOpen] = useState(false);
@@ -459,6 +461,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 { id: 'briefs', icon: FileText, label: 'Briefs' },
                 { id: 'crm', icon: Users, label: 'CRM' },
                 { id: 'templates', icon: BookOpen, label: 'Modèles' },
+                { id: 'portfolio', icon: FileImage, label: 'Portfolio' },
                 { id: 'settings', icon: Settings, label: 'Réglages' }
               ].map(tab => (
                 <button
@@ -966,7 +969,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      
+      {adminTab === 'portfolio' && (
+        <PortfolioTab 
+          portfolioItems={portfolioItems || []} 
+          onAddPortfolioItem={onAddPortfolioItem || (async () => {})} 
+          onDeletePortfolioItem={onDeletePortfolioItem || (async () => {})} 
+        />
+      )}
       <BriefDetailsModal 
         selectedBrief={selectedBrief} 
         onClose={() => setSelectedBrief(null)} 

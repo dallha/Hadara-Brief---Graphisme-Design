@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Brief, Template
+from .models import Brief, Template, PortfolioItem
 
 class BriefSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
@@ -64,4 +64,18 @@ class TemplateSerializer(serializers.ModelSerializer):
             'id', 'title', 'category', 'description', 'projectType', 'technicalFormat',
             'customDimensions', 'defaultMainTitle', 'defaultFullTextContent', 'stylePreferences',
             'preferredColors', 'avoidColors', 'defaultBudgetRange', 'suggestedPriceFCFA', 'usageCount'
+        ]
+
+class PortfolioItemSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
+    createdAt = serializers.DateTimeField(source='created_at', read_only=True)
+    imageUrl = serializers.CharField(source='image_url', required=False, allow_null=True, allow_blank=True)
+    priceEstimate = serializers.CharField(source='price_estimate', required=False, allow_null=True, allow_blank=True)
+    accentHex = serializers.CharField(source='accent_hex', required=False, allow_blank=True)
+
+    class Meta:
+        model = PortfolioItem
+        fields = [
+            'id', 'createdAt', 'title', 'category', 'description', 'imageUrl',
+            'badge', 'priceEstimate', 'accentHex', 'features'
         ]

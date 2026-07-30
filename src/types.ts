@@ -131,9 +131,10 @@ export interface SamplePortfolioItem {
   description: string;
   badge: string;
   priceEstimate: string;
-  imageTheme: string;
-  colorBg: string;
-  accentHex: string;
+  imageTheme?: string;
+  imageUrl?: string;
+  colorBg?: string;
+  accentHex?: string;
   features: string[];
 }
 

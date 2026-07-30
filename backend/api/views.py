@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from google import genai
 from google.genai import types
 
-from .models import Brief, Template
-from .serializers import BriefSerializer, TemplateSerializer
+from .models import Brief, Template, PortfolioItem
+from .serializers import BriefSerializer, TemplateSerializer, PortfolioItemSerializer
 from .auth_views import verify_admin_token
 
 class BriefViewSet(viewsets.ModelViewSet):
@@ -197,3 +197,23 @@ Génère la réponse sous forme de JSON strict avec le schéma suivant :
     except Exception as e:
         print(f"Error calling Gemini: {e}")
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class PortfolioItemViewSet(viewsets.ModelViewSet):
+    queryset = PortfolioItem.objects.all().order_by('-created_at')
+    serializer_class = PortfolioItemSerializer
+
+    def create(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        kwargs['partial'] = True
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        return super().destroy(request, *args, **kwargs)

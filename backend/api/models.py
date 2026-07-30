@@ -95,3 +95,33 @@ class Template(models.Model):
 
     def __str__(self):
         return self.title
+
+class PortfolioItem(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=200)
+    category = models.CharField(max_length=100)
+    description = models.TextField()
+    image_url = models.TextField(blank=True, null=True)
+    badge = models.CharField(max_length=100, blank=True, null=True)
+    price_estimate = models.CharField(max_length=100, blank=True, null=True)
+    accent_hex = models.CharField(max_length=50, default='#816C07')
+    features = models.JSONField(default=list)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            from django.db import transaction
+            with transaction.atomic():
+                last_item = PortfolioItem.objects.select_for_update().order_by('-created_at').first()
+                if last_item and last_item.id.startswith('PRT-'):
+                    try:
+                        last_id_num = int(last_item.id.split('-')[1])
+                        self.id = f"PRT-{(last_id_num + 1):04d}"
+                    except (ValueError, IndexError):
+                        self.id = "PRT-0001"
+                else:
+                    self.id = "PRT-0001"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.id} - {self.title}"

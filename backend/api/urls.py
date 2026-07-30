@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import BriefViewSet, TemplateViewSet, ai_analyze_brief
+from .views import BriefViewSet, TemplateViewSet, PortfolioItemViewSet, ai_analyze_brief
 
 router = DefaultRouter()
 router.register(r'briefs', BriefViewSet)
 router.register(r'templates', TemplateViewSet)
+router.register(r'portfolio', PortfolioItemViewSet)
 
 from .auth_views import AdminLoginView, AdminVerifyView
 

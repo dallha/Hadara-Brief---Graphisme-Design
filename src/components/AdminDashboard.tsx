@@ -94,11 +94,14 @@ const getProjectTypeBadge = (type: ProjectType | string) => {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   briefs,
+  portfolioItems,
   onUpdateStatus,
   onAnalyzeWithAI,
   onDeleteBrief,
   onPrintBrief,
   onAddNewBriefDirectly,
+  onAddPortfolioItem,
+  onDeletePortfolioItem,
   onLogout,
 }) => {
   // Main Navigation Tabs

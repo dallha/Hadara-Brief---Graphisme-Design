@@ -592,53 +592,45 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
 
-        {/* WhatsApp Availability Management Control Box */}
-        <div className="p-4 rounded-2xl bg-slate-950/80 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
+        {/* WhatsApp Availability Management Control Box (Ultra-Compact Mobile-First) */}
+        <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-950/90 border border-emerald-500/30 flex items-center justify-between gap-3">
+          <div className="flex items-center space-x-2.5 min-w-0">
             <div className="relative flex items-center justify-center shrink-0">
-              <span className={`w-3.5 h-3.5 rounded-full ${whatsappStatus === 'available' ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}`} />
-              <span className={`w-3.5 h-3.5 rounded-full ${whatsappStatus === 'available' ? 'bg-emerald-500' : 'bg-slate-400'} absolute top-0 left-0`} />
+              <span className={`w-3 h-3 rounded-full ${whatsappStatus === 'available' ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}`} />
+              <span className={`w-3 h-3 rounded-full ${whatsappStatus === 'available' ? 'bg-emerald-500' : 'bg-slate-400'} absolute top-0 left-0`} />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-bold text-slate-100">Statut Disponibilité WhatsApp</span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
-                  whatsappStatus === 'available'
-                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/80'
-                    : 'bg-slate-800 text-slate-300 border border-slate-700'
-                }`}>
-                  {whatsappStatus === 'available' ? '🟢 En ligne (Réponse rapide)' : '⚪ Occupé (Réponse différée)'}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Modifie la pastille du bouton flottant WhatsApp en temps réel pour tous les visiteurs du site.
-              </p>
+            <div className="flex items-center space-x-2 truncate">
+              <span className="text-xs font-bold text-slate-200 truncate">WhatsApp :</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase shrink-0 ${
+                whatsappStatus === 'available'
+                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/80'
+                  : 'bg-slate-800 text-slate-300 border border-slate-700'
+              }`}>
+                {whatsappStatus === 'available' ? '🟢 En ligne' : '⚪ Occupé'}
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
+          <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 shrink-0">
             <button
               onClick={() => handleUpdateWhatsAppStatus('available')}
-              className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all flex items-center space-x-1 ${
                 whatsappStatus === 'available'
-                  ? 'bg-emerald-500 text-slate-950 font-black shadow-lg shadow-emerald-500/20 scale-105'
-                  : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-slate-950" />
-              <span>Disponible (Vert)</span>
+              <span>Disponible</span>
             </button>
-
             <button
               onClick={() => handleUpdateWhatsAppStatus('busy')}
-              className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all flex items-center space-x-1 ${
                 whatsappStatus === 'busy'
-                  ? 'bg-slate-300 text-slate-950 font-black shadow-lg scale-105'
-                  : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                  ? 'bg-slate-300 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-slate-600" />
-              <span>Occupé (Gris)</span>
+              <span>Occupé</span>
             </button>
           </div>
         </div>

@@ -216,10 +216,10 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
   ];
 
   const languages = [
-    { name: 'Français', level: 'Langue Principale (Courant / Bilingue - Rédaction & Communication)', score: '100%' },
-    { name: 'Arabe', level: 'Langue Secondaire (Courant / Bilingue - Textes & Calligraphie)', score: '98%' },
     { name: 'Wolof', level: 'Langue Maternelle', score: '100%' },
-    { name: 'Anglais', level: 'Niveau Professionnel (Lecture & Compréhension)', score: '75%' },
+    { name: 'Arabe', level: 'Langue Secondaire (Calligraphie & Textes Religieux)', score: '90%' },
+    { name: 'Français', level: 'Langue Principale (Communication & Rédaction)', score: '80%' },
+    { name: 'Anglais', level: 'Niveau Très Débutant (Notions de base)', score: '25%' },
   ];
 
   const qualities = [
@@ -948,7 +948,7 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
                   LANGUES
                 </h2>
                 <p className="text-[11px] text-slate-700 pt-1">
-                  Arabe • Français • Wolof (Maternelle) • Anglais (En progression)
+                  Wolof (Maternelle - 100%) • Arabe (Secondaire - 90%) • Français (Principale - 80%) • Anglais (Très Débutant - 25%)
                 </p>
               </div>
 

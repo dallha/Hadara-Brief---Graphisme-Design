@@ -3,6 +3,10 @@
 @theme {
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-cinzel: 'Cinzel', 'Libre Caslon Text', serif;
+  --font-cairo: 'Cairo', 'Hanken Grotesk', sans-serif;
+  --font-amiri: 'Amiri', 'Traditional Arabic', serif;
+  --font-caslon: 'Libre Caslon Text', 'Cinzel', serif;
 
   --color-bleu-profond: #335A79;
   --color-or-olive: #816C07;

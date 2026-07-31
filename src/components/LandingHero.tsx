@@ -155,75 +155,177 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
       </motion.section>
 
 
-      {/* ── SERVICES ── */}
+      {/* ── SERVICES (BENTO GRID PREMIUM) ── */}
       <motion.section 
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
         className="space-y-12"
+        id="expertise"
       >
-        <div className="text-center space-y-4">
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-slate-100">Expertises Créatives</h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">Des solutions visuelles sur mesure pour sublimer votre projet.</p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-slate-800">
+          <div className="space-y-2">
+            <span className="text-xs font-bold text-amber-500 uppercase tracking-widest block font-serif">Domaines d'Expertise</span>
+            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-slate-100">Solutions Créatives Sur-Mesure</h2>
+          </div>
+          <p className="text-slate-400 text-sm sm:text-base max-w-md">
+            Chaque projet est une oeuvre unique. Nous allions stratégie, esthétique et technologie pour élever votre marque à un niveau supérieur.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { icon: Sparkles, title: 'Identité Visuelle', desc: 'Logos, chartes graphiques et branding complet.', price: 'À partir de 60k F' },
-            { icon: ImageIcon, title: 'Communication', desc: 'Affiches, flyers et bâches grand format pour événements.', price: '30k F - 50k F' },
-            { icon: Layers, title: 'Packages Booster', desc: 'Offres groupées pour startups et événements majeurs.', price: 'Sur Devis' },
-            { icon: Monitor, title: 'Sites Web IA', desc: 'Landing pages et sites vitrines modernes.', price: 'Sur Devis' },
-          ].map((service, i) => (
-            <motion.div 
-              key={service.title}
-              whileHover={{ y: -5 }}
-              className="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-colors group flex flex-col justify-between"
-            >
-              <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          {/* Card 1: Identité Visuelle (Span 8) */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="md:col-span-8 p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between min-h-[340px] group shadow-xl relative overflow-hidden"
+          >
+            <div className="flex justify-between items-start mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500 transition-colors">
+                <Sparkles className="w-7 h-7 text-amber-400 group-hover:text-slate-950 transition-colors" />
+              </div>
+              <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 font-serif text-xs font-bold border border-amber-500/20">
+                Branding & Logos
+              </span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-serif font-bold text-slate-100 mb-3 group-hover:text-amber-300 transition-colors">
+                Identité Visuelle & Univers de Marque
+              </h3>
+              <p className="text-sm text-slate-300 leading-relaxed mb-6 max-w-xl font-light">
+                Création de logos d'exception, chartes graphiques complètes, palettes de couleurs harmonieuses et typographies sur-mesure. Une fondation solide et intemporelle pour marquer les esprits et imposer votre leadership.
+              </p>
+              <div className="flex items-center justify-between pt-4 border-t border-slate-800/80">
+                <span className="text-xs text-slate-400 font-mono">À partir de <strong className="text-amber-400 font-bold">60 000 FCFA</strong></span>
+                <button onClick={onStartBrief} className="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 font-bold text-xs uppercase tracking-wider">
+                  <span>Démarrer ce projet</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Card 2: Communication Visuelle (Span 4) */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="md:col-span-4 p-8 rounded-3xl bg-gradient-to-br from-[#335A79] to-[#184260] text-slate-100 flex flex-col justify-between min-h-[340px] shadow-xl relative overflow-hidden"
+          >
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-400/20 flex items-center justify-center">
+                <ImageIcon className="w-6 h-6 text-amber-300" />
+              </div>
+              <span className="text-xs uppercase font-bold text-amber-300 tracking-widest block font-serif">Supports d'Impact</span>
+              <h3 className="text-xl font-serif font-bold">Communication Visuelle</h3>
+              <p className="text-xs text-amber-100/90 leading-relaxed font-light">
+                Affiches événementielles haute définition, brochures, flyers, bâches grand tirage et visuels réseaux sociaux conçus pour captiver et convertir.
+              </p>
+            </div>
+            <div className="pt-6 border-t border-amber-300/20 flex items-center justify-between">
+              <span className="text-xs font-mono text-amber-200">30k - 50k FCFA</span>
+              <button onClick={onStartBrief} className="p-2 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs hover:bg-amber-300 transition-colors">
+                Commander
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Card 3: Packages Booster (Span 4) */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="md:col-span-4 p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between min-h-[300px] group shadow-xl"
+          >
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500 transition-colors">
+                <Layers className="w-6 h-6 text-emerald-400 group-hover:text-slate-950 transition-colors" />
+              </div>
+              <h3 className="text-xl font-serif font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
+                Packages Booster
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed font-light">
+                Offres clés en main pour lancements rapides ou événements majeurs (Ziarra, Gamou, Lancement d'entreprise) combinant identité et supports imprimés.
+              </p>
+            </div>
+            <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+              <span className="text-xs font-mono text-emerald-400">Sur Devis Personnalisé</span>
+              <button onClick={onStartBrief} className="text-xs font-bold text-amber-400 hover:text-amber-300">
+                Explorer →
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Card 4: Sites Web IA (Span 8) */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="md:col-span-8 p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col md:flex-row justify-between gap-6 group shadow-xl"
+          >
+            <div className="flex-1 flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500 transition-colors">
-                  <service.icon className="w-6 h-6 text-amber-500 group-hover:text-slate-950 transition-colors" />
+                  <Monitor className="w-6 h-6 text-amber-400 group-hover:text-slate-950 transition-colors" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-100 mb-2">{service.title}</h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">{service.desc}</p>
-                </div>
+                <h3 className="text-2xl font-serif font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
+                  Plateformes & Sites Web IA
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">
+                  Conception de sites vitrines modernes, d'applications SaaS et de plateformes de briefing propulsées par l'IA pour une expérience utilisateur d'excellence.
+                </p>
               </div>
-              <div className="pt-6 mt-6 border-t border-slate-800 flex justify-between items-center">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tarif</span>
-                <span className="text-sm font-bold text-amber-400">{service.price}</span>
-              </div>
-            </motion.div>
-          ))}
+              <button onClick={onStartBrief} className="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 font-bold text-xs uppercase tracking-wider">
+                <span>Démarrer un projet Web</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="md:w-2/5 rounded-2xl bg-slate-950 border border-slate-800 p-4 flex flex-col justify-center items-center text-center space-y-3 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-blue-500/10 pointer-events-none" />
+              <Monitor className="w-10 h-10 text-amber-400 animate-pulse" />
+              <span className="text-xs font-bold text-slate-200">Design Responsive & IA</span>
+              <span className="text-[10px] text-slate-400">Optimisé pour Mobile, Tablette & Desktop</span>
+            </div>
+          </motion.div>
         </div>
       </motion.section>
 
-      {/* ── PROCESS ── */}
+      {/* ── PROCESS (CONNECTED TIMELINE METHODOLOGY) ── */}
       <motion.section 
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="relative p-8 sm:p-16 rounded-[3rem] bg-slate-900 border border-slate-800 overflow-hidden"
+        className="relative p-8 sm:p-16 rounded-[3rem] bg-slate-900/90 border border-slate-800 overflow-hidden shadow-2xl"
+        id="process"
       >
         <div className="text-center space-y-4 mb-16 relative z-10">
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-slate-100">Processus de Commande</h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">De la conception à la livraison, une méthodologie claire et transparente.</p>
+          <span className="text-xs font-bold text-amber-500 uppercase tracking-widest block font-serif">Méthodologie Studio</span>
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-slate-100">Processus de Commande</h2>
+          <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
+            Une collaboration fluide, transparente et structurée en 4 étapes claires pour garantir un résultat à la hauteur de vos exigences.
+          </p>
         </div>
 
+        {/* Connecting Line */}
+        <div className="hidden lg:block absolute top-1/2 left-16 right-16 h-px bg-slate-800 -translate-y-1/2 z-0" />
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-          {PROCESS_STEPS.map((step, i) => (
-            <div key={step.number} className="relative group">
-              <div className="text-7xl font-sans font-black text-slate-800/50 absolute -top-8 -left-4 pointer-events-none group-hover:text-amber-500/10 transition-colors">
-                {step.number}
-              </div>
-              <div className="space-y-3 relative z-10">
-                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-amber-500 mb-6 group-hover:scale-110 transition-transform">
-                  <CheckCircle2 className="w-5 h-5" />
+          {[
+            { num: '01', title: 'Contact & Briefing', desc: 'Prise de contact initiale et expression de vos besoins via notre formulaire intelligent.' },
+            { num: '02', title: 'Devis & Validation', desc: 'Proposition commerciale détaillée sous 24h et calendrier prévisionnel du projet.' },
+            { num: '03', title: 'Création & Design', desc: 'Phase de recherche, direction artistique et conception des pistes visuelles.' },
+            { num: '04', title: 'Livraison Finale', desc: 'Validation définitive et remise de tous les fichiers sources prêts à l\'impression ou au web.' }
+          ].map((step, i) => (
+            <div key={step.num} className="bg-slate-950 p-6 rounded-2xl border border-slate-800/80 hover:border-amber-500/40 transition-all space-y-4 relative flex flex-col justify-between group shadow-lg">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center text-amber-400 font-mono font-bold text-sm shadow-md group-hover:scale-110 transition-transform">
+                    {step.num}
+                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-100">{step.title}</h3>
-                <p className="text-xs font-semibold text-amber-500 uppercase tracking-wider">{step.subtitle}</p>
-                <p className="text-sm text-slate-400 leading-relaxed">{step.description}</p>
+                <h3 className="text-lg font-serif font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
+                  {step.title}
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed font-light">
+                  {step.desc}
+                </p>
               </div>
             </div>
           ))}

@@ -635,80 +635,76 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
 
-        {/* Dynamic Stats Grid - Briefs Tab */}
+        {/* Dynamic Stats Grid - Ultra-Compact Mobile-First */}
         {adminTab !== 'templates' ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {/* Card 1: Briefs en attente */}
-            <div className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#816C07]/40 shadow-lg hover:shadow-[#816C07]/10 hover:border-[#816C07]/70 transition-all duration-300 space-y-3">
+            <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#816C07]/40 shadow-md space-y-1.5">
               <div className="flex items-center justify-between">
-                <div className="p-2 rounded-xl bg-[#816C07]/15 border border-[#816C07]/30">
-                  <FileText className="w-4 h-4 text-[#816C07]" />
+                <div className="p-1.5 rounded-lg bg-[#816C07]/15 border border-[#816C07]/30">
+                  <FileText className="w-3.5 h-3.5 text-[#816C07]" />
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest font-mono text-[#816C07]/70 bg-[#816C07]/10 px-2 py-0.5 rounded-full">
+                <span className="text-[9px] font-black uppercase font-mono text-[#816C07] bg-[#816C07]/10 px-1.5 py-0.5 rounded-full">
                   {newBriefsCount > 0 ? '🔴 Urgent' : '✅ OK'}
                 </span>
               </div>
               <div>
-                <p className="text-3xl sm:text-4xl font-black font-mono text-[#F5F5DC] leading-none">{newBriefsCount}</p>
-                <p className="text-[10px] font-serif font-bold uppercase tracking-wider text-[#816C07] mt-1">Briefs en attente</p>
-                <p className="text-[10px] text-[#D4C9BF]/70 mt-0.5">À analyser & deviser</p>
+                <p className="text-xl sm:text-2xl font-black font-mono text-[#F5F5DC] leading-none">{newBriefsCount}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#816C07] mt-1 truncate">Briefs en attente</p>
               </div>
             </div>
 
             {/* Card 2: Projets en cours */}
-            <div className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#224A33]/50 shadow-lg hover:border-[#224A33]/80 transition-all duration-300 space-y-3">
+            <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#224A33]/50 shadow-md space-y-1.5">
               <div className="flex items-center justify-between">
-                <div className="p-2 rounded-xl bg-[#224A33]/20 border border-[#224A33]/40">
-                  <Sparkles className="w-4 h-4 text-[#224A33]" />
+                <div className="p-1.5 rounded-lg bg-[#224A33]/20 border border-[#224A33]/40">
+                  <Sparkles className="w-3.5 h-3.5 text-[#224A33]" />
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest font-mono text-emerald-400/80 bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-700/40">
+                <span className="text-[9px] font-black uppercase font-mono text-emerald-400 bg-emerald-950/50 px-1.5 py-0.5 rounded-full">
                   En cours
                 </span>
               </div>
               <div>
-                <p className="text-3xl sm:text-4xl font-black font-mono text-[#F5F5DC] leading-none">
+                <p className="text-xl sm:text-2xl font-black font-mono text-[#F5F5DC] leading-none">
                   {briefs.filter(b => ['en_creation', 'validation', 'acompte_recu'].includes(b.status)).length}
                 </p>
-                <p className="text-[10px] font-serif font-bold uppercase tracking-wider text-emerald-500 mt-1">Projets en cours</p>
-                <p className="text-[10px] text-[#D4C9BF]/70 mt-0.5">Création & validation</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 mt-1 truncate">Projets en cours</p>
               </div>
             </div>
 
             {/* Card 3: Devis envoyés */}
-            <div className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#335A79]/50 shadow-lg hover:border-[#335A79]/80 transition-all duration-300 space-y-3">
+            <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#335A79]/50 shadow-md space-y-1.5">
               <div className="flex items-center justify-between">
-                <div className="p-2 rounded-xl bg-[#335A79]/20 border border-[#335A79]/40">
-                  <Clock className="w-4 h-4 text-[#335A79]" />
+                <div className="p-1.5 rounded-lg bg-[#335A79]/20 border border-[#335A79]/40">
+                  <Clock className="w-3.5 h-3.5 text-[#335A79]" />
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest font-mono text-blue-300/70 bg-blue-950/40 px-2 py-0.5 rounded-full border border-blue-700/30">
+                <span className="text-[9px] font-black uppercase font-mono text-blue-300 bg-blue-950/40 px-1.5 py-0.5 rounded-full">
                   En attente
                 </span>
               </div>
               <div>
-                <p className="text-3xl sm:text-4xl font-black font-mono text-[#F8F8F8] leading-none">
+                <p className="text-xl sm:text-2xl font-black font-mono text-[#F8F8F8] leading-none">
                   {briefs.filter(b => b.status === 'devis_envoye').length}
                 </p>
-                <p className="text-[10px] font-serif font-bold uppercase tracking-wider text-[#335A79] mt-1">Devis Envoyés</p>
-                <p className="text-[10px] text-[#D4C9BF]/70 mt-0.5">En attente acompte 50%</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#335A79] mt-1 truncate">Devis Envoyés</p>
               </div>
             </div>
 
             {/* Card 4: Revenu Total */}
-            <div className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#816C07]/10 to-[#0d131f] border border-[#816C07]/50 shadow-lg shadow-[#816C07]/5 hover:border-[#816C07]/90 transition-all duration-300 space-y-3">
+            <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-[#816C07]/10 to-[#0d131f] border border-[#816C07]/50 shadow-md space-y-1.5">
               <div className="flex items-center justify-between">
-                <div className="p-2 rounded-xl bg-[#816C07]/25 border border-[#816C07]/50">
-                  <CreditCard className="w-4 h-4 text-[#816C07]" />
+                <div className="p-1.5 rounded-lg bg-[#816C07]/25 border border-[#816C07]/50">
+                  <CreditCard className="w-3.5 h-3.5 text-[#816C07]" />
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest font-mono text-[#816C07] bg-[#816C07]/15 px-2 py-0.5 rounded-full">
+                <span className="text-[9px] font-black uppercase font-mono text-[#816C07] bg-[#816C07]/15 px-1.5 py-0.5 rounded-full">
                   FCFA
                 </span>
               </div>
               <div>
-                <p className="text-xl sm:text-2xl font-black font-mono text-[#F5F5DC] leading-tight">
-                  {totalRevenueFCFA.toLocaleString('fr-FR')}
+                <p className="text-lg sm:text-xl font-black font-mono text-[#F5F5DC] leading-none">
+                  {totalRevenueFCFA.toLocaleString('fr-FR')} F
                 </p>
-                <p className="text-[10px] font-serif font-bold uppercase tracking-wider text-[#816C07] mt-1">Revenu Total Estimé</p>
-                <p className="text-[10px] text-[#D4C9BF]/70 mt-0.5">Somme globale devisée</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#816C07] mt-1 truncate">Revenu Devisé</p>
               </div>
             </div>
           </div>

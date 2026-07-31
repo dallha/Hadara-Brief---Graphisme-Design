@@ -477,61 +477,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     <div className="space-y-8 pb-16 max-w-7xl mx-auto px-4 sm:px-6">
       
       {/* Top Header & Tab Switcher */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-5">
+        
+        {/* Top Controls Row */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase">
-                Espace Administration
+              <span className="px-3 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-bold uppercase">
+                Hadara Manager ERP
               </span>
-              <span className="text-xs text-slate-400">Graphiste de la Hadara</span>
+              <span className="text-xs text-slate-400">Studio Graphique Pro</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-100 mt-1">
-              Tableau de Bord & Modèles Récurrents
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-slate-100 mt-0.5">
+              Tableau de Bord & Production ERP
             </h2>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-            {/* Navigation Tabs Bar */}
-            <div className="flex flex-wrap items-center gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 w-full lg:w-auto">
-              {[
-                { id: 'kanban', icon: Layers, label: 'Kanban ERP' },
-                { id: 'briefs', icon: FileText, label: 'Briefs' },
-                { id: 'bi', icon: BarChart3, label: 'Dashboard BI' },
-                { id: 'finance', icon: CreditCard, label: 'Finance' },
-                { id: 'calendar', icon: Calendar, label: 'Calendrier' },
-                { id: 'notifications', icon: Bell, label: 'Notifications' },
-                { id: 'resources', icon: BookOpen, label: 'Ressources' },
-                { id: 'ai_studio', icon: Bot, label: 'Hadara AI Studio' },
-                { id: 'cloud', icon: Cloud, label: 'Hadara Cloud' },
-                { id: 'crm', icon: Users, label: 'CRM Clients' },
-                { id: 'analytics', icon: LayoutDashboard, label: 'Analytics' },
-                { id: 'portfolio', icon: FileImage, label: 'Portfolio' },
-                { id: 'settings', icon: Settings, label: 'Réglages' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setAdminTab(tab.id as any)}
-                  className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center space-x-1.5 ${
-                    adminTab === tab.id
-                      ? 'bg-amber-400 text-slate-950 shadow-md scale-105'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-                  }`}
-                >
-                  <tab.icon className="w-3.5 h-3.5" />
-                  <span>{tab.label}</span>
-                </button>
-              ))}
-            </div>
-
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             {/* Role Switcher Selector */}
-            <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 shrink-0">
-              <span className="text-[10px] text-slate-500 font-bold px-2">Rôle:</span>
+            <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+              <span className="text-[10px] text-slate-500 font-bold px-1.5">Rôle:</span>
               {(['admin', 'graphiste', 'client'] as UserRole[]).map((r) => (
                 <button
                   key={r}
                   onClick={() => setUserRole(r)}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase transition-all ${
+                  className={`px-2 py-1 rounded-lg text-[10px] font-extrabold uppercase transition-all ${
                     userRole === r
                       ? 'bg-slate-800 text-amber-400 border border-slate-700'
                       : 'text-slate-500 hover:text-slate-300'
@@ -543,10 +513,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {/* Portal, Search, Trash & Studio Action Buttons */}
-            <div className="flex items-center space-x-1.5 shrink-0">
+            <div className="flex items-center space-x-1.5 overflow-x-auto">
               <button
                 onClick={() => setIsGlobalSearchOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center space-x-1"
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center space-x-1 shrink-0"
                 title="Recherche Globale (Cmd + K)"
               >
                 <Search className="w-3.5 h-3.5 text-amber-400" />
@@ -554,39 +524,70 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </button>
               <button
                 onClick={() => setIsTrashBinOpen(true)}
-                className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 transition-all"
+                className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 transition-all shrink-0"
                 title="Corbeille & Restauration"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setShowClientPortal(true)}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center space-x-1"
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center space-x-1 shrink-0"
               >
                 <User className="w-3.5 h-3.5 text-amber-400" />
-                <span>Portail Client</span>
+                <span className="hidden sm:inline">Portail Client</span>
               </button>
               <button
                 onClick={() => setIsStudioModalOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-xs transition-all flex items-center space-x-1 border border-amber-500/30"
+                className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-xs transition-all flex items-center space-x-1 border border-amber-500/30 shrink-0"
               >
                 <Building className="w-3.5 h-3.5 text-amber-400" />
-                <span>+ Studio SaaS</span>
+                <span>+ Studio</span>
               </button>
-            </div>
 
-            {/* Logout Button */}
-            {onLogout && (
-              <button
-                onClick={onLogout}
-                title="Se déconnecter"
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-red-950/30 text-red-400 hover:bg-red-500 hover:text-slate-50 border border-red-500/20 hover:border-red-500 transition-all flex items-center justify-center space-x-2 font-bold text-xs"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Quitter</span>
-              </button>
-            )}
+              {/* Logout Button */}
+              {onLogout && (
+                <button
+                  onClick={onLogout}
+                  title="Se déconnecter"
+                  className="px-3 py-1.5 rounded-xl bg-red-950/30 text-red-400 hover:bg-red-500 hover:text-slate-50 border border-red-500/20 hover:border-red-500 transition-all flex items-center space-x-1 font-bold text-xs shrink-0"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
+        </div>
+
+        {/* Dedicated Horizontal Scroll Navigation Bar */}
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none max-w-full bg-slate-950 p-2 rounded-2xl border border-slate-800">
+          {[
+            { id: 'kanban', icon: Layers, label: 'Kanban ERP' },
+            { id: 'briefs', icon: FileText, label: 'Briefs' },
+            { id: 'bi', icon: BarChart3, label: 'Dashboard BI' },
+            { id: 'finance', icon: CreditCard, label: 'Finance' },
+            { id: 'calendar', icon: Calendar, label: 'Calendrier' },
+            { id: 'notifications', icon: Bell, label: 'Notifications' },
+            { id: 'resources', icon: BookOpen, label: 'Ressources' },
+            { id: 'ai_studio', icon: Bot, label: 'Hadara AI Studio' },
+            { id: 'cloud', icon: Cloud, label: 'Hadara Cloud' },
+            { id: 'crm', icon: Users, label: 'CRM Clients' },
+            { id: 'analytics', icon: LayoutDashboard, label: 'Analytics' },
+            { id: 'portfolio', icon: FileImage, label: 'Portfolio' },
+            { id: 'settings', icon: Settings, label: 'Réglages' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setAdminTab(tab.id as any)}
+              className={`shrink-0 whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center space-x-2 ${
+                adminTab === tab.id
+                  ? 'bg-amber-400 text-slate-950 shadow-md scale-105'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
         </div>
 
         {/* WhatsApp Availability Management Control Box */}

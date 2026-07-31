@@ -17,14 +17,17 @@ Pour le Graphiste : un tableau de bord centralisé offre une vue d’ensemble de
 
 🚀 2. Fonctionnalités Clés
 
-📱 A. Progressive Web App (PWA) & Splash Screen
-
-Splash Screen Immersif : une page d’accueil soignée met en valeur le logo officiel, la devise et l’identité de marque avant l’accès à l’application.
-PWA Intégrée : application installable sur mobile et bureau (manifest.webmanifest, icônes Apple et favicons haute définition, compatible avec le mode hors ligne).
+📱 A. Progressive Web App (PWA) & Expérience Premium
+* **Splash Screen Immersif** : une page d’accueil soignée met en valeur le logo officiel, la devise et l’identité de marque avant l’accès à l’application.
+* **Design Premium & Bento Grid** : L'interface arbore un design luxueux avec des typographies de haute volée (Cinzel, Cairo, Amiri, Libre Caslon Text), une présentation des services en "Bento Grid" et un processus en timeline.
+* **Mode Clair ("Parchemin Lumineux")** : Un mode clair adaptatif qui maintient l'élégance des cartes sombres tout en optimisant le contraste.
+* **CV Interactif Intégré** : Un mini-site CV interactif et imprimable (format ATS) présentant les compétences, formations et maîtrises linguistiques du graphiste.
+* **PWA Intégrée** : application installable sur mobile et bureau (manifest.webmanifest, icônes Apple et favicons haute définition, compatible avec le mode hors ligne).
 
 📝 B. Formulaire de Brief Express (5 Étapes Fluides)
 
-Un formulaire guidé permet de recueillir précisément les besoins du client (contact, type de projet, contenus textuels, ambiance, devis/délais).
+Un formulaire guidé et professionnalisé permet de recueillir précisément les besoins du client (contact, type de projet, contenus textuels, ambiance, devis/délais).
+Les uploads de fichiers et pièces jointes sont optimisés avec une limite stricte de 5Mo max.
 Un PDF du dossier client est généré automatiquement à la fin du parcours.
 
 💬 C. Notifications WhatsApp Instantanées (CallMeBot)

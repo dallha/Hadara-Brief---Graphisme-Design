@@ -1,3 +1,13 @@
+export type UserRole = 
+  | 'super_admin'
+  | 'studio_owner'
+  | 'directeur_artistique'
+  | 'graphiste_senior'
+  | 'graphiste_junior'
+  | 'commercial'
+  | 'comptable'
+  | 'client';
+
 export type ProjectType = 
   | 'affiche'
   | 'bache'
@@ -37,12 +47,142 @@ export type BriefStatus =
   | 'validation'
   | 'termine';
 
+export interface StudioTenantConfig {
+  id: string;
+  name: string;
+  ownerName: string;
+  ownerEmail: string;
+  logoUrl?: string;
+  primaryColor: string;
+  customDomain?: string;
+  subscriptionPlan: 'starter' | 'pro_studio' | 'enterprise_saas';
+  waveNumber: string;
+  omNumber: string;
+  isWhiteLabelEnabled: boolean;
+  createdAt: string;
+}
+
+export interface SoftDeleteTrashItem {
+  id: string;
+  originalId: string;
+  entityType: 'brief' | 'client' | 'invoice' | 'template' | 'portfolio';
+  title: string;
+  deletedBy: string;
+  deletedAt: string;
+  data: any;
+}
+
+export interface ESignatureRecord {
+  id: string;
+  briefId: string;
+  clientName: string;
+  signatureDataUrl: string;
+  ipAddress?: string;
+  signedAt: string;
+}
+
+export interface SaaSMetricsCloud {
+  activeStudiosCount: number;
+  mrrFCFA: number;
+  arrFCFA: number;
+  churnRatePercentage: number;
+  conversionRatePercentage: number;
+  openSupportTicketsCount: number;
+}
+
 export interface FileAttachment {
   id: string;
   name: string;
   type: string;
   size: number;
   dataUrl?: string;
+}
+
+export interface DeliverableVersion {
+  id: string;
+  versionNumber: number;
+  title: string;
+  fileUrl: string;
+  notes?: string;
+  createdAt: string;
+  status: 'draft' | 'client_review' | 'approved' | 'rejected';
+}
+
+export interface ActivityLogItem {
+  id: string;
+  timestamp: string;
+  user: string;
+  userRole: UserRole;
+  action: string;
+  details?: string;
+}
+
+export interface QualityCheckItem {
+  id: string;
+  label: string;
+  completed: boolean;
+}
+
+export interface ClientBrandingAsset {
+  logoUrl?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  favoriteFonts?: string[];
+  brandGuidelinesNotes?: string;
+}
+
+export interface ProjectComment {
+  id: string;
+  author: string;
+  authorRole: UserRole;
+  text: string;
+  createdAt: string;
+}
+
+export interface InvoiceData {
+  id: string;
+  briefId: string;
+  clientName: string;
+  type: 'devis' | 'facture_acompte' | 'facture_solde' | 'recu';
+  amountFCFA: number;
+  paidAmountFCFA: number;
+  status: 'brouillon' | 'envoye' | 'paye_partiel' | 'paye' | 'en_retard';
+  paymentMethod?: 'wave' | 'orange_money' | 'free_money' | 'virement' | 'especes';
+  dueDate: string;
+  createdAt: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  channel: 'internal' | 'whatsapp' | 'email';
+  read: boolean;
+  createdAt: string;
+  briefId?: string;
+}
+
+export interface ResourceAssetItem {
+  id: string;
+  title: string;
+  category: 'logo' | 'police' | 'palette' | 'mockup' | 'template' | 'document';
+  fileUrl?: string;
+  previewUrl?: string;
+  description?: string;
+  tags: string[];
+  createdAt: string;
+}
+
+export interface BusinessIntelligenceMetrics {
+  totalRevenueFCFA: number;
+  totalPaidFCFA: number;
+  totalPendingFCFA: number;
+  averageMarginPercentage: number;
+  quoteConversionRate: number;
+  averageProductionDays: number;
+  topClientLTV: { clientName: string; ltvFCFA: number }[];
+  revenueByMonth: { month: string; amountFCFA: number }[];
 }
 
 export interface AIConcept {
@@ -65,10 +205,35 @@ export interface AIAnalysisResult {
   suggestedPriceFCFA: number;
   whatsappQuoteDraft: string;
   concepts?: AIConcept[];
+
+  complexityLevel?: 'Facile' | 'Moyen' | 'Complexe' | 'Haute Définition Master';
+  qualityScore?: number;
+  textDensityAudit?: {
+    isTooLong: boolean;
+    recommendation: string;
+    suggestedStructure: {
+      title: string;
+      subtitle: string;
+      speakersBlock: string;
+      sponsorsBlock: string;
+      cta: string;
+    };
+  };
+  prompts?: {
+    firefly?: string;
+    midjourney?: string;
+    dalle?: string;
+  };
+  socialCaptions?: {
+    facebook?: string;
+    instagram?: string;
+  };
+  productionChecklist?: string[];
 }
 
 export interface BriefData {
   id: string;
+  studioId?: string;
   createdAt: string;
   status: BriefStatus;
   
@@ -122,6 +287,16 @@ export interface BriefData {
   designerNotes?: string;
   quotedPriceFCFA?: number;
   aiAnalysis?: AIAnalysisResult;
+
+  deliverableVersions?: DeliverableVersion[];
+  activityLog?: ActivityLogItem[];
+  qualityChecklist?: QualityCheckItem[];
+  clientBranding?: ClientBrandingAsset;
+  comments?: ProjectComment[];
+  assignedDesigner?: string;
+  invoices?: InvoiceData[];
+  eSignature?: ESignatureRecord;
+  isDeleted?: boolean;
 }
 
 export interface SamplePortfolioItem {
@@ -155,4 +330,3 @@ export interface BriefTemplate {
   suggestedPriceFCFA: number;
   usageCount?: number;
 }
-

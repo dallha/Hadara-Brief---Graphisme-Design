@@ -5,17 +5,20 @@ import { SamplePortfolioItem } from '../../types';
 interface PortfolioTabProps {
   portfolioItems: SamplePortfolioItem[];
   onAddPortfolioItem: (item: Omit<SamplePortfolioItem, 'id'>) => Promise<void>;
+  onUpdatePortfolioItem: (id: string, updatedItem: Partial<SamplePortfolioItem>) => Promise<void>;
   onDeletePortfolioItem: (id: string) => Promise<void>;
 }
 
 export const PortfolioTab: React.FC<PortfolioTabProps> = ({
   portfolioItems,
   onAddPortfolioItem,
+  onUpdatePortfolioItem,
   onDeletePortfolioItem,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -63,7 +66,7 @@ export const PortfolioTab: React.FC<PortfolioTabProps> = ({
     if (!title.trim() || !description.trim()) return;
     setIsSubmitting(true);
     try {
-      await onAddPortfolioItem({
+      const payload = {
         title,
         category,
         description,
@@ -72,17 +75,50 @@ export const PortfolioTab: React.FC<PortfolioTabProps> = ({
         imageUrl: imageUrl || undefined,
         accentHex,
         features: features.length > 0 ? features : ['Design Haute Définition']
-      });
+      };
+
+      if (editingItemId) {
+        await onUpdatePortfolioItem(editingItemId, payload);
+      } else {
+        await onAddPortfolioItem(payload);
+      }
       setIsModalOpen(false);
-      // Reset form
-      setTitle('');
-      setDescription('');
-      setImageUrl('');
+      resetForm();
     } catch (err) {
-      console.error('Error adding portfolio item:', err);
+      console.error('Error saving portfolio item:', err);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const resetForm = () => {
+    setTitle('');
+    setCategory('Communication Visuelle');
+    setDescription('');
+    setBadge('Création HD');
+    setPriceEstimate('30 000 FCFA');
+    setImageUrl('');
+    setAccentHex('#816C07');
+    setFeatures(['Format HD Imprimeur', 'Export PNG & PDF']);
+    setEditingItemId(null);
+  };
+
+  const handleOpenAdd = () => {
+    resetForm();
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (item: SamplePortfolioItem) => {
+    setEditingItemId(item.id);
+    setTitle(item.title);
+    setCategory(item.category);
+    setDescription(item.description);
+    setBadge(item.badge || '');
+    setPriceEstimate(item.priceEstimate || '');
+    setImageUrl(item.imageUrl || '');
+    setAccentHex(item.accentHex || '#816C07');
+    setFeatures(item.features || []);
+    setIsModalOpen(true);
   };
 
   const filteredItems = portfolioItems.filter(item => {
@@ -105,7 +141,7 @@ export const PortfolioTab: React.FC<PortfolioTabProps> = ({
         </div>
 
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenAdd}
           className="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-slate-950 font-bold text-xs shadow-lg flex items-center space-x-2 shrink-0 transition-all"
         >
           <Plus className="w-4 h-4" />
@@ -179,14 +215,22 @@ export const PortfolioTab: React.FC<PortfolioTabProps> = ({
 
               <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
                 <span className="text-[10px] text-slate-500 font-mono">ID: {item.id}</span>
-                <button
-                  onClick={() => onDeletePortfolioItem(item.id)}
-                  className="px-3 py-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-xs font-bold transition-colors flex items-center space-x-1"
-                  title="Supprimer la création"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Supprimer</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleOpenEdit(item)}
+                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors"
+                    title="Modifier la création"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => onDeletePortfolioItem(item.id)}
+                    className="p-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-xs font-bold transition-colors"
+                    title="Supprimer la création"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -201,7 +245,7 @@ export const PortfolioTab: React.FC<PortfolioTabProps> = ({
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <h3 className="text-lg font-serif font-bold text-slate-100 flex items-center space-x-2">
                 <Sparkles className="w-5 h-5 text-amber-400" />
-                <span>Ajouter une nouvelle création au Portfolio</span>
+                <span>{editingItemId ? 'Modifier la création' : 'Ajouter une nouvelle création au Portfolio'}</span>
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}

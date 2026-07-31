@@ -126,17 +126,22 @@
     color: #F5F5DC;
   }
 
-  /* Texte Tailwind slate-* en mode clair → gris foncé lisible */
-  [data-theme="light"] .text-slate-100,
-  [data-theme="light"] .text-slate-200,
-  [data-theme="light"] .text-slate-300 {
-    color: #e2e8f0 !important;
+  /* Texte Tailwind slate-* en mode clair → gris foncé lisible, SAUF dans les containers sombres */
+  [data-theme="light"] .text-slate-100:not(:is(.glass-panel, .glass-card, [class*="bg-slate-9"], [class*="from-slate-9"], [class*="to-slate-9"], [class*="via-slate-9"], .bg-\[\#0d131f\], .bg-\[\#141c2e\], .bg-\[\#335A79\]) *) {
+    color: #0f172a !important;
   }
-
-  [data-theme="light"] .text-slate-400,
-  [data-theme="light"] .text-slate-500,
-  [data-theme="light"] .text-slate-600 {
-    color: #cbd5e1 !important;
+  [data-theme="light"] .text-slate-200:not(:is(.glass-panel, .glass-card, [class*="bg-slate-9"], [class*="from-slate-9"], [class*="to-slate-9"], [class*="via-slate-9"], .bg-\[\#0d131f\], .bg-\[\#141c2e\], .bg-\[\#335A79\]) *) {
+    color: #1e293b !important;
+  }
+  [data-theme="light"] .text-slate-300:not(:is(.glass-panel, .glass-card, [class*="bg-slate-9"], [class*="from-slate-9"], [class*="to-slate-9"], [class*="via-slate-9"], .bg-\[\#0d131f\], .bg-\[\#141c2e\], .bg-\[\#335A79\]) *) {
+    color: #334155 !important;
+  }
+  [data-theme="light"] .text-slate-400:not(:is(.glass-panel, .glass-card, [class*="bg-slate-9"], [class*="from-slate-9"], [class*="to-slate-9"], [class*="via-slate-9"], .bg-\[\#0d131f\], .bg-\[\#141c2e\], .bg-\[\#335A79\]) *) {
+    color: #475569 !important;
+  }
+  [data-theme="light"] .text-slate-500:not(:is(.glass-panel, .glass-card, [class*="bg-slate-9"], [class*="from-slate-9"], [class*="to-slate-9"], [class*="via-slate-9"], .bg-\[\#0d131f\], .bg-\[\#141c2e\], .bg-\[\#335A79\]) *),
+  [data-theme="light"] .text-slate-600:not(:is(.glass-panel, .glass-card, [class*="bg-slate-9"], [class*="from-slate-9"], [class*="to-slate-9"], [class*="via-slate-9"], .bg-\[\#0d131f\], .bg-\[\#141c2e\], .bg-\[\#335A79\]) *) {
+    color: #475569 !important;
   }
 
   /* Gold & amber en mode clair */

@@ -18,7 +18,7 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { SplashEntry } from './components/SplashEntry';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem } from './types';
-import { PORTFOLIO_ITEMS } from './data/portfolioData';
+
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
 import API_BASE from './config';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -105,7 +105,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const [portfolioItems, setPortfolioItems] = useState<SamplePortfolioItem[]>(PORTFOLIO_ITEMS);
+  const [portfolioItems, setPortfolioItems] = useState<SamplePortfolioItem[]>([]);
 
   const fetchBriefs = async () => {
     try {
@@ -164,6 +164,27 @@ export default function App() {
       id: `PRT-${Date.now()}`,
     };
     setPortfolioItems(prev => [fallback, ...prev]);
+  };
+
+  const handleUpdatePortfolioItem = async (id: string, updatedItem: Partial<SamplePortfolioItem>) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/portfolio/${id}/`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token')}`
+        },
+        body: JSON.stringify(updatedItem),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setPortfolioItems(prev => prev.map(item => item.id === id ? updated : item));
+        return;
+      }
+    } catch (err) {
+      console.error('Error updating portfolio item:', err);
+    }
+    setPortfolioItems(prev => prev.map(item => item.id === id ? { ...item, ...updatedItem } as SamplePortfolioItem : item));
   };
 
   const handleDeletePortfolioItem = async (id: string) => {
@@ -434,6 +455,7 @@ export default function App() {
                         onPrintBrief={b => setPrintableBrief(b)} 
                         onAddNewBriefDirectly={handleSubmitBrief} 
                         onAddPortfolioItem={handleAddPortfolioItem}
+                        onUpdatePortfolioItem={handleUpdatePortfolioItem}
                         onDeletePortfolioItem={handleDeletePortfolioItem}
                         onLogout={handleAdminLogout} 
                       />

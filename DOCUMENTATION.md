@@ -52,14 +52,17 @@ graph TD
 ### Technologies
 - **React 18** : Rendu des composants UI.
 - **TypeScript** : Typage strict pour éviter les erreurs lors de la manipulation des données (ex: type `BriefData`).
-- **Tailwind CSS** : Stylisation utilitaire (Design System Hadara : Bleu profond `#0b0f19`, Or Olive `#b59c49`).
+- **Tailwind CSS (v4)** : Stylisation utilitaire avec un Design System "Premium".
+- **Design System & Thématique** : Utilisation de typographies élégantes (`Cinzel`, `Cairo`, `Amiri`, `Libre Caslon Text`). L'interface combine le Glassmorphism en thème sombre et un **Mode Clair ("Parchemin Lumineux")** qui préserve le contraste et l'élégance des cartes sombres ("Bento Grid").
 - **Vite PWA Plugin** : Permet l'installation de l'application sur smartphone (Offline, Icônes Apple Touch 180x180px, Splash screen).
 
 ### Composants Principaux
 - `App.tsx` : Gère le routage par état local (`splash`, `home`, `portfolio`, `brief`, `admin`).
 - `SplashEntry.tsx` : Écran d'accueil immersif plein écran.
-- `BriefForm.tsx` : Moteur de formulaire en 5 étapes avec validation.
-- `AdminDashboard.tsx` : Espace protégé pour gérer les données provenant de l'API.
+- `LandingHero.tsx` : Présentation des services via une architecture moderne en "Bento Grid" et timeline de processus connectée.
+- `ResumeCV.tsx` : Mini-site CV intégré avec bascule vue interactive / vue impression ATS.
+- `BriefForm.tsx` : Moteur de formulaire en 5 étapes professionnalisé (avec restriction d'upload à 5Mo max).
+- `AdminDashboard.tsx` : Espace protégé (refondu pour une meilleure ergonomie) pour gérer les données provenant de l'API.
 
 ---
 

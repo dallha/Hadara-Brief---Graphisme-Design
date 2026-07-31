@@ -40,15 +40,29 @@ import {
   Download,
   LogOut
 } from 'lucide-react';
-import { BriefData, BriefStatus, AIAnalysisResult, BriefTemplate, ProjectType, TechnicalFormat, StylePreference, BudgetRange, SamplePortfolioItem } from '../types';
-import { INITIAL_TEMPLATES } from '../data/templateData';
+import { BriefData, BriefStatus, AIAnalysisResult, BriefTemplate, ProjectType, TechnicalFormat, StylePreference, BudgetRange, SamplePortfolioItem, UserRole } from '../types';
+
 import { AnalyticsTab } from './admin/AnalyticsTab';
 import { CRMTab } from './admin/CRMTab';
 import { SettingsTab } from './admin/SettingsTab';
 import { PortfolioTab } from './admin/PortfolioTab';
+import { KanbanTab } from './admin/KanbanTab';
+import { Project360Modal } from './admin/Project360Modal';
+import { FinanceTab } from './admin/FinanceTab';
+import { CalendarTab } from './admin/CalendarTab';
+import { NotificationsTab } from './admin/NotificationsTab';
+import { ResourceLibraryTab } from './admin/ResourceLibraryTab';
+import { HadaraAICenterTab } from './admin/HadaraAICenterTab';
+import { BusinessIntelligenceTab } from './admin/BusinessIntelligenceTab';
+import { HadaraCloudTab } from './admin/HadaraCloudTab';
+import { GlobalSearchModal } from './admin/GlobalSearchModal';
+import { TrashBinModal } from './admin/TrashBinModal';
+import { ESignatureModal } from './admin/ESignatureModal';
 import { BriefDetailsModal } from './admin/modals/BriefDetailsModal';
 import { NewBriefModal } from './admin/modals/NewBriefModal';
 import { TemplateModals } from './admin/modals/TemplateModals';
+import { StudioOnboardingModal } from './admin/modals/StudioOnboardingModal';
+import { ClientPortalView } from './client/ClientPortalView';
 
 interface AdminDashboardProps {
   briefs: BriefData[];
@@ -59,6 +73,7 @@ interface AdminDashboardProps {
   onPrintBrief: (brief: BriefData) => void;
   onAddNewBriefDirectly?: (briefData: Omit<BriefData, 'id' | 'createdAt' | 'status'>) => Promise<void>;
   onAddPortfolioItem?: (item: Omit<SamplePortfolioItem, 'id'>) => Promise<void>;
+  onUpdatePortfolioItem?: (id: string, updatedItem: Partial<SamplePortfolioItem>) => Promise<void>;
   onDeletePortfolioItem?: (id: string) => Promise<void>;
   onLogout?: () => void;
 }
@@ -101,13 +116,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onPrintBrief,
   onAddNewBriefDirectly,
   onAddPortfolioItem,
+  onUpdatePortfolioItem,
   onDeletePortfolioItem,
   onLogout,
 }) => {
   // Main Navigation Tabs
-  const [adminTab, setAdminTab] = useState<'analytics' | 'briefs' | 'crm' | 'templates' | 'portfolio' | 'settings'>('briefs');
+  const [adminTab, setAdminTab] = useState<'kanban' | 'briefs' | 'bi' | 'finance' | 'calendar' | 'notifications' | 'resources' | 'ai_studio' | 'crm' | 'analytics' | 'portfolio' | 'cloud' | 'settings'>('kanban');
+
+  // Modals & Hardening State
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
+  const [isTrashBinOpen, setIsTrashBinOpen] = useState(false);
+  const [eSignBrief, setESignBrief] = useState<BriefData | null>(null);
+  const [softDeletedItems, setSoftDeletedItems] = useState<SoftDeleteTrashItem[]>([]);
+
+  // Client Portal Toggle State
+  const [showClientPortal, setShowClientPortal] = useState(false);
+
+  // Multi-Tenant Studio Onboarding State
+  const [isStudioModalOpen, setIsStudioModalOpen] = useState(false);
   
-  // New Brief Admin Modal
+  // User Role State
+  const [userRole, setUserRole] = useState<UserRole>('admin');
+
+  // Selected 360 Project Modal
+  const [selected360Brief, setSelected360Brief] = useState<BriefData | null>(null);
   const [isNewBriefModalOpen, setIsNewBriefModalOpen] = useState(false);
   const [newBriefForm, setNewBriefForm] = useState<Partial<BriefData>>({
     clientName: '', whatsapp: '', projectType: 'affiche', mainTitle: '', budgetRange: 'sur_devis'
@@ -127,7 +159,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [isSaving, setIsSaving] = useState(false);
 
   // Templates Tab State
-  const [templates, setTemplates] = useState<BriefTemplate[]>(INITIAL_TEMPLATES);
+  const [templates, setTemplates] = useState<BriefTemplate[]>([]);
   const [templateCategoryFilter, setTemplateCategoryFilter] = useState<string>('all');
   const [templateSearchTerm, setTemplateSearchTerm] = useState<string>('');
   
@@ -457,29 +489,87 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-            {/* Navigation Tabs */}
-            <div className="flex flex-wrap items-center gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 w-full sm:w-auto">
+            {/* Navigation Tabs Bar */}
+            <div className="flex flex-wrap items-center gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 w-full lg:w-auto">
               {[
-                { id: 'analytics', icon: LayoutDashboard, label: 'Analytics' },
+                { id: 'kanban', icon: Layers, label: 'Kanban ERP' },
                 { id: 'briefs', icon: FileText, label: 'Briefs' },
-                { id: 'crm', icon: Users, label: 'CRM' },
-                { id: 'templates', icon: BookOpen, label: 'Modèles' },
+                { id: 'bi', icon: BarChart3, label: 'Dashboard BI' },
+                { id: 'finance', icon: CreditCard, label: 'Finance' },
+                { id: 'calendar', icon: Calendar, label: 'Calendrier' },
+                { id: 'notifications', icon: Bell, label: 'Notifications' },
+                { id: 'resources', icon: BookOpen, label: 'Ressources' },
+                { id: 'ai_studio', icon: Bot, label: 'Hadara AI Studio' },
+                { id: 'cloud', icon: Cloud, label: 'Hadara Cloud' },
+                { id: 'crm', icon: Users, label: 'CRM Clients' },
+                { id: 'analytics', icon: LayoutDashboard, label: 'Analytics' },
                 { id: 'portfolio', icon: FileImage, label: 'Portfolio' },
                 { id: 'settings', icon: Settings, label: 'Réglages' }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setAdminTab(tab.id as any)}
-                  className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center space-x-2 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center space-x-1.5 ${
                     adminTab === tab.id
-                      ? 'bg-amber-400 text-slate-950 shadow-md'
+                      ? 'bg-amber-400 text-slate-950 shadow-md scale-105'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                   }`}
                 >
-                  <tab.icon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  <tab.icon className="w-3.5 h-3.5" />
+                  <span>{tab.label}</span>
                 </button>
               ))}
+            </div>
+
+            {/* Role Switcher Selector */}
+            <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 shrink-0">
+              <span className="text-[10px] text-slate-500 font-bold px-2">Rôle:</span>
+              {(['admin', 'graphiste', 'client'] as UserRole[]).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setUserRole(r)}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase transition-all ${
+                    userRole === r
+                      ? 'bg-slate-800 text-amber-400 border border-slate-700'
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+
+            {/* Portal, Search, Trash & Studio Action Buttons */}
+            <div className="flex items-center space-x-1.5 shrink-0">
+              <button
+                onClick={() => setIsGlobalSearchOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center space-x-1"
+                title="Recherche Globale (Cmd + K)"
+              >
+                <Search className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">Recherche (Cmd+K)</span>
+              </button>
+              <button
+                onClick={() => setIsTrashBinOpen(true)}
+                className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 transition-all"
+                title="Corbeille & Restauration"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setShowClientPortal(true)}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center space-x-1"
+              >
+                <User className="w-3.5 h-3.5 text-amber-400" />
+                <span>Portail Client</span>
+              </button>
+              <button
+                onClick={() => setIsStudioModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-xs transition-all flex items-center space-x-1 border border-amber-500/30"
+              >
+                <Building className="w-3.5 h-3.5 text-amber-400" />
+                <span>+ Studio SaaS</span>
+              </button>
             </div>
 
             {/* Logout Button */}
@@ -680,6 +770,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </div>
 
       {/* ================= NEW SECTIONS ================= */}
+      {adminTab === 'kanban' && (
+        <KanbanTab 
+          briefs={briefs} 
+          userRole={userRole}
+          onOpenProject360={(b) => setSelected360Brief(b)}
+          onUpdateStatus={async (id, st) => onUpdateStatus(id, st)}
+        />
+      )}
+      {adminTab === 'bi' && <BusinessIntelligenceTab briefs={briefs} />}
+      {adminTab === 'finance' && <FinanceTab briefs={briefs} />}
+      {adminTab === 'calendar' && <CalendarTab briefs={briefs} onOpenProject360={(b) => setSelected360Brief(b)} />}
+      {adminTab === 'notifications' && <NotificationsTab briefs={briefs} />}
+      {adminTab === 'resources' && <ResourceLibraryTab />}
+      {adminTab === 'ai_studio' && <HadaraAICenterTab briefs={briefs} />}
+      {adminTab === 'cloud' && <HadaraCloudTab />}
       {adminTab === 'analytics' && <AnalyticsTab briefs={briefs} />}
       {adminTab === 'crm' && <CRMTab briefs={briefs} />}
       {adminTab === 'settings' && <SettingsTab />}
@@ -818,13 +923,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </p>
                       </div>
 
-                      <button
-                        onClick={() => handleOpenDetail(brief)}
-                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#816C07] to-[#a38b12] hover:from-[#927b08] hover:to-[#b59b15] text-[#F8F8F8] font-serif font-bold text-xs shadow-md transition-all flex items-center space-x-2 active:scale-95 border border-[#816C07]/40"
-                      >
-                        <Edit3 className="w-3.5 h-3.5 text-[#F8F8F8]" />
-                        <span>Ouvrir Brief</span>
-                      </button>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => setSelected360Brief(brief)}
+                          className="px-3 py-2 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 text-amber-400 font-bold text-xs transition-all flex items-center space-x-1.5 border border-amber-400/30"
+                        >
+                          <Layers className="w-3.5 h-3.5" />
+                          <span>Fiche 360°</span>
+                        </button>
+                        <button
+                          onClick={() => handleOpenDetail(brief)}
+                          className="px-3 py-2 rounded-xl bg-gradient-to-r from-[#816C07] to-[#a38b12] hover:from-[#927b08] hover:to-[#b59b15] text-[#F8F8F8] font-serif font-bold text-xs shadow-md transition-all flex items-center space-x-1.5 active:scale-95 border border-[#816C07]/40"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-[#F8F8F8]" />
+                          <span>Ouvrir Brief</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -972,10 +1086,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {adminTab === 'portfolio' && (
+      {adminTab === 'portfolio' && portfolioItems && (
         <PortfolioTab 
-          portfolioItems={portfolioItems || []} 
+          portfolioItems={portfolioItems} 
           onAddPortfolioItem={onAddPortfolioItem || (async () => {})} 
+          onUpdatePortfolioItem={onUpdatePortfolioItem || (async () => {})}
           onDeletePortfolioItem={onDeletePortfolioItem || (async () => {})} 
         />
       )}
@@ -987,6 +1102,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         onAnalyzeWithAI={onAnalyzeWithAI} 
         onDeleteBrief={onDeleteBrief} 
       />
+      {selected360Brief && (
+        <Project360Modal
+          brief={selected360Brief}
+          userRole={userRole}
+          onClose={() => setSelected360Brief(null)}
+          onUpdateStatus={onUpdateStatus}
+          onUpdateBriefEnriched={async (updated) => {
+            const idx = briefs.findIndex(b => b.id === updated.id);
+            if (idx !== -1) {
+              briefs[idx] = updated;
+            }
+          }}
+          onPrintBrief={onPrintBrief}
+        />
+      )}
       <TemplateModals 
         isTemplateModalOpen={isTemplateModalOpen} 
         setIsTemplateModalOpen={setIsTemplateModalOpen} 
@@ -1001,6 +1131,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         onClose={() => setIsNewBriefModalOpen(false)} 
         onAddNewBriefDirectly={onAddNewBriefDirectly} 
       />
+      <StudioOnboardingModal
+        isOpen={isStudioModalOpen}
+        onClose={() => setIsStudioModalOpen(false)}
+        onStudioCreated={(st) => alert(`Nouveau Studio "${st.name}" créé avec succès !`)}
+      />
+      {showClientPortal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950">
+          <ClientPortalView 
+            briefs={briefs}
+            onUpdateBriefEnriched={async (b) => {
+              const idx = briefs.findIndex(item => item.id === b.id);
+              if (idx !== -1) briefs[idx] = b;
+            }}
+            onClosePortal={() => setShowClientPortal(false)}
+          />
+        </div>
+      )}
+      <GlobalSearchModal
+        isOpen={isGlobalSearchOpen}
+        onClose={() => setIsGlobalSearchOpen(false)}
+        briefs={briefs}
+        onOpenProject360={(b) => setSelected360Brief(b)}
+      />
+      <TrashBinModal
+        isOpen={isTrashBinOpen}
+        onClose={() => setIsTrashBinOpen(false)}
+        deletedItems={softDeletedItems}
+        onRestoreItem={(id) => setSoftDeletedItems(prev => prev.filter(i => i.id !== id))}
+        onPermanentDelete={(id) => setSoftDeletedItems(prev => prev.filter(i => i.id !== id))}
+      />
+      {eSignBrief && (
+        <ESignatureModal
+          isOpen={!!eSignBrief}
+          onClose={() => setESignBrief(null)}
+          briefId={eSignBrief.id}
+          clientName={eSignBrief.clientName}
+          quotedPriceFCFA={eSignBrief.quotedPriceFCFA || 0}
+          onSigned={(rec) => alert(`Devis ${rec.briefId} signé par ${rec.clientName} !`)}
+        />
+      )}
     </div>
   );
 };

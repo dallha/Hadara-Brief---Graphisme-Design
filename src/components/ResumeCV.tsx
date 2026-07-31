@@ -83,13 +83,55 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
   ];
 
   const adobeSkills = [
-    { name: 'Adobe Photoshop', level: 98, desc: 'Retouche photo HD, photomontage d’impact, visuels réseaux & affiches' },
-    { name: 'Adobe Illustrator', level: 95, desc: 'Dessin vectoriel, logos, chartes graphiques & bâches grand format' },
-    { name: 'Adobe InDesign', level: 92, desc: 'Mise en page éditoriale, catalogues, magazines, brochures & fichiers interactifs' },
-    { name: 'Adobe Premiere Pro', level: 90, desc: 'Montage vidéo professionnel, découpe, sous-titrage & rythmes' },
-    { name: 'Adobe Lightroom', level: 88, desc: 'Étalonnage colorimétrique & développement photo' },
-    { name: 'Adobe Acrobat Pro', level: 95, desc: 'Gestion avancée des PDF, contrôle pré-presse & préparation HD' },
-    { name: 'Adobe After Effects', level: 75, desc: 'Motion design de base, habillage graphique & titres animés (notions)' }
+    { 
+      name: 'Adobe Photoshop', 
+      badge: 'Expert', 
+      stars: 5, 
+      badgeBg: 'bg-amber-400/20 text-amber-300 border-amber-400/40', 
+      desc: 'Retouche photo HD, affiches d’impact, bâches grand format & photomontage' 
+    },
+    { 
+      name: 'Adobe Illustrator', 
+      badge: 'Expert', 
+      stars: 5, 
+      badgeBg: 'bg-amber-400/20 text-amber-300 border-amber-400/40', 
+      desc: 'Logos, identité visuelle, illustrations vectorielles & chartes graphiques' 
+    },
+    { 
+      name: 'Adobe InDesign', 
+      badge: 'Maîtrise avancée', 
+      stars: 4, 
+      badgeBg: 'bg-emerald-400/20 text-emerald-300 border-emerald-400/40', 
+      desc: 'Brochures, magazines, catalogues, mises en page & documents interactifs' 
+    },
+    { 
+      name: 'Adobe Premiere Pro', 
+      badge: 'Maîtrise avancée', 
+      stars: 4, 
+      badgeBg: 'bg-emerald-400/20 text-emerald-300 border-emerald-400/40', 
+      desc: 'Montage vidéo professionnel, formats réseaux sociaux (Reels, TikTok) & sous-titres' 
+    },
+    { 
+      name: 'Adobe Lightroom', 
+      badge: 'Bonne maîtrise', 
+      stars: 3, 
+      badgeBg: 'bg-blue-400/20 text-blue-300 border-blue-400/40', 
+      desc: 'Colorimétrie, étalonnage & développement photo' 
+    },
+    { 
+      name: 'Adobe Acrobat Pro', 
+      badge: 'Maîtrise avancée', 
+      stars: 4, 
+      badgeBg: 'bg-emerald-400/20 text-emerald-300 border-emerald-400/40', 
+      desc: 'Pré-presse, contrôle PDF imprimeur, vérification HD & BAT' 
+    },
+    { 
+      name: 'Adobe After Effects', 
+      badge: 'Notions', 
+      stars: 2, 
+      badgeBg: 'bg-purple-400/20 text-purple-300 border-purple-400/40', 
+      desc: 'Animations simples & motion design de base' 
+    }
   ];
 
   const aiSkills = [
@@ -554,18 +596,28 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
 
                   <div className="space-y-4">
                     {adobeSkills.map((sk, idx) => (
-                      <div key={idx} className="space-y-1.5">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-slate-200">{sk.name}</span>
-                          <span className="text-amber-400 font-mono font-bold">{sk.level}%</span>
+                      <div key={idx} className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1.5 hover:border-amber-400/40 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-100 text-xs">{sk.name}</span>
+                          <div className="flex items-center space-x-2">
+                            {/* Stars rating */}
+                            <div className="flex items-center space-x-0.5">
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <Star
+                                  key={s}
+                                  className={`w-3 h-3 ${
+                                    s <= sk.stars ? 'text-amber-400 fill-amber-400' : 'text-slate-700'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            {/* Level Badge */}
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${sk.badgeBg}`}>
+                              {sk.badge}
+                            </span>
+                          </div>
                         </div>
-                        <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden p-0.5 border border-slate-800">
-                          <div 
-                            className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-400" 
-                            style={{ width: `${sk.level}%` }} 
-                          />
-                        </div>
-                        <p className="text-[11px] text-slate-400">{sk.desc}</p>
+                        <p className="text-[11px] text-slate-400 leading-snug">{sk.desc}</p>
                       </div>
                     ))}
                   </div>

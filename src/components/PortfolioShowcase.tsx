@@ -10,7 +10,7 @@ import {
   Globe, 
   ExternalLink
 } from 'lucide-react';
-import { PORTFOLIO_ITEMS } from '../data/portfolioData';
+
 import { SamplePortfolioItem } from '../types';
 
 interface PortfolioShowcaseProps {
@@ -38,7 +38,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [activeModalItem, setActiveModalItem] = useState<SamplePortfolioItem | null>(null);
 
-  const displayItems = (items && items.length > 0) ? items : PORTFOLIO_ITEMS;
+  const displayItems = items || [];
 
   const filteredItems = displayItems.filter((item) => {
     if (selectedFilter === 'all') return true;

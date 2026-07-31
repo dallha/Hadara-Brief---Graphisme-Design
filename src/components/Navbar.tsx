@@ -196,33 +196,33 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
 
       {/* MOBILE BOTTOM NAVBAR (Modernized) */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 pb-safe">
-        <div className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-2 py-2 flex items-center justify-around shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
+        <div className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1 py-1.5 flex items-center justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
           {navItems.slice(0, 2).map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => handleTabChange(id)}
               className={cn(
-                "flex flex-col items-center py-2 px-3 rounded-2xl transition-all duration-300 w-16",
-                activeTab === id ? "text-amber-400" : "text-slate-400 hover:text-slate-200"
+                "flex flex-col items-center py-1 px-1 rounded-xl transition-all duration-300 flex-1 max-w-[60px]",
+                activeTab === id ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
               )}
             >
-              <Icon className={cn("w-5 h-5 mb-1 transition-transform", activeTab === id && "scale-110")} />
-              <span className="text-[10px] font-medium tracking-wide">{label}</span>
+              <Icon className={cn("w-5 h-5 mb-0.5 transition-transform", activeTab === id && "scale-110")} />
+              <span className="text-[9px] sm:text-[10px] truncate max-w-full">{label}</span>
             </button>
           ))}
 
           {/* Center Brief Action */}
-          <div className="relative -top-6">
+          <div className="relative -top-5 shrink-0 px-1">
             <button
               onClick={() => handleTabChange('brief')}
               className={cn(
-                "flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-all duration-300 border-4 border-slate-950",
+                "flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl transition-all duration-300 border-4 border-slate-950",
                 activeTab === 'brief'
                   ? "bg-slate-800 text-amber-400 scale-105"
                   : "bg-amber-400 text-slate-950 hover:bg-amber-300 hover:scale-105 shadow-amber-400/30"
               )}
             >
-              <PlusCircle className="w-6 h-6" />
+              <PlusCircle className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
 
@@ -231,12 +231,12 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
               key={id}
               onClick={() => handleTabChange(id)}
               className={cn(
-                "flex flex-col items-center py-2 px-3 rounded-2xl transition-all duration-300 w-16",
-                activeTab === id ? "text-amber-400" : "text-slate-400 hover:text-slate-200"
+                "flex flex-col items-center py-1 px-1 rounded-xl transition-all duration-300 flex-1 max-w-[60px]",
+                activeTab === id ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
               )}
             >
-              <Icon className={cn("w-5 h-5 mb-1 transition-transform", activeTab === id && "scale-110")} />
-              <span className="text-[10px] font-medium tracking-wide">{label}</span>
+              <Icon className={cn("w-5 h-5 mb-0.5 transition-transform", activeTab === id && "scale-110")} />
+              <span className="text-[9px] sm:text-[10px] truncate max-w-full">{label}</span>
             </button>
           ))}
 
@@ -246,10 +246,10 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
               const newMode = themeMode === 'dark' ? 'light' : 'dark';
               setThemeMode(newMode);
             }}
-            className="flex flex-col items-center py-2 px-3 rounded-2xl transition-all duration-300 w-16 text-slate-400"
+            className="flex flex-col items-center py-1 px-1 rounded-xl transition-all duration-300 flex-1 max-w-[60px] text-slate-400"
           >
-            {themeMode === 'dark' ? <Sun className="w-5 h-5 mb-1" /> : <Moon className="w-5 h-5 mb-1" />}
-            <span className="text-[10px] font-medium tracking-wide">Thème</span>
+            {themeMode === 'dark' ? <Sun className="w-5 h-5 mb-0.5" /> : <Moon className="w-5 h-5 mb-0.5" />}
+            <span className="text-[9px] sm:text-[10px] truncate max-w-full">Thème</span>
           </button>
         </div>
       </nav>

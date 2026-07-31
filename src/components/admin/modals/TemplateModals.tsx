@@ -301,7 +301,7 @@ export const TemplateModals: React.FC<TemplateModalsProps> = ({
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Serigne Cheikh Ndiaye"
+                  placeholder="Nom et prénom du client / responsable"
                   value={quickGenForm.clientName}
                   onChange={(e) => setQuickGenForm({ ...quickGenForm, clientName: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-amber-400"

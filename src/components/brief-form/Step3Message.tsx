@@ -50,7 +50,7 @@ export const Step3Message: React.FC<Step3MessageProps> = ({ formData, setFormDat
           <input
             type="text"
             required
-            placeholder="Ex: GRAND GAMOU ANNUEL HADARA 2026"
+            placeholder="Titre principal de votre événement, marque ou projet"
             value={formData.mainTitle || ''}
             onChange={(e) => setFormData({ ...formData, mainTitle: e.target.value })}
             className="w-full p-4 rounded-2xl bg-slate-950 border border-amber-500/50 text-slate-100 font-bold text-lg focus:border-amber-400 focus:outline-none transition-colors shadow-inner"
@@ -59,11 +59,11 @@ export const Step3Message: React.FC<Step3MessageProps> = ({ formData, setFormDat
 
         <div className="space-y-2">
           <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-            Texte complet à afficher (Thème, Intervenants, Dates, Lieu, Contacts)
+            Texte complet à afficher (Thème, Présidents, Conférenciers, Dates, Lieu, Contacts)
           </label>
           <textarea
             rows={6}
-            placeholder={`Copiez-collez votre texte ici :\n- Thème : L'Éducation & la spiritualité\n- Sous le haut patronage de : Cheikh...\n- Conférencier : Serigne...\n- Date : Samedi 15 Août 2026 à 16h\n- Lieu : Esplanade Grande Mosquée, Dakar\n- Contact WhatsApp : 77 000 00 00`}
+            placeholder={`Saisissez ou collez l'intégralité du texte à figurer sur le visuel :\n• Thème principal\n• Intervenants / Personnalités\n• Date & Heure exactes\n• Lieu & Adresse\n• Contacts WhatsApp / Téléphone`}
             value={formData.fullTextContent || ''}
             onChange={(e) => setFormData({ ...formData, fullTextContent: e.target.value })}
             className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 text-slate-100 text-sm font-mono focus:border-amber-500 focus:outline-none transition-colors"

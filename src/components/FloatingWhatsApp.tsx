@@ -98,19 +98,36 @@ export const FloatingWhatsApp: React.FC = () => {
             Pour vos créations de visuels, logos, bâches grand format ou sites web via IA, contactez le studio :
           </p>
 
-          <div className="space-y-2.5">
-            {/* Direct WhatsApp */}
+          <div className="space-y-2">
+            {/* Primary Phone: Appels, WhatsApp & Telegram */}
             <a
-              href={`https://wa.me/${primaryPhoneSN}?text=${defaultMessage}`}
+              href={`https://wa.me/221776232741?text=${defaultMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between p-3.5 rounded-xl bg-[#224A33] hover:bg-[#1a3a28] border border-[#816C07]/60 transition-all text-xs font-bold text-[#F5F5DC] group shadow-lg"
+              className="flex items-center justify-between p-3 rounded-xl bg-[#224A33] hover:bg-[#1a3a28] border border-[#816C07]/60 transition-all text-xs font-bold text-[#F5F5DC] group shadow-lg"
+            >
+              <div className="flex items-center space-x-2.5">
+                <span className="text-base">📞</span>
+                <div>
+                  <span className="block font-serif font-bold text-[#F5F5DC] text-[11px]">Appels, WhatsApp & Telegram</span>
+                  <span className="text-[11px] text-amber-300 font-mono font-bold">+221 77 623 27 41</span>
+                </div>
+              </div>
+              <Send className="w-4 h-4 text-[#F5F5DC] group-hover:translate-x-1 transition-transform" />
+            </a>
+
+            {/* Secondary Phone: WhatsApp & Telegram */}
+            <a
+              href={`https://wa.me/221763756363?text=${defaultMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all text-xs font-bold text-[#F5F5DC] group shadow-md"
             >
               <div className="flex items-center space-x-2.5">
                 <span className="text-base">💬</span>
                 <div>
-                  <span className="block font-serif font-bold text-[#F5F5DC] text-xs">WhatsApp Direct</span>
-                  <span className="text-[11px] text-[#F5F5DC] font-bold">+221 77 623 27 41</span>
+                  <span className="block font-serif font-bold text-[#F5F5DC] text-[11px]">WhatsApp & Telegram</span>
+                  <span className="text-[11px] text-emerald-400 font-mono font-bold">+221 76 375 63 63</span>
                 </div>
               </div>
               <Send className="w-4 h-4 text-[#F5F5DC] group-hover:translate-x-1 transition-transform" />

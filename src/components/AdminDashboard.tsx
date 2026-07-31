@@ -474,26 +474,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   return (
-    <div className="space-y-8 pb-16 max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="space-y-8 pb-16 max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
       
       {/* Top Header & Tab Switcher */}
-      <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-5">
+      <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-5 w-full min-w-0 overflow-hidden">
         
         {/* Top Controls Row */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-          <div>
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4 w-full min-w-0">
+          <div className="min-w-0">
             <div className="flex items-center space-x-2">
-              <span className="px-3 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-bold uppercase">
+              <span className="px-3 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-bold uppercase shrink-0">
                 Hadara Manager ERP
               </span>
-              <span className="text-xs text-slate-400">Studio Graphique Pro</span>
+              <span className="text-xs text-slate-400 truncate">Studio Graphique Pro</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-slate-100 mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-slate-100 mt-0.5 truncate">
               Tableau de Bord & Production ERP
             </h2>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto shrink-0">
             {/* Role Switcher Selector */}
             <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
               <span className="text-[10px] text-slate-500 font-bold px-1.5">Rôle:</span>
@@ -513,7 +513,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {/* Portal, Search, Trash & Studio Action Buttons */}
-            <div className="flex items-center space-x-1.5 overflow-x-auto">
+            <div className="flex items-center space-x-1.5 max-w-full overflow-x-auto">
               <button
                 onClick={() => setIsGlobalSearchOpen(true)}
                 className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center space-x-1 shrink-0"
@@ -558,8 +558,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
 
-        {/* Dedicated Horizontal Scroll Navigation Bar */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none max-w-full bg-slate-950 p-2 rounded-2xl border border-slate-800">
+        {/* Dedicated Horizontal Scroll Navigation Bar (Safari flex fix) */}
+        <div className="w-full min-w-0 overflow-x-auto pb-1 scrollbar-none bg-slate-950 p-2 rounded-2xl border border-slate-800">
+          <div className="flex items-center space-x-2 min-w-max">
           {[
             { id: 'kanban', icon: Layers, label: 'Kanban ERP' },
             { id: 'briefs', icon: FileText, label: 'Briefs' },
@@ -588,6 +589,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span>{tab.label}</span>
             </button>
           ))}
+          </div>
         </div>
 
         {/* WhatsApp Availability Management Control Box */}

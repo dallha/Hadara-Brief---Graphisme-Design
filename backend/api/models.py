@@ -63,14 +63,14 @@ class Brief(models.Model):
             with transaction.atomic():
                 # Lock the table/row to prevent race conditions during ID generation
                 last_brief = Brief.objects.select_for_update().order_by('-created_at').first()
-                if last_brief and last_brief.id.startswith('HDR-'):
+                if last_brief and (last_brief.id.startswith('HAD-') or last_brief.id.startswith('HDR-')):
                     try:
                         last_id_num = int(last_brief.id.split('-')[1])
-                        self.id = f"HDR-{(last_id_num + 1):04d}"
+                        self.id = f"HAD-{(last_id_num + 1):04d}"
                     except (ValueError, IndexError):
-                        self.id = "HDR-0001"
+                        self.id = "HAD-0001"
                 else:
-                    self.id = "HDR-0001"
+                    self.id = "HAD-0001"
         super().save(*args, **kwargs)
 
     def __str__(self):

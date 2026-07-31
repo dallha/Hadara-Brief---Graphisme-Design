@@ -220,7 +220,7 @@ export default function App() {
       }
       // Fallback
       const fallback: BriefData = {
-        ...briefData, id: `HDR-${String(briefs.length + 1).padStart(4, '0')}`,
+        ...briefData, id: `HAD-${String(briefs.length + 1).padStart(4, '0')}`,
         createdAt: new Date().toISOString(), status: 'nouveau',
       };
       setBriefs(prev => [fallback, ...prev]);

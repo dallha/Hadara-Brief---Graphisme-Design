@@ -1,106 +1,67 @@
-🎨 Le Graphiste de la Hadara — Plateforme de Brief Créatif & Gestion de Projets
+🎨 Hadara Suite v2.0.0 — Plateforme SaaS ERP, CRM & AI pour Studios Graphiques
 
-Cette application web complète (PWA) a été développée pour Le Graphiste de la Hadara (Dakar, Sénégal).  Elle permet de collecter efficacement les briefs créatifs des clients pour la conception d’affiches, de bâches grand format, de banderoles, de flyers et d’identités visuelles associées à des événements religieux, des cérémonies (Gamou, Magal, Ziarra), des dahiras et des complexes, et de livrer des fichiers HD prêts pour l’impression.
+**Hadara Suite** est une suite logicielle SaaS professionnelle (Web & PWA) développée pour **Le Graphiste de la Hadara** (Dakar, Sénégal).  
+Elle réunit en une seule plateforme : la vitrine studio, le formulaire de brief intelligent, l'ERP de production (Kanban, Fiche 360°), la gestion financière (Devis & Factures PDF), le copilote **Hadara AI Studio** et l'administration multi-tenant **Hadara Cloud**.
 
-—
+---
 
-📌 1. Vue d’Ensemble & Concept
+📌 1. Les 4 Espaces Produit
 
-Cette application répond au problème récurrent des informations imprécises ou incomplètes lors de la création de visuels.
+1. **Hadara Studio** (Vitrine & Conversion) :
+   - Formulaire de brief intelligent en 5 étapes avec validation en temps réel.
+   - Portfolio Bento Grid des créations (affiches, bâches grand format, diplômes, identités visuelles).
+   - **CV Interactif Professionnel** : Notation 5 Étoiles, badges de maîtrise (Expert, Maîtrise avancée, Bonne maîtrise, Notions) et usages réels par logiciel Adobe (Photoshop, Illustrator, InDesign, Premiere Pro, Lightroom, Acrobat Pro, After Effects).
 
-Pour le Client : un parcours utilisateur guidé par étapes permet de préciser les détails du projet (titre principal, textes secondaires, thématiques islamiques, dimensions, budget en FCFA et échéances).
-Pour le Graphiste : un tableau de bord centralisé offre une vue d’ensemble des briefs, facilite l’analyse, permet l’ajustement des devis, la génération de réponses WhatsApp préformatées et l’utilisation d’un Assistant IA Directeur Artistique alimenté par Gemini.
+2. **Hadara Manager** (ERP & CRM Opérationnel) :
+   - **Kanban Production 6 Étapes** (`nouveau` ➔ `devis_envoye` ➔ `acompte_recu` ➔ `en_creation` ➔ `validation` ➔ `termine`).
+   - **Fiche Projet 360°** : Timeline visuelle, versionnage des livrables (V1, V2, HD), checklist qualité 5 points, journal d'activité et commentaires.
+   - **Finance & Facturation** : Génération de devis et factures PDF, acomptes 50%, soldes 50% et canaux locaux (Wave Sénégal, Orange Money, Free Money, Espèces).
+   - **Recherche Globale (`Cmd + K`)** : Recherche universelle dans les clients, briefs, devis et fichiers.
+   - **Corbeille Soft-Delete** : Restauration instantanée sans perte de données.
+   - **Signature Électronique** : Validation numérique des devis par le client.
 
-> ⚠️ Clarification importante sur le livrable : le studio assure la conception graphique sur mesure et livre des fichiers numériques HD prêts à imprimer (PDF Haute Définition CMJN, PNG sans fond, fichiers vectoriels). L’impression physique est à la charge du client auprès de l’imprimeur de son choix.
+3. **Hadara AI Pro** (Copilote & Directeur Artistique IA) :
+   - Prompts structurés pour Midjourney v6, Adobe Firefly, DALL-E 3 et Stable Diffusion.
+   - Copywriter automatique pour réseaux sociaux.
+   - Audit de densité de texte pour affiches & bâches.
+   - Score Qualité /100.
 
-—
+4. **Hadara Cloud** (Administration SaaS Multi-Studios) :
+   - Tableau de bord éditeur : Suivi des métriques **MRR, ARR, Churn Rate**.
+   - Gestion multi-tenant des studios abonnés.
+   - Licences White-Label & Support.
 
-🚀 2. Fonctionnalités Clés
+---
 
-📱 A. Progressive Web App (PWA) & Expérience Premium
-* **Splash Screen Immersif** : une page d’accueil soignée met en valeur le logo officiel, la devise et l’identité de marque avant l’accès à l’application.
-* **Design Premium & Bento Grid** : L'interface arbore un design luxueux avec des typographies de haute volée (Cinzel, Cairo, Amiri, Libre Caslon Text), une présentation des services en "Bento Grid" et un processus en timeline.
-* **Mode Clair ("Parchemin Lumineux")** : Un mode clair adaptatif qui maintient l'élégance des cartes sombres tout en optimisant le contraste.
-* **CV Interactif Intégré** : Un mini-site CV interactif et imprimable (format ATS) présentant les compétences, formations et maîtrises linguistiques du graphiste.
-* **PWA Intégrée** : application installable sur mobile et bureau (manifest.webmanifest, icônes Apple et favicons haute définition, compatible avec le mode hors ligne).
+🛠️ 2. Architecture Technique
 
-📝 B. Formulaire de Brief Express (5 Étapes Fluides)
+- **Frontend** : React 18, TypeScript, Tailwind CSS (v4), Vite PWA.
+- **Backend API** : Python 3.10+ / Django REST Framework.
+- **Base de Données** : Supabase (PostgreSQL Cloud).
+- **Hébergement** : Render (Frontend SPA + Backend Django) + CDN Cloudflare (SSL Full Mode).
 
-Un formulaire guidé et professionnalisé permet de recueillir précisément les besoins du client (contact, type de projet, contenus textuels, ambiance, devis/délais).
-Les uploads de fichiers et pièces jointes sont optimisés avec une limite stricte de 5Mo max.
-Un PDF du dossier client est généré automatiquement à la fin du parcours.
+---
 
-💬 C. Notifications WhatsApp Instantanées (CallMeBot)
+⚙️ 3. Lancement Local
 
-À la validation d’un brief, le backend Django transmet automatiquement une alerte WhatsApp gratuite à l’administrateur avec les éléments clés (client, budget, urgence) via l’API CallMeBot.
-
-🤖 D. Assistant IA Directeur Artistique (Gemini)
-
-L’analyse automatique vérifie la cohérence du brief.
-Une palette de couleurs recommandée (codes HEX et dénominations) est proposée.
-Des recommandations typographiques et de mise en page sont fournies, prêtes à être intégrées au devis.
-
-📊 E. Tableau de Bord Graphiste & Bibliothèque de Modèles
-
-Gestion des Briefs Clients : suivi des statuts, recherche rapide, modification des tarifs.
-Protection Anti-Spam : le backend sécurise les soumissions (idempotence de 5 minutes) et génère des identifiants uniques (ex. : HADARA-2026-001).
-
-—
-
-🛠️ 3. Architecture Technique
-
-Frontend : React 18, TypeScript, Tailwind CSS, Vite (plugin PWA).
-Backend API : Python / Django REST Framework avec base de données SQLite3.
-IA : Google Gemini API (gemini-2.5-flash).
-Notifications : CallMeBot HTTP API pour WhatsApp.
-
-—
-
-⚙️ 4. Installation and Local Launch
-
-Prerequisites
-
-Node.js (v18+)
-Python 3.10+
-Un compte Google AI Studio (clé API Gemini)
-Une clé API CallMeBot (pour les alertes WhatsApp)
-
-A. Frontend (React / Vite)
-
-Installer les dépendances
+```bash
+# 1. Frontend (React / Vite)
 npm install
-
-Démarrer le serveur de développement (Port 5173)
 npm run dev
 
-B. Backend (Django)
-
-Se déplacer dans le dossier backend
+# 2. Backend (Django)
 cd backend
-
-Créer un environnement virtuel
 python3 -m venv venv
-source venv/bin/activate  # Sur Windows : venv\Scripts\activate
-
-Installer les dépendances (django, djangorestframework, django-cors-headers, requests, google-genai)
-pip install django djangorestframework django-cors-headers requests google-genai
-Effectuer les migrations de la base de données
+source venv/bin/activate
+pip install -r requirements.txt
 python manage.py migrate
-Lancer le serveur Django (Port 8000)
 python manage.py runserver
+```
 
-C. Variables d’Environnement & Sécurité (IMPORTANT)
+---
 
-> 🚨 Ne jamais commettre vos clés API sur GitHub !
+📄 Documentation Complète
+Consultez la [DOCUMENTATION.md](file:///Users/mac/Documents/Mes%20Docs/code/Hadara%20Brief%20-%20Graphisme%20&%20Design/DOCUMENTATION.md) pour les détails d'architecture de bout en bout.
 
-Dans le dossier backend/, créer un fichier nommé .env (ce fichier est ignoré par .gitignore).  Remplir ce fichier avec vos propres clés privées :
-backend/.env
-GEMINIAPIKEY=votrecleapigeminisecrete
-CALLMEBOT_PHONE=+221770000000
-CALLMEBOTAPIKEY=votrecleapicallmebotsecrete
-Un fichier .env.example est fourni dans le code pour servir de modèle.
-
-—
-
-📄 Licence & Crédits
 Développé pour Le Graphiste de la Hadara — Dakar, Sénégal.
+

@@ -38,7 +38,10 @@ import {
   Users,
   Settings,
   Download,
-  LogOut
+  LogOut,
+  BarChart3,
+  Bell,
+  Cloud
 } from 'lucide-react';
 import { BriefData, BriefStatus, AIAnalysisResult, BriefTemplate, ProjectType, TechnicalFormat, StylePreference, BudgetRange, SamplePortfolioItem, UserRole } from '../types';
 

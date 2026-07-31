@@ -14,6 +14,7 @@ import { PORTFOLIO_ITEMS } from '../data/portfolioData';
 import { SamplePortfolioItem } from '../types';
 
 interface PortfolioShowcaseProps {
+  items?: SamplePortfolioItem[];
   onSelectCategoryForBrief: (categoryType: string) => void;
 }
 
@@ -31,19 +32,23 @@ const itemVariants = {
 };
 
 export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
+  items,
   onSelectCategoryForBrief,
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [activeModalItem, setActiveModalItem] = useState<SamplePortfolioItem | null>(null);
 
-  const filteredItems = PORTFOLIO_ITEMS.filter((item) => {
+  const displayItems = (items && items.length > 0) ? items : PORTFOLIO_ITEMS;
+
+  const filteredItems = displayItems.filter((item) => {
     if (selectedFilter === 'all') return true;
-    if (selectedFilter === 'identite' && item.category.toLowerCase().includes('identité')) return true;
-    if (selectedFilter === 'communication' && item.category.toLowerCase().includes('communication')) return true;
-    if (selectedFilter === 'grandformat' && item.category.toLowerCase().includes('grand format')) return true;
-    if (selectedFilter === 'booster' && item.category.toLowerCase().includes('booster')) return true;
-    if (selectedFilter === 'web' && item.category.toLowerCase().includes('web')) return true;
-    return true;
+    const cat = (item.category || '').toLowerCase();
+    if (selectedFilter === 'identite' && (cat.includes('identité') || cat.includes('logo') || cat.includes('branding'))) return true;
+    if (selectedFilter === 'communication' && (cat.includes('communication') || cat.includes('affiche') || cat.includes('flyer'))) return true;
+    if (selectedFilter === 'grandformat' && (cat.includes('grand format') || cat.includes('bâche') || cat.includes('bache'))) return true;
+    if (selectedFilter === 'booster' && (cat.includes('booster') || cat.includes('package') || cat.includes('pack'))) return true;
+    if (selectedFilter === 'web' && (cat.includes('web') || cat.includes('site') || cat.includes('digital') || cat.includes('ia'))) return true;
+    return false;
   });
 
   return (

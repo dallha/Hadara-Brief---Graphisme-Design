@@ -729,6 +729,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         )}
       </div>
 
+      {/* 13 Navigation Tabs Bar (Scrollable & Responsive) */}
+      <div className="w-full min-w-0 overflow-x-auto pb-1 scrollbar-none bg-slate-900 p-2.5 rounded-2xl border border-slate-800 shadow-xl">
+        <div className="flex items-center space-x-2 min-w-max">
+          {[
+            { id: 'kanban', icon: Layers, label: 'Kanban ERP' },
+            { id: 'briefs', icon: FileText, label: 'Briefs' },
+            { id: 'bi', icon: BarChart3, label: 'Dashboard BI' },
+            { id: 'finance', icon: CreditCard, label: 'Finance' },
+            { id: 'calendar', icon: Calendar, label: 'Calendrier' },
+            { id: 'notifications', icon: Bell, label: 'Notifications' },
+            { id: 'resources', icon: BookOpen, label: 'Ressources' },
+            { id: 'ai_studio', icon: Bot, label: 'Hadara AI Studio' },
+            { id: 'cloud', icon: Cloud, label: 'Hadara Cloud' },
+            { id: 'crm', icon: Users, label: 'CRM Clients' },
+            { id: 'analytics', icon: LayoutDashboard, label: 'Analytics' },
+            { id: 'portfolio', icon: FileImage, label: 'Portfolio' },
+            { id: 'settings', icon: Settings, label: 'Réglages' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setAdminTab(tab.id as any)}
+              className={`shrink-0 whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center space-x-2 ${
+                adminTab === tab.id
+                  ? 'bg-amber-400 text-slate-950 shadow-md scale-105'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-950 border border-slate-800/80'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* ================= NEW SECTIONS ================= */}
       {adminTab === 'kanban' && (
         <KanbanTab 

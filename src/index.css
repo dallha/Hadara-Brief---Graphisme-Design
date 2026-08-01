@@ -300,6 +300,80 @@ nav.fixed.bottom-0 .text-\[\#816C07\],
   }
 }
 
+/* ================================================================
+ * PRINT STYLES FOR CV & ATS EXPORT
+ * ================================================================ */
+@media print {
+  /* Force pristine white background and crisp dark text for print */
+  html, body, #root {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide all non-essential UI elements during printing */
+  nav,
+  footer,
+  header,
+  .no-print,
+  .print\:hidden,
+  .floating-whatsapp-container,
+  nav.fixed.bottom-0,
+  .fixed.bottom-0,
+  .fixed.bottom-20,
+  button,
+  iframe,
+  aside {
+    display: none !important;
+  }
+
+  /* Remove shadows, background overlays and borders */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Page setup for clean A4 printing */
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+
+  /* Prevent page breaks inside section blocks */
+  h1, h2, h3, .avoid-break-print {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure text colors in printable CV sheet remain crisp black/slate */
+  .printable-cv-sheet {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .printable-cv-sheet * {
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  .printable-cv-sheet h1,
+  .printable-cv-sheet h2,
+  .printable-cv-sheet strong {
+    color: #020617 !important;
+  }
+}
+
+
 
 
 

@@ -867,28 +867,28 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </button>
           </div>
 
-          {/* Printable Sheet */}
-          <div className="bg-white text-slate-900 p-8 sm:p-12 rounded-2xl shadow-2xl space-y-6 font-sans text-xs max-w-4xl mx-auto print:p-0 print:shadow-none print:bg-transparent print:text-black">
+          {/* Printable Sheet (Crisp White High Contrast Print) */}
+          <div className="printable-cv-sheet bg-white text-slate-900 p-8 sm:p-10 rounded-2xl shadow-2xl space-y-4 font-sans text-xs max-w-4xl mx-auto print:p-0 print:shadow-none print:bg-white print:text-slate-950 print:w-full print:max-w-none">
             
             {/* Verse Citation */}
-            <div className="text-center pb-2 border-b border-slate-200">
-              <p className="font-serif text-sm font-bold text-slate-800">
+            <div className="text-center pb-2 border-b border-slate-200 avoid-break-print">
+              <p className="font-serif text-sm font-bold text-slate-900">
                 <span dir="rtl" lang="ar" className="inline-block">﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾</span>
               </p>
-              <p className="text-[10px] text-slate-600 italic">
+              <p className="text-[10px] text-slate-700 italic">
                 « Ma réussite ne dépend que d’Allah. » (Sourate Hûd, verset 88)
               </p>
             </div>
 
             {/* Header */}
-            <div className="border-b-2 border-slate-800 pb-4 space-y-2 text-center sm:text-left">
-              <h1 className="text-2xl font-bold uppercase tracking-wider text-slate-900 font-serif">
+            <div className="border-b-2 border-slate-800 pb-3 space-y-1.5 text-center sm:text-left avoid-break-print">
+              <h1 className="text-xl font-bold uppercase tracking-wider text-slate-950 font-serif">
                 EL HADJI ABDOULAYE MOUHAMED LAMINE NIASS
               </h1>
-              <p className="text-xs font-bold text-slate-700">
+              <p className="text-xs font-bold text-slate-800">
                 Graphiste | Créateur d’identités visuelles | Monteur vidéo | Créateur de sites web assisté par l’IA
               </p>
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-[11px] text-slate-600 pt-1">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-[10px] text-slate-700 pt-0.5">
                 <span>📍 Dakar, Sénégal</span>
                 <span>•</span>
                 <span>📞 +221 77 623 27 41</span>
@@ -898,21 +898,21 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </div>
 
             {/* Profil */}
-            <div className="space-y-1">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
+            <div className="space-y-1 avoid-break-print">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                 PROFIL
               </h2>
-              <p className="text-slate-700 text-[11px] leading-relaxed pt-1">
+              <p className="text-slate-800 text-[10px] leading-relaxed pt-0.5">
                 Graphiste créatif spécialisé dans la conception d’identités visuelles, la communication événementielle et les supports publicitaires. J’accompagne les entreprises, associations, institutions et organisateurs d’événements dans la création de visuels élégants, stratégiques et adaptés à leurs objectifs. Je réalise également des montages vidéo et conçois des sites web vitrines avec l’assistance des technologies d’intelligence artificielle afin de proposer des solutions modernes, rapides et efficaces.
               </p>
             </div>
 
             {/* Domaines d'Expertise */}
-            <div className="space-y-2">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
+            <div className="space-y-1.5 avoid-break-print">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                 DOMAINES D’EXPERTISE
               </h2>
-              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-700">
+              <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-800">
                 <div><strong>Identité visuelle:</strong> Logos, Branding, Charte graphique, Identité de marque</div>
                 <div><strong>Communication événementielle:</strong> Affiches, Flyers, Dépliants, Brochures, Magazines, Invitations, Certificats</div>
                 <div><strong>Supports publicitaires:</strong> Bâches grand format, Roll-up, Kakémonos, Panneaux, Signalétique</div>
@@ -923,44 +923,43 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </div>
 
             {/* Compétences Techniques */}
-            <div className="space-y-2">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
+            <div className="space-y-1.5 avoid-break-print">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                 COMPÉTENCES TECHNIQUES
               </h2>
-              <div className="text-[11px] text-slate-700 space-y-1">
-                <p><strong>Adobe Creative Cloud:</strong> Photoshop, Illustrator, InDesign, Premiere Pro, Lightroom, Acrobat Pro, After Effects (notions)</p>
-                <p><strong>Intelligence Artificielle:</strong> Création graphique, génération d’images, création de contenus, conception de sites web, optimisation du processus créatif</p>
+              <div className="text-[10px] text-slate-800 space-y-0.5">
+                <p><strong>Adobe Creative Cloud:</strong> Photoshop (Expert), Illustrator (Expert), InDesign (Avancé), Premiere Pro (Avancé), Lightroom (Bonne maîtrise), Acrobat Pro (Avancé), After Effects (Notions)</p>
+                <p><strong>Intelligence Artificielle:</strong> Création graphique, génération d’images (Midjourney, DALL-E, Firefly), rédaction de contenus, conception de sites web, automatisation</p>
               </div>
             </div>
 
             {/* Expérience Professionnelle */}
-            <div className="space-y-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
+            <div className="space-y-2 avoid-break-print">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                 EXPÉRIENCE PROFESSIONNELLE
               </h2>
 
-              <div className="space-y-1">
-                <div className="flex justify-between items-baseline font-bold text-slate-900">
+              <div className="space-y-0.5">
+                <div className="flex justify-between items-baseline font-bold text-slate-950 text-[11px]">
                   <span>Graphiste Freelance — Le Graphiste de la Hadara</span>
                   <span>2020 – Présent</span>
                 </div>
-                <ul className="list-disc list-inside text-slate-700 text-[11px] space-y-0.5">
-                  <li>Création d’identités visuelles professionnelles.</li>
-                  <li>Conception d’affiches et de bâches grand format.</li>
-                  <li>Réalisation de supports publicitaires imprimés.</li>
+                <ul className="list-disc list-inside text-slate-800 text-[10px] space-y-0.5">
+                  <li>Création d’identités visuelles professionnelles et chartes graphiques sur-mesure.</li>
+                  <li>Conception d’affiches et de bâches grand format (Gamou, Magal, Ziarra, événements).</li>
+                  <li>Réalisation de supports publicitaires imprimés (flyers, brochures, kakémonos, diplômes).</li>
                   <li>Communication visuelle pour événements religieux, institutionnels et culturels.</li>
-                  <li>Création de contenus pour les réseaux sociaux.</li>
-                  <li>Préparation des fichiers HD destinés à l’impression.</li>
+                  <li>Création de contenus pour les réseaux sociaux & préparation des fichiers HD d'impression.</li>
                   <li>Accompagnement des clients de la conception jusqu’à la livraison finale.</li>
                 </ul>
               </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between items-baseline font-bold text-slate-900">
+              <div className="space-y-0.5 pt-1">
+                <div className="flex justify-between items-baseline font-bold text-slate-950 text-[11px]">
                   <span>Gérant Multiservices — Sénégal</span>
                   <span>2014 – 2017</span>
                 </div>
-                <ul className="list-disc list-inside text-slate-700 text-[11px] space-y-0.5">
+                <ul className="list-disc list-inside text-slate-800 text-[10px] space-y-0.5">
                   <li>Gestion d’un point multiservices, paiement de factures, transferts d’argent.</li>
                   <li>Relation clientèle, gestion administrative et financière.</li>
                 </ul>
@@ -968,12 +967,12 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </div>
 
             {/* Formations & Certifications */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 avoid-break-print">
               <div className="space-y-1">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                   FORMATIONS
                 </h2>
-                <div className="text-[11px] text-slate-700 space-y-1 pt-1">
+                <div className="text-[10px] text-slate-800 space-y-0.5 pt-0.5">
                   <p><strong>Diplôme d’Imam:</strong> Institut Mohammed VI (2020)</p>
                   <p><strong>Informatique & Bureautique:</strong> Formation (2013)</p>
                   <p><strong>Baccalauréat:</strong> École Al-Azhar, Le Caire (2013)</p>
@@ -983,10 +982,10 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
               </div>
 
               <div className="space-y-1">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                   CERTIFICATIONS PROFESSIONNELLES
                 </h2>
-                <div className="text-[11px] text-slate-700 space-y-1 pt-1">
+                <div className="text-[10px] text-slate-800 space-y-0.5 pt-0.5">
                   <p><strong>Khayal Academy:</strong> Interactive Files in InDesign (2021), Photoshop 2021 (2022), Graphs in Illustrator (2022), Script in Illustrator (2024)</p>
                   <p><strong>Udemy:</strong> Adobe After Effects CC 2022, American English Language & Accent (13,5h)</p>
                 </div>
@@ -994,28 +993,28 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </div>
 
             {/* Langues & Qualités */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 avoid-break-print">
               <div className="space-y-1">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                   LANGUES
                 </h2>
-                <p className="text-[11px] text-slate-700 pt-1">
-                  Wolof (Maternelle - 100%) • Arabe (Secondaire - 90%) • Français (Principale - 80%) • Anglais (Très Débutant - 25%)
+                <p className="text-[10px] text-slate-800 pt-0.5">
+                  Wolof (Maternelle - 100%) • Arabe (Secondaire - 90%) • Français (Principale - 80%) • Anglais (Débutant - 25%)
                 </p>
               </div>
 
               <div className="space-y-1">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                   QUALITÉS & INTÉRÊTS
                 </h2>
-                <p className="text-[11px] text-slate-700 pt-1">
-                  Créativité, Sens du détail, Organisation, Autonomie, Apprentissage continu • Étude du Coran, Design, IA, Montage vidéo, Football
+                <p className="text-[10px] text-slate-800 pt-0.5">
+                  Créativité, Sens du détail, Organisation, Autonomie • Étude du Coran, Design, IA, Montage vidéo, Football
                 </p>
               </div>
             </div>
 
             {/* Footer ATS */}
-            <div className="border-t border-slate-300 pt-3 text-center text-[10px] text-slate-700">
+            <div className="border-t border-slate-300 pt-2 text-center text-[9px] text-slate-600 avoid-break-print">
               <p>CV Officiel de El Hadji Abdoulaye Mouhamed Lamine Niass — Le Graphiste de la Hadara • Dakar, Sénégal</p>
             </div>
 

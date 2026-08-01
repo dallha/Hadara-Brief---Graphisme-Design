@@ -45,17 +45,42 @@ export default function App() {
   const [currentBrief, setCurrentBrief] = useState<BriefData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [printableBrief, setPrintableBrief] = useState<BriefData | null>(null);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => !!sessionStorage.getItem('hadara_admin_token'));
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    try {
+      return !!sessionStorage.getItem('hadara_admin_token');
+    } catch {
+      return false;
+    }
+  });
+
+  const [hasVisited, setHasVisited] = useState(() => {
+    try {
+      return !!sessionStorage.getItem('hadara_visited');
+    } catch {
+      return false;
+    }
+  });
+
   const [adminUsernameInput, setAdminUsernameInput] = useState('');
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [adminPasswordError, setAdminPasswordError] = useState(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   // Brute-force state
-  const [failedAttempts, setFailedAttempts] = useState(() => parseInt(localStorage.getItem('admin_failed_attempts') || '0', 10));
+  const [failedAttempts, setFailedAttempts] = useState(() => {
+    try {
+      return parseInt(localStorage.getItem('admin_failed_attempts') || '0', 10);
+    } catch {
+      return 0;
+    }
+  });
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(() => {
-    const lockout = localStorage.getItem('admin_lockout_until');
-    return lockout ? parseInt(lockout, 10) : null;
+    try {
+      const lockout = localStorage.getItem('admin_lockout_until');
+      return lockout ? parseInt(lockout, 10) : null;
+    } catch {
+      return null;
+    }
   });
   const [lockoutRemaining, setLockoutRemaining] = useState(0);
 
@@ -307,11 +332,20 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleEnterStudio = () => {
+    try {
+      sessionStorage.setItem('hadara_visited', 'true');
+    } catch (e) {}
+    setHasVisited(true);
+    navigate('/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // ── SPLASH SCREEN ─────────────────────────────────────────────
-  if (location.pathname === '/' && !sessionStorage.getItem('hadara_visited')) {
+  if (location.pathname === '/' && !hasVisited) {
     return (
       <div className="min-h-screen bg-[#0d131f] text-[#F5F5DC] font-sans">
-        <SplashEntry onEnter={() => { sessionStorage.setItem('hadara_visited', 'true'); navigate('/'); }} />
+        <SplashEntry onEnter={handleEnterStudio} />
         <FloatingWhatsApp />
       </div>
     );

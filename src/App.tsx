@@ -444,8 +444,8 @@ export default function App() {
       <Navbar
         activeTab={activeTab as any}
         setActiveTab={goTo}
-        briefsCount={briefs.length}
-        newBriefsCount={briefs.filter(b => b.status === 'nouveau').length}
+        briefsCount={(briefs || []).length}
+        newBriefsCount={(briefs || []).filter(b => b.status === 'nouveau').length}
       />
 
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 pb-32 md:pb-16 relative">

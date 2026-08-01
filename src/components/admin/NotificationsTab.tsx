@@ -18,9 +18,10 @@ interface NotificationsTabProps {
 }
 
 export const NotificationsTab: React.FC<NotificationsTabProps> = ({ briefs }) => {
+  const safeBriefs = Array.isArray(briefs) ? briefs : [];
   const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
     // Generate notification list based on briefs events
-    return briefs.flatMap((b, idx) => [
+    return safeBriefs.flatMap((b, idx) => [
       {
         id: `notif-new-${b.id}`,
         title: `Nouveau brief reçu : "${b.mainTitle}"`,

@@ -8,6 +8,7 @@ interface CRMTabProps {
 }
 
 export const CRMTab: React.FC<CRMTabProps> = ({ briefs }) => {
+  const safeBriefs = Array.isArray(briefs) ? briefs : [];
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClientPhone, setSelectedClientPhone] = useState<string | null>(null);
 
@@ -22,7 +23,7 @@ export const CRMTab: React.FC<CRMTabProps> = ({ briefs }) => {
   const [fontInput, setFontInput] = useState('Cinzel, Cairo');
   const [brandNotesInput, setBrandNotesInput] = useState('');
 
-  const clients = Object.values(briefs.reduce((acc, b) => {
+  const clients = Object.values(safeBriefs.reduce((acc, b) => {
     const key = b.whatsapp || 'Inconnu';
     if (!acc[key]) {
       acc[key] = { 

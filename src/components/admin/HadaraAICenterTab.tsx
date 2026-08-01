@@ -21,11 +21,12 @@ interface HadaraAICenterTabProps {
 }
 
 export const HadaraAICenterTab: React.FC<HadaraAICenterTabProps> = ({ briefs }) => {
-  const [selectedBriefId, setSelectedBriefId] = useState<string>(briefs[0]?.id || '');
+  const safeBriefs = Array.isArray(briefs) ? briefs : [];
+  const [selectedBriefId, setSelectedBriefId] = useState<string>(safeBriefs[0]?.id || '');
   const [activeSubTab, setActiveSubTab] = useState<'prompts' | 'social' | 'checklist' | 'analysis'>('prompts');
   const [copiedPromptKey, setCopiedPromptKey] = useState<string | null>(null);
 
-  const selectedBrief = briefs.find(b => b.id === selectedBriefId) || briefs[0];
+  const selectedBrief = safeBriefs.find(b => b.id === selectedBriefId) || safeBriefs[0];
 
   // Dynamic AI output generator based on selected brief
   const generateAIOutput = (brief?: BriefData): AIAnalysisResult => {
@@ -128,7 +129,7 @@ export const HadaraAICenterTab: React.FC<HadaraAICenterTabProps> = ({ briefs }) 
               onChange={(e) => setSelectedBriefId(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-bold focus:border-amber-400 focus:outline-none"
             >
-              {briefs.map((b) => (
+              {safeBriefs.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.id} — "{b.mainTitle}" ({b.clientName})
                 </option>

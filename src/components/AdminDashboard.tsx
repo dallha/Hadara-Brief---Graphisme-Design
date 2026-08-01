@@ -240,7 +240,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     fetchTemplates();
   }, []);
 
-  const filteredBriefs = briefs.filter((b) => {
+  const safeBriefs = Array.isArray(briefs) ? briefs : [];
+
+  const filteredBriefs = safeBriefs.filter((b) => {
     const sTerm = searchTerm.toLowerCase();
     const matchesSearch = 
       (b.clientName && b.clientName.toLowerCase().includes(sTerm)) ||
@@ -252,8 +254,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return matchesSearch && matchesStatus;
   });
 
-  const totalRevenueFCFA = briefs.reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
-  const newBriefsCount = briefs.filter((b) => b.status === 'nouveau').length;
+  const totalRevenueFCFA = safeBriefs.reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
+  const newBriefsCount = safeBriefs.filter((b) => b.status === 'nouveau').length;
 
   // Filter templates
   const filteredTemplates = templates.filter((tpl) => {
@@ -632,7 +634,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
               <div>
                 <p className="text-xl sm:text-2xl font-black font-mono text-[#F5F5DC] leading-none">
-                  {briefs.filter(b => ['en_creation', 'validation', 'acompte_recu'].includes(b.status)).length}
+                  {safeBriefs.filter(b => ['en_creation', 'validation', 'acompte_recu'].includes(b.status)).length}
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 mt-1 truncate">Projets en cours</p>
               </div>
@@ -650,7 +652,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
               <div>
                 <p className="text-xl sm:text-2xl font-black font-mono text-[#F8F8F8] leading-none">
-                  {briefs.filter(b => b.status === 'devis_envoye').length}
+                  {safeBriefs.filter(b => b.status === 'devis_envoye').length}
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[#335A79] mt-1 truncate">Devis Envoyés</p>
               </div>
@@ -808,7 +810,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     : 'bg-[#0d131f] text-[#D4C9BF] hover:text-[#F8F8F8]'
                 }`}
               >
-                Tous ({briefs.length})
+                Tous ({safeBriefs.length})
               </button>
 
               {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
@@ -1080,9 +1082,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {adminTab === 'portfolio' && portfolioItems && (
+      {adminTab === 'portfolio' && (
         <PortfolioTab 
-          portfolioItems={portfolioItems} 
+          portfolioItems={portfolioItems || []} 
           onAddPortfolioItem={onAddPortfolioItem || (async () => {})} 
           onUpdatePortfolioItem={onUpdatePortfolioItem || (async () => {})}
           onDeletePortfolioItem={onDeletePortfolioItem || (async () => {})} 

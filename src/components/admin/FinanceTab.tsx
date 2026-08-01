@@ -23,11 +23,12 @@ interface FinanceTabProps {
 }
 
 export const FinanceTab: React.FC<FinanceTabProps> = ({ briefs }) => {
+  const safeBriefs = Array.isArray(briefs) ? briefs : [];
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   // Extract all invoices or generate virtual ones based on briefs
-  const invoices: InvoiceData[] = briefs.flatMap((b) => {
+  const invoices: InvoiceData[] = safeBriefs.flatMap((b) => {
     if (b.invoices && b.invoices.length > 0) return b.invoices;
     
     const price = b.quotedPriceFCFA || (b.budgetRange === '30k-50k' ? 40000 : b.budgetRange === '50k-80k' ? 65000 : 100000);

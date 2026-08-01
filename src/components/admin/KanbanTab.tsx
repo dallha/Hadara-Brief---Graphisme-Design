@@ -45,12 +45,13 @@ export const KanbanTab: React.FC<KanbanTabProps> = ({
   onOpenProject360,
   onUpdateStatus,
 }) => {
+  const safeBriefs = Array.isArray(briefs) ? briefs : [];
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredBriefs = briefs.filter(b => 
-    b.mainTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.id.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBriefs = safeBriefs.filter(b => 
+    (b.mainTitle || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (b.clientName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (b.id || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getNextStatus = (current: BriefStatus): BriefStatus | null => {
@@ -82,9 +83,9 @@ export const KanbanTab: React.FC<KanbanTabProps> = ({
         </div>
 
         <div className="flex items-center space-x-3 text-xs text-slate-400">
-          <span className="font-bold text-slate-200">{briefs.length} Total Projets</span>
+          <span className="font-bold text-slate-200">{safeBriefs.length} Total Projets</span>
           <span>•</span>
-          <span className="text-emerald-400 font-semibold">{briefs.filter(b => b.status === 'en_creation').length} En Production</span>
+          <span className="text-emerald-400 font-semibold">{safeBriefs.filter(b => b.status === 'en_creation').length} En Production</span>
         </div>
       </div>
 

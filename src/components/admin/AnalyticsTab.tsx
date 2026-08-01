@@ -8,18 +8,19 @@ interface AnalyticsTabProps {
 }
 
 export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ briefs }) => {
+  const safeBriefs = Array.isArray(briefs) ? briefs : [];
   // KPIs
-  const pipelineValue = briefs.filter(b => b.status !== 'termine' && b.status !== 'nouveau').reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
-  const realizedRevenue = briefs.filter(b => b.status === 'termine').reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
+  const pipelineValue = safeBriefs.filter(b => b.status !== 'termine' && b.status !== 'nouveau').reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
+  const realizedRevenue = safeBriefs.filter(b => b.status === 'termine').reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
   
-  const newBriefsCount = briefs.filter(b => b.status === 'nouveau').length;
-  const completedBriefs = briefs.filter(b => b.status === 'termine').length;
-  const conversionRate = briefs.length > 0 ? Math.round((completedBriefs / briefs.length) * 100) : 0;
+  const newBriefsCount = safeBriefs.filter(b => b.status === 'nouveau').length;
+  const completedBriefs = safeBriefs.filter(b => b.status === 'termine').length;
+  const conversionRate = safeBriefs.length > 0 ? Math.round((completedBriefs / safeBriefs.length) * 100) : 0;
 
   // Chart Data: Group by projectType
   const projectTypesData = useMemo(() => {
     const counts: Record<string, number> = {};
-    briefs.forEach(b => {
+    safeBriefs.forEach(b => {
       const type = b.projectType || 'autre';
       counts[type] = (counts[type] || 0) + 1;
     });

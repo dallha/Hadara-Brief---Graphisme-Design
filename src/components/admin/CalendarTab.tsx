@@ -17,12 +17,14 @@ interface CalendarTabProps {
 }
 
 export const CalendarTab: React.FC<CalendarTabProps> = ({ briefs, onOpenProject360 }) => {
+  const safeBriefs = Array.isArray(briefs) ? briefs : [];
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
 
   // Calculate approaching deadlines (within 3 days) or overdue
   const todayStr = new Date().toISOString().split('T')[0];
 
-  const upcomingDeadlines = briefs.filter((b) => {
+  const upcomingDeadlines = safeBriefs.filter((b) => {
     if (b.status === 'termine') return false;
     return true;
   });

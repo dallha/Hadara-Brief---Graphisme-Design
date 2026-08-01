@@ -17,15 +17,16 @@ interface BusinessIntelligenceTabProps {
 }
 
 export const BusinessIntelligenceTab: React.FC<BusinessIntelligenceTabProps> = ({ briefs }) => {
-  const totalRevenue = briefs.reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
-  const paidRevenue = briefs.filter(b => b.status === 'termine' || b.status === 'acompte_recu').reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
+  const safeBriefs = Array.isArray(briefs) ? briefs : [];
+  const totalRevenue = safeBriefs.reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
+  const paidRevenue = safeBriefs.filter(b => b.status === 'termine' || b.status === 'acompte_recu').reduce((acc, b) => acc + (b.quotedPriceFCFA || 0), 0);
   
-  const totalBriefsCount = briefs.length;
-  const convertedBriefsCount = briefs.filter(b => ['acompte_recu', 'en_creation', 'validation', 'termine'].includes(b.status)).length;
+  const totalBriefsCount = safeBriefs.length;
+  const convertedBriefsCount = safeBriefs.filter(b => ['acompte_recu', 'en_creation', 'validation', 'termine'].includes(b.status)).length;
   const quoteConversionRate = totalBriefsCount > 0 ? Math.round((convertedBriefsCount / totalBriefsCount) * 100) : 0;
 
   // LTV by client
-  const clientLTVDict = briefs.reduce((acc, b) => {
+  const clientLTVDict = safeBriefs.reduce((acc, b) => {
     const name = b.clientName || 'Inconnu';
     acc[name] = (acc[name] || 0) + (b.quotedPriceFCFA || 0);
     return acc;

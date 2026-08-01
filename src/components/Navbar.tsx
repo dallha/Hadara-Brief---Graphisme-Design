@@ -5,8 +5,8 @@ import { HadaraLogo } from './HadaraLogo';
 import { cn } from '../utils/cn';
 
 interface NavbarProps {
-  activeTab: 'splash' | 'home' | 'brief' | 'portfolio' | 'admin' | 'confirmation' | 'cv';
-  setActiveTab: (tab: 'splash' | 'home' | 'brief' | 'portfolio' | 'admin' | 'confirmation' | 'cv') => void;
+  activeTab: 'splash' | 'home' | 'brief' | 'portfolio' | 'admin' | 'confirmation' | 'cv' | 'client';
+  setActiveTab: (tab: 'splash' | 'home' | 'brief' | 'portfolio' | 'admin' | 'confirmation' | 'cv' | 'client') => void;
   briefsCount: number;
   newBriefsCount: number;
 }
@@ -78,6 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'home', label: 'Accueil', icon: Home },
     { id: 'portfolio', label: 'Portfolio', icon: FolderKanban },
     { id: 'cv', label: 'CV', icon: UserCheck },
+    { id: 'client', label: 'Suivi Client', icon: User },
   ];
 
   return (

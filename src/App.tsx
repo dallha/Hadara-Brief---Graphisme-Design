@@ -14,6 +14,7 @@ import { PortfolioShowcase } from './components/PortfolioShowcase';
 import { AdminDashboard } from './components/AdminDashboard';
 import { PrintableBrief } from './components/PrintableBrief';
 import { ResumeCV } from './components/ResumeCV';
+import { ClientPortalView } from './components/client/ClientPortalView';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { SplashEntry } from './components/SplashEntry';
@@ -31,6 +32,7 @@ function pathToTab(pathname: string): string {
   if (pathname.startsWith('/admin')) return 'admin';
   if (pathname.startsWith('/cv')) return 'cv';
   if (pathname.startsWith('/confirmation')) return 'confirmation';
+  if (pathname.startsWith('/espace-client') || pathname.startsWith('/portail-client') || pathname.startsWith('/suivi')) return 'client';
   return 'home';
 }
 
@@ -100,6 +102,7 @@ export default function App() {
     const routes: Record<string, string> = {
       home: '/', brief: '/brief', portfolio: '/portfolio',
       admin: '/admin', cv: '/cv', confirmation: '/confirmation',
+      client: '/espace-client',
     };
     navigate(routes[tab] || '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -462,6 +465,39 @@ export default function App() {
                     </ErrorBoundary>
                   : AdminLockScreen
                 }
+              </motion.div>
+            } />
+            <Route path="/espace-client" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                <ClientPortalView 
+                  briefs={briefs} 
+                  onUpdateBriefEnriched={async (updated) => {
+                    setBriefs(prev => prev.map(b => b.id === updated.id ? updated : b));
+                  }} 
+                  onClosePortal={() => goTo('home')} 
+                />
+              </motion.div>
+            } />
+            <Route path="/portail-client" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                <ClientPortalView 
+                  briefs={briefs} 
+                  onUpdateBriefEnriched={async (updated) => {
+                    setBriefs(prev => prev.map(b => b.id === updated.id ? updated : b));
+                  }} 
+                  onClosePortal={() => goTo('home')} 
+                />
+              </motion.div>
+            } />
+            <Route path="/suivi" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                <ClientPortalView 
+                  briefs={briefs} 
+                  onUpdateBriefEnriched={async (updated) => {
+                    setBriefs(prev => prev.map(b => b.id === updated.id ? updated : b));
+                  }} 
+                  onClosePortal={() => goTo('home')} 
+                />
               </motion.div>
             } />
             <Route path="*" element={

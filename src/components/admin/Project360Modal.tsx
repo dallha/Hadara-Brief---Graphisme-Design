@@ -22,7 +22,9 @@ import {
   FileCheck, 
   ShieldCheck, 
   AlertCircle,
-  Tag
+  Tag,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 import { 
   BriefData, 
@@ -79,6 +81,27 @@ export const Project360Modal: React.FC<Project360ModalProps> = ({
   const [newVersionTitle, setNewVersionTitle] = useState('');
   const [newVersionUrl, setNewVersionUrl] = useState('');
   const [newVersionNotes, setNewVersionNotes] = useState('');
+  const [versionFilePreview, setVersionFilePreview] = useState<string | null>(null);
+
+  const handleFileVersionUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 15 * 1024 * 1024) {
+        alert('Le fichier sélectionné est trop volumineux (limite 15 Mo).');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setNewVersionUrl(result);
+        setVersionFilePreview(result);
+        if (!newVersionTitle) {
+          setNewVersionTitle(file.name.replace(/\.[^/.]+$/, ""));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // New Comment Form State
   const [newCommentText, setNewCommentText] = useState('');
@@ -151,6 +174,7 @@ export const Project360Modal: React.FC<Project360ModalProps> = ({
     setNewVersionTitle('');
     setNewVersionUrl('');
     setNewVersionNotes('');
+    setVersionFilePreview(null);
   };
 
   const handleUpdateVersionStatus = (versionId: string, newVerStatus: DeliverableVersion['status']) => {
@@ -462,30 +486,68 @@ Merci pour votre confiance !`;
                   <Plus className="w-4 h-4 text-amber-400" /> Ajouter une nouvelle version (V{versions.length + 1})
                 </h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Titre de la version (ex: Maquette V1 - Option Doré)"
-                    value={newVersionTitle}
-                    onChange={(e) => setNewVersionTitle(e.target.value)}
-                    className="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:border-amber-400 focus:outline-none"
-                  />
-                  <input
-                    type="url"
-                    placeholder="Lien du fichier (Drive, Dropbox, Figma, PNG/PDF)"
-                    value={newVersionUrl}
-                    onChange={(e) => setNewVersionUrl(e.target.value)}
-                    className="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:border-amber-400 focus:outline-none"
-                  />
+                <div className="space-y-3">
+                  {/* File Upload Selector */}
+                  <div className="relative">
+                    <input
+                      type="file"
+                      id="version-file-input"
+                      accept="image/*,.pdf"
+                      onChange={handleFileVersionUpload}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="version-file-input"
+                      className="cursor-pointer w-full p-4 rounded-xl bg-slate-900 border-2 border-dashed border-amber-400/40 hover:border-amber-400 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs font-bold text-amber-400 transition-colors text-center"
+                    >
+                      <Upload className="w-5 h-5 shrink-0" />
+                      <span>Téléverser une image (.png, .jpg, .jpeg, .webp) ou PDF</span>
+                    </label>
+                  </div>
+
+                  {/* Thumbnail Preview Box */}
+                  {versionFilePreview && versionFilePreview.startsWith('data:image/') && (
+                    <div className="relative p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-3">
+                      <img src={versionFilePreview} alt="Aperçu" className="w-14 h-14 object-cover rounded-lg border border-slate-700" />
+                      <div className="flex-1 text-xs">
+                        <span className="text-emerald-400 font-bold block">Image chargée avec succès !</span>
+                        <span className="text-[10px] text-slate-400">Prête pour publication sur l'Espace Client</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setVersionFilePreview(null); setNewVersionUrl(''); }}
+                        className="p-1 text-slate-400 hover:text-slate-200"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Titre de la version (ex: Maquette V1 - Option A)"
+                      value={newVersionTitle}
+                      onChange={(e) => setNewVersionTitle(e.target.value)}
+                      className="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:border-amber-400 focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Ou lien URL externe (Drive, Dropbox, Figma...)"
+                      value={newVersionUrl}
+                      onChange={(e) => setNewVersionUrl(e.target.value)}
+                      className="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:border-amber-400 focus:outline-none"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex justify-end">
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-md flex items-center space-x-2"
+                    className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-md flex items-center space-x-2 transition-all"
                   >
                     <Layers className="w-4 h-4" />
-                    <span>Publier cette version</span>
+                    <span>Publier cette version (Client Portal)</span>
                   </button>
                 </div>
               </form>

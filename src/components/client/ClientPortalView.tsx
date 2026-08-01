@@ -128,13 +128,13 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           </div>
           <div>
             <h2 className="text-2xl font-serif font-bold">Portail Client Hadara</h2>
-            <p className="text-xs text-slate-400 mt-1">Saisissez votre numéro WhatsApp pour accéder à l'état de vos commandes et télécharger vos fichiers HD</p>
+            <p className="text-xs text-slate-400 mt-1">Suivi de vos projets et téléchargement de vos fichiers HD.</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="text"
-              placeholder="Votre numéro WhatsApp (ex: 77 623 27 41)"
+              placeholder="Numéro WhatsApp"
               value={clientPhoneInput}
               onChange={(e) => setClientPhoneInput(e.target.value)}
               className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 font-mono text-sm text-center focus:border-amber-400 focus:outline-none"

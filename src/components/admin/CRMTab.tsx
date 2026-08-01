@@ -7,6 +7,16 @@ interface CRMTabProps {
   briefs: BriefData[];
 }
 
+interface ClientItem {
+  name: string;
+  org: string;
+  whatsapp: string;
+  email: string;
+  count: number;
+  total: number;
+  projects: BriefData[];
+}
+
 export const CRMTab: React.FC<CRMTabProps> = ({ briefs }) => {
   const safeBriefs = Array.isArray(briefs) ? briefs : [];
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,7 +33,7 @@ export const CRMTab: React.FC<CRMTabProps> = ({ briefs }) => {
   const [fontInput, setFontInput] = useState('Cinzel, Cairo');
   const [brandNotesInput, setBrandNotesInput] = useState('');
 
-  const clients = Object.values(safeBriefs.reduce((acc, b) => {
+  const clientDict = safeBriefs.reduce<Record<string, ClientItem>>((acc, b) => {
     const key = b.whatsapp || 'Inconnu';
     if (!acc[key]) {
       acc[key] = { 
@@ -33,7 +43,7 @@ export const CRMTab: React.FC<CRMTabProps> = ({ briefs }) => {
         email: b.email || '', 
         count: 0, 
         total: 0,
-        projects: [] as BriefData[]
+        projects: []
       };
     }
     acc[key].count++;
@@ -42,8 +52,9 @@ export const CRMTab: React.FC<CRMTabProps> = ({ briefs }) => {
       acc[key].total += (b.quotedPriceFCFA || 0);
     }
     return acc;
-  }, {} as Record<string, { name: string; org: string; whatsapp: string; email: string; count: number; total: number; projects: BriefData[] }>))
-  .sort((a, b) => b.total - a.total);
+  }, {});
+
+  const clients: ClientItem[] = Object.values(clientDict).sort((a, b) => b.total - a.total);
 
   const filteredClients = clients.filter(c => 
     (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase())) || 

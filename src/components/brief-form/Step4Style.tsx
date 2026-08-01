@@ -24,7 +24,7 @@ export const Step4Style: React.FC<Step4StyleProps> = ({ formData, setFormData, d
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB limit
-      const validFiles = Array.from(e.target.files).filter(f => {
+      const validFiles = Array.from(e.target.files).filter((f: File) => {
         if (f.size > MAX_SIZE_BYTES) {
           alert(`Le fichier "${f.name}" dépasse la limite maximale de 5 Mo.`);
           return false;
@@ -32,7 +32,7 @@ export const Step4Style: React.FC<Step4StyleProps> = ({ formData, setFormData, d
         return true;
       });
 
-      const newFiles = validFiles.map(f => ({
+      const newFiles = validFiles.map((f: File) => ({
         id: Math.random().toString(36).substr(2, 9),
         name: f.name,
         size: f.size,

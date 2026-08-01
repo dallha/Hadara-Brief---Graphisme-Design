@@ -67,6 +67,13 @@ import { TemplateModals } from './admin/modals/TemplateModals';
 import { StudioOnboardingModal } from './admin/modals/StudioOnboardingModal';
 import { ClientPortalView } from './client/ClientPortalView';
 
+interface SoftDeleteTrashItem {
+  id: string;
+  type: string;
+  title: string;
+  deletedAt: string;
+}
+
 interface AdminDashboardProps {
   briefs: BriefData[];
   portfolioItems?: SamplePortfolioItem[];
@@ -130,6 +137,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
   const [isTrashBinOpen, setIsTrashBinOpen] = useState(false);
   const [eSignBrief, setESignBrief] = useState<BriefData | null>(null);
+
   const [softDeletedItems, setSoftDeletedItems] = useState<SoftDeleteTrashItem[]>([]);
 
   // Client Portal Toggle State

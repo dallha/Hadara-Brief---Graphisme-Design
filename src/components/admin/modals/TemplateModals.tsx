@@ -28,9 +28,32 @@ export const TemplateModals: React.FC<TemplateModalsProps> = ({
   });
 
   const [quickGenForm, setQuickGenForm] = useState({
-    clientName: '', whatsapp: ''
+    clientName: '', whatsapp: '', organization: '', desiredDeliveryDate: ''
   });
-  const [isSubmittingQuickGen, setIsSubmittingQuickGen] = useState(false);
+  const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
+
+  const handleGenerateBriefFromTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTemplateForGen || !onAddNewBriefDirectly) return;
+    setIsGeneratingBrief(true);
+    try {
+      await onAddNewBriefDirectly({
+        clientName: quickGenForm.clientName || 'Client anonyme',
+        whatsapp: quickGenForm.whatsapp || '',
+        organization: quickGenForm.organization || '',
+        projectType: selectedTemplateForGen.projectType,
+        technicalFormat: selectedTemplateForGen.technicalFormat,
+        mainTitle: selectedTemplateForGen.defaultMainTitle || selectedTemplateForGen.title,
+        stylePreferences: selectedTemplateForGen.defaultStylePreferences || [],
+        usageType: selectedTemplateForGen.defaultUsageType || 'both',
+        quotedPriceFCFA: selectedTemplateForGen.suggestedPriceFCFA || 0,
+        desiredDeliveryDate: quickGenForm.desiredDeliveryDate || ''
+      } as any);
+      setSelectedTemplateForGen(null);
+    } finally {
+      setIsGeneratingBrief(false);
+    }
+  };
 
   useEffect(() => {
     if (editingTemplate) {
@@ -53,10 +76,10 @@ export const TemplateModals: React.FC<TemplateModalsProps> = ({
     e.preventDefault();
     if (!selectedTemplateForGen || !onAddNewBriefDirectly) return;
     
-    setIsSubmittingQuickGen(true);
+    setIsGeneratingBrief(true);
     const generatedBrief: Omit<BriefData, 'id' | 'createdAt' | 'status'> = {
       clientName: quickGenForm.clientName,
-      organization: '',
+      organization: quickGenForm.organization || '',
       whatsapp: quickGenForm.whatsapp,
       email: '',
       cityCountry: 'Dakar, Sénégal',
@@ -75,20 +98,19 @@ export const TemplateModals: React.FC<TemplateModalsProps> = ({
       customDimensions: '',
       usageType: selectedTemplateForGen.defaultUsageType || 'both',
       budgetRange: 'sur_devis',
-      desiredDeliveryDate: new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0],
+      desiredDeliveryDate: quickGenForm.desiredDeliveryDate || new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0],
       criticalDeadline: '',
       referenceLinks: '',
       attachments: [],
       acceptProcess: true,
       acceptDeadlines: true,
-      templateSourceId: selectedTemplateForGen.id,
       quotedPriceFCFA: selectedTemplateForGen.suggestedPriceFCFA
     };
 
     await onAddNewBriefDirectly(generatedBrief);
-    setIsSubmittingQuickGen(false);
+    setIsGeneratingBrief(false);
     setSelectedTemplateForGen(null);
-    setQuickGenForm({ clientName: '', whatsapp: '' });
+    setQuickGenForm({ clientName: '', whatsapp: '', organization: '', desiredDeliveryDate: '' });
   };
 
   return (

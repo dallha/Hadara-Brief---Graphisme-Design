@@ -33,7 +33,7 @@ export const BusinessIntelligenceTab: React.FC<BusinessIntelligenceTabProps> = (
   }, {} as Record<string, number>);
 
   const topClients = Object.entries(clientLTVDict)
-    .map(([clientName, ltvFCFA]) => ({ clientName, ltvFCFA }))
+    .map(([clientName, ltvFCFA]) => ({ clientName, ltvFCFA: Number(ltvFCFA) }))
     .sort((a, b) => b.ltvFCFA - a.ltvFCFA)
     .slice(0, 5);
 

@@ -53,6 +53,12 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
 
   if (!selectedBrief) return null;
 
+  const handleCopyWhatsAppQuote = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedQuote(true);
+    setTimeout(() => setCopiedQuote(false), 2000);
+  };
+
   const handleRunAIAnalysis = async () => {
     setIsAnalyzing(true);
     await onAnalyzeWithAI(selectedBrief.id);

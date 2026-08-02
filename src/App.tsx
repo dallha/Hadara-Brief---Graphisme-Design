@@ -16,8 +16,8 @@ import { PrintableBrief } from './components/PrintableBrief';
 import { ResumeCV } from './components/ResumeCV';
 import { ClientPortalView } from './components/client/ClientPortalView';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
-import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { SplashEntry } from './components/SplashEntry';
+import { RoadmapView } from './components/RoadmapView';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem } from './types';
 
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
@@ -29,6 +29,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 function pathToTab(pathname: string): string {
   if (pathname.startsWith('/brief')) return 'brief';
   if (pathname.startsWith('/portfolio')) return 'portfolio';
+  if (pathname.startsWith('/roadmap')) return 'roadmap';
   if (pathname.startsWith('/admin')) return 'admin';
   if (pathname.startsWith('/cv')) return 'cv';
   if (pathname.startsWith('/confirmation')) return 'confirmation';
@@ -455,6 +456,11 @@ export default function App() {
             <Route path="/portfolio" element={
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
                 <PortfolioShowcase items={portfolioItems} onSelectCategoryForBrief={() => goTo('brief')} />
+              </motion.div>
+            } />
+            <Route path="/roadmap" element={
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                <RoadmapView onGoToBrief={() => goTo('brief')} />
               </motion.div>
             } />
             <Route path="/cv" element={

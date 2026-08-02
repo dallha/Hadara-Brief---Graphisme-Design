@@ -87,6 +87,63 @@ export const Step5Validation: React.FC<Step5ValidationProps> = ({ formData, setF
           </div>
         </div>
 
+        {/* Dynamic AI Estimation Box */}
+        {(() => {
+          let basePrice = 35000;
+          let days = '2 à 3';
+          let stars = '⭐⭐⭐☆☆ (Standard)';
+
+          const pType = formData.projectType || 'affiche';
+          if (pType === 'logo' || pType === 'branding') {
+            basePrice = 80000;
+            days = '4 à 6';
+            stars = '⭐⭐⭐⭐☆ (Avancée)';
+          } else if (pType === 'pack_hadara' || pType === 'pack_starter' || pType === 'pack_booster') {
+            basePrice = 75000;
+            days = '3 à 5';
+            stars = '⭐⭐⭐⭐⭐ (Haute Complexité)';
+          } else if (pType === 'bache' || pType === 'grandformat') {
+            basePrice = 50000;
+            days = '2 à 4';
+            stars = '⭐⭐⭐☆☆ (Grand Format)';
+          } else if (pType === 'web' || pType === 'site') {
+            basePrice = 150000;
+            days = '5 à 10';
+            stars = '⭐⭐⭐⭐⭐ (Projet Web Complexe)';
+          } else if (pType === 'badge' || pType === 'papeterie') {
+            basePrice = 20000;
+            days = '1 à 2';
+            stars = '⭐⭐☆☆☆ (Rapide)';
+          }
+
+          if (formData.criticalDeadline && formData.criticalDeadline.trim()) {
+            basePrice = Math.round(basePrice * 1.15);
+          }
+
+          return (
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-slate-900 border border-amber-500/30 space-y-3 shadow-xl my-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-amber-400">✨</span>
+                  <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">Estimation Automatique IA — Studio Hadara</span>
+                </div>
+                <span className="text-sm font-mono font-extrabold text-emerald-400 bg-emerald-950/90 px-3 py-1 rounded-full border border-emerald-700/60 shadow-lg">
+                  À partir de {basePrice.toLocaleString('fr-FR')} FCFA
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 font-mono">
+                <span>Délai estimé : <strong className="text-amber-300">{days} jours</strong></span>
+                <span>Complexité : <strong className="text-amber-300">{stars}</strong></span>
+              </div>
+
+              <p className="text-[11px] text-slate-400 italic leading-relaxed pt-2 border-t border-slate-800">
+                « Chaque projet est unique. Notre système analyse automatiquement votre brief afin de proposer une estimation adaptée à vos besoins. Le devis final définitif sera confirmé par l'équipe après étude. »
+              </p>
+            </div>
+          );
+        })()}
+
         {/* Dates */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
           <div className="space-y-1.5">

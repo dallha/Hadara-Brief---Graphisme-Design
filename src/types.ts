@@ -302,15 +302,23 @@ export interface BriefData {
 export interface SamplePortfolioItem {
   id: string;
   title: string;
+  subtitle?: string;
   category: string;
   description: string;
-  badge: string;
+  problemSolved?: string;
+  badge: '👑 Premium' | '🟢 Populaire' | '⭐ Recommandé' | '🚀 Nouveau' | '💼 Professionnel' | string;
   priceEstimate: string;
+  startingPriceFCFA?: number;
+  deliveryTime?: string;
+  includedRevisions?: string;
   imageTheme?: string;
   imageUrl?: string;
   colorBg?: string;
   accentHex?: string;
   features: string[];
+  notIncluded?: string[];
+  faq?: { question: string; answer: string }[];
+  isBriefIntelligentEligible?: boolean;
 }
 
 export interface BriefTemplate {

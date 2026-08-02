@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 
 import { SamplePortfolioItem } from '../types';
+import heroArtistImg from '../assets/hero-artist.jpg';
 
 interface PortfolioShowcaseProps {
   items?: SamplePortfolioItem[];
@@ -57,12 +58,21 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
       {/* Decorative background glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* Header */}
+      {/* Header with Artist Artwork Showcase */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-5 max-w-3xl mx-auto relative z-10"
       >
+        {/* Compact Artist Portrait Badge */}
+        <div className="flex justify-center mb-2">
+          <div className="relative group">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl p-1 bg-gradient-to-b from-amber-400 to-amber-600 border border-amber-400/60 shadow-xl overflow-hidden">
+              <img src={heroArtistImg} alt="El Hadji Abdoulaye Niass" className="w-full h-full object-cover rounded-[12px]" />
+            </div>
+          </div>
+        </div>
+
         <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold shadow-[0_0_15px_rgba(245,158,11,0.15)]">
           <Sparkles className="w-4 h-4 text-amber-400" />
           <span>Graphiste de la Hadara — El Hadji Abdoulaye Niass</span>

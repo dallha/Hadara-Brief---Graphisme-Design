@@ -34,6 +34,8 @@ import {
   Clock
 } from 'lucide-react';
 
+import heroArtistImg from '../assets/hero-artist.jpg';
+
 interface ResumeCVProps {
   onGoToBrief?: () => void;
   onGoToPortfolio?: () => void;
@@ -366,9 +368,11 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </div>
 
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-              {/* Profile Badge */}
-              <div className="relative shrink-0">
-                <HadaraLogo size="xl" className="w-36 h-36 sm:w-44 sm:h-44 shadow-2xl" />
+              {/* Profile Portrait Showcase */}
+              <div className="relative shrink-0 group">
+                <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-3xl p-1 bg-gradient-to-b from-amber-400 to-amber-600 border border-amber-400/60 shadow-2xl overflow-hidden transition-transform duration-500 group-hover:scale-105">
+                  <img src={heroArtistImg} alt="El Hadji Abdoulaye Niass" className="w-full h-full object-cover rounded-[20px]" />
+                </div>
                 <div className="absolute -bottom-2 -right-2 px-3 py-1 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-lg flex items-center space-x-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-slate-950" />
                   <span>Disponible</span>

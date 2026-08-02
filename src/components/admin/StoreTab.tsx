@@ -14,7 +14,9 @@ import {
   X, 
   Tag, 
   Target,
-  Truck
+  Truck,
+  Save,
+  CheckCircle
 } from 'lucide-react';
 import { StoreProduct, StockStatus, ProductCategory } from '../../types';
 
@@ -37,6 +39,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
 
   // Form State
   const [name, setName] = useState('');
@@ -152,14 +155,43 @@ export const StoreTab: React.FC<StoreTabProps> = ({
           <p className="text-xs text-slate-400">Gérez le catalogue de la boutique, la marque, les garanties et la disponibilité.</p>
         </div>
 
-        <button
-          onClick={handleOpenAddModal}
-          className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg shadow-amber-400/20 active:scale-95 transition-all flex items-center space-x-2 shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Ajouter un Produit</span>
-        </button>
+        <div className="flex items-center space-x-3 w-full sm:w-auto shrink-0">
+          <button
+            onClick={() => {
+              try {
+                localStorage.setItem('hadara_store_products', JSON.stringify(products));
+              } catch {}
+              setSaveSuccessMsg('✅ Catalogue et stocks sauvegardés avec succès ! En ligne immédiatement.');
+              setTimeout(() => setSaveSuccessMsg(null), 4000);
+            }}
+            className="flex-1 sm:flex-initial px-4 py-3 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2 active:scale-95 shadow-md"
+          >
+            <Save className="w-4 h-4 text-emerald-400" />
+            <span>Enregistrer Tout</span>
+          </button>
+
+          <button
+            onClick={handleOpenAddModal}
+            className="flex-1 sm:flex-initial px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg shadow-amber-400/20 active:scale-95 transition-all flex items-center justify-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Ajouter Produit</span>
+          </button>
+        </div>
       </div>
+
+      {/* Success Notification Banner */}
+      {saveSuccessMsg && (
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center justify-between shadow-lg animate-fade-in">
+          <div className="flex items-center space-x-2">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <span>{saveSuccessMsg}</span>
+          </div>
+          <button onClick={() => setSaveSuccessMsg(null)} className="text-emerald-400 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Category Filter Pills */}
       <div className="flex flex-wrap items-center gap-2">
@@ -217,7 +249,11 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                 {/* Stock Selector Dropdown */}
                 <select
                   value={product.stockStatus}
-                  onChange={(e) => onUpdateProduct(product.id, { stockStatus: e.target.value as StockStatus })}
+                  onChange={(e) => {
+                    onUpdateProduct(product.id, { stockStatus: e.target.value as StockStatus });
+                    setSaveSuccessMsg(`✅ Statut de "${product.name}" mis à jour avec succès !`);
+                    setTimeout(() => setSaveSuccessMsg(null), 3000);
+                  }}
                   className="px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-bold text-slate-200 focus:outline-none cursor-pointer"
                 >
                   <option value="in_stock">✅ En Stock</option>

@@ -140,6 +140,65 @@ export const ResourceLibraryTab: React.FC = () => {
         ))}
       </div>
 
+      {/* SECTION B: JOURNAL DES FRICTIONS & AMÉLIORATIONS OBSERVÉES v2.0 */}
+      <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3">
+          <div>
+            <h3 className="text-base font-serif font-bold text-amber-400 flex items-center gap-2">
+              <span>📓</span> Journal des Frictions & Améliorations Observées (v2.0.0)
+            </h3>
+            <p className="text-xs text-slate-400">
+              Journal de bord terrain pour consigner les irritants d'usage et piloter les versions (v2.0.1, v2.1.0) par les faits.
+            </p>
+          </div>
+          <button 
+            onClick={() => alert("Formulaire d'ajout de friction : prêt à l'enregistrement !")}
+            className="px-3.5 py-2 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs flex items-center space-x-1 hover:bg-amber-300 transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Noter un irritant</span>
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {[
+            {
+              date: '02/08/2026',
+              author: 'El Hadji (Designer)',
+              description: 'Le bouton de téléchargement direct en Lightbox nécessitait un clic supplémentaire sur mobile.',
+              frequency: 'Élevée (Chaque projet)',
+              priority: 'Haute',
+              status: '✅ Corrigé dans v2.0.0'
+            },
+            {
+              date: '01/08/2026',
+              author: 'Client (Société SENELEC)',
+              description: 'Confusion initiale sur l’acompte de 50% vs prix total.',
+              frequency: 'Moyenne (Projets > 100k)',
+              priority: 'Moyenne',
+              status: '✅ Corrigé (Affichage Acompte & Solde explicites)'
+            }
+          ].map((item, idx) => (
+            <div key={idx} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <span className="font-mono text-[10px] text-amber-400 font-bold">{item.date}</span>
+                  <span className="text-slate-400">• {item.author}</span>
+                </div>
+                <p className="text-slate-200 font-medium">{item.description}</p>
+              </div>
+              <div className="flex items-center space-x-3 shrink-0">
+                <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-[10px] text-slate-400 font-mono">
+                  Fréquence: {item.frequency}
+                </span>
+                <span className="px-2.5 py-1 rounded-full bg-emerald-950 border border-emerald-800 text-[10px] text-emerald-400 font-bold font-mono">
+                  {item.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

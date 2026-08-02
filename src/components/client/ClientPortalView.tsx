@@ -521,6 +521,59 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 </div>
               )}
 
+              {/* CSAT Rating & Feedback Prompt for Completed Projects */}
+              {activeBrief.status === 'termine' && (
+                <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-500/10 via-emerald-950/20 to-slate-900 border border-amber-500/30 space-y-4 shadow-2xl">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xl">⭐</span>
+                    <h3 className="text-base font-serif font-bold text-amber-300">Votre Avis sur cette Collaboration</h3>
+                  </div>
+
+                  <p className="text-xs text-slate-300">
+                    Projet livré HD avec succès ! Votre retour est essentiel pour nous aider à améliorer Hadara Studio.
+                  </p>
+
+                  <div className="space-y-3 pt-2">
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                        Note globale de satisfaction (/10) :
+                      </label>
+                      <div className="flex items-center space-x-1 overflow-x-auto pb-1">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => (
+                          <button
+                            key={score}
+                            onClick={() => alert(`Merci ! Note enregistrée : ${score}/10`)}
+                            className="w-8 h-8 rounded-xl bg-slate-950 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-xs font-bold font-mono text-slate-200 transition-colors shrink-0"
+                          >
+                            {score}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <input
+                        type="text"
+                        placeholder="Qu'avez-vous le plus apprécié ?"
+                        className="px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 focus:border-amber-400 focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Qu'aurait-on pu simplifier ?"
+                        className="px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 focus:border-amber-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => alert("Merci infiniment pour vos retours précieux !")}
+                      className="px-5 py-2.5 rounded-xl font-bold text-slate-950 text-xs bg-amber-400 hover:bg-amber-300 shadow-md transition-all"
+                    >
+                      Transmettre mon avis au Studio Hadara
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
           )}
 

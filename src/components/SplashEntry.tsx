@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { HadaraLogo } from './HadaraLogo';
 import { Sparkles, ArrowRight, MapPin, Phone, Globe, ExternalLink, Award } from 'lucide-react';
+import heroArtistImg from '../assets/hero-artist.jpg';
 
 interface SplashEntryProps {
   onEnter: () => void;
@@ -48,11 +49,12 @@ export const SplashEntry: React.FC<SplashEntryProps> = ({ onEnter }) => {
         transition={{ duration: 0.8, delay: 0.5 }}
         className="relative z-10 flex items-center justify-between max-w-5xl mx-auto w-full text-xs text-slate-400"
       >
-        <div className="flex items-center space-x-2 font-serif font-bold tracking-wider text-amber-500 uppercase">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Studio de Design Graphique HD</span>
+        <div className="flex items-center space-x-2.5 font-serif font-bold tracking-wider text-amber-500 uppercase">
+          <HadaraLogo size="sm" variant="or" className="w-7 h-auto shrink-0" />
+          <span className="hidden sm:inline">Studio de Design Graphique HD</span>
+          <span className="sm:hidden">Hadara Studio HD</span>
         </div>
-        <div className="hidden sm:flex items-center space-x-1.5 font-medium">
+        <div className="flex items-center space-x-1.5 font-medium">
           <MapPin className="w-3.5 h-3.5 text-amber-500" />
           <span>Dakar, Sénégal · International</span>
         </div>
@@ -66,10 +68,23 @@ export const SplashEntry: React.FC<SplashEntryProps> = ({ onEnter }) => {
         className="relative z-10 flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full my-6 sm:my-10 space-y-6 sm:space-y-8"
       >
         
-        {/* Logo with interactive hover grow and golden aura */}
-        <motion.div variants={itemVariants} className="relative group cursor-pointer" onClick={onEnter} title="Cliquez pour entrer">
-          <div className="absolute -inset-6 bg-[#816C07]/25 rounded-full blur-2xl group-hover:bg-[#816C07]/50 transition-all duration-700 pointer-events-none" />
-          <HadaraLogo size="xl" variant="or" className="w-40 sm:w-60 h-auto drop-shadow-[0_10px_30px_rgba(129,108,7,0.4)] transition-transform duration-500 group-hover:scale-105" />
+        {/* Main Artwork Showcase replacing the big logo */}
+        <motion.div 
+          variants={itemVariants} 
+          className="relative group cursor-pointer my-1" 
+          onClick={onEnter} 
+          title="Cliquez pour entrer dans le studio"
+        >
+          <div className="absolute -inset-4 bg-gradient-to-tr from-[#816C07]/40 via-amber-500/20 to-[#335A79]/30 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-700 pointer-events-none" />
+          
+          <div className="relative rounded-3xl p-1.5 sm:p-2 bg-gradient-to-b from-amber-400/60 via-amber-500/30 to-slate-800 border border-amber-400/50 shadow-[0_15px_50px_rgba(129,108,7,0.4)] overflow-hidden max-w-sm sm:max-w-md md:max-w-xl transition-transform duration-500 group-hover:scale-[1.02]">
+            <img 
+              src={heroArtistImg} 
+              alt="Le Graphiste de la Hadara dans son studio de création" 
+              className="w-full h-auto rounded-[20px] object-cover shadow-2xl"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-40 group-hover:opacity-10 transition-opacity" />
+          </div>
         </motion.div>
 
         {/* Title Block */}

@@ -135,7 +135,26 @@ export default function App() {
   };
 
   const [portfolioItems, setPortfolioItems] = useState<SamplePortfolioItem[]>([]);
-  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(DEFAULT_STORE_PRODUCTS);
+  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(() => {
+    try {
+      const saved = localStorage.getItem('hadara_store_products');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (err) {
+      console.warn('Could not load store products from localStorage:', err);
+    }
+    return DEFAULT_STORE_PRODUCTS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('hadara_store_products', JSON.stringify(storeProducts));
+    } catch (err) {
+      console.warn('Could not save store products to localStorage:', err);
+    }
+  }, [storeProducts]);
 
   const fetchBriefs = async () => {
     try {

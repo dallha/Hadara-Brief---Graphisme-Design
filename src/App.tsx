@@ -187,8 +187,9 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         const items = Array.isArray(data) ? data : (data.results || data.products || []);
-        if (items.length > 0 && !localStorage.getItem('hadara_store_products')) {
+        if (items.length > 0) {
           setStoreProducts(items);
+          try { localStorage.setItem('hadara_store_products', JSON.stringify(items)); } catch {}
         }
       }
     } catch (err) {
@@ -388,14 +389,18 @@ export default function App() {
         },
         body: JSON.stringify(updatedProduct),
       });
-      if (res.ok) {
-        const updated = await res.json();
-        if (updated && updated.id) {
-          setStoreProducts(prev => {
-            const next = prev.map(p => p.id === id ? updated : p);
-            try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
-            return next;
-          });
+      if (res.ok || res.status === 204) {
+        if (res.status === 204) {
+          fetchStoreProducts();
+        } else {
+          const updated = await res.json();
+          if (updated && updated.id) {
+            setStoreProducts(prev => {
+              const next = prev.map(p => p.id === id ? updated : p);
+              try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
+              return next;
+            });
+          }
         }
       } else {
         enqueuePendingMutation('UPDATE', id, updatedProduct);

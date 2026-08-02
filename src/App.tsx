@@ -187,7 +187,9 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         const items = Array.isArray(data) ? data : (data.results || data.products || []);
-        if (items.length > 0) setStoreProducts(items);
+        if (items.length > 0 && !localStorage.getItem('hadara_store_products')) {
+          setStoreProducts(items);
+        }
       }
     } catch (err) {
       console.warn('Could not connect to store backend API.');
@@ -262,6 +264,17 @@ export default function App() {
   };
 
   const handleAddStoreProduct = async (product: Omit<StoreProduct, 'id' | 'createdAt'>) => {
+    const fallback: StoreProduct = {
+      ...product,
+      id: `prod-${Date.now()}`,
+      createdAt: new Date().toISOString()
+    };
+    setStoreProducts(prev => {
+      const next = [fallback, ...prev];
+      try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
+      return next;
+    });
+
     try {
       const res = await fetch(`${API_BASE}/api/store/products/`, {
         method: 'POST',
@@ -273,21 +286,26 @@ export default function App() {
       });
       if (res.ok) {
         const created = await res.json();
-        setStoreProducts(prev => [created, ...prev]);
-        return;
+        if (created && created.id) {
+          setStoreProducts(prev => {
+            const next = prev.map(p => p.id === fallback.id ? created : p);
+            try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
+            return next;
+          });
+        }
       }
     } catch (err) {
       console.error('Error creating store product:', err);
     }
-    const fallback: StoreProduct = {
-      ...product,
-      id: `prod-${Date.now()}`,
-      createdAt: new Date().toISOString()
-    };
-    setStoreProducts(prev => [fallback, ...prev]);
   };
 
   const handleUpdateStoreProduct = async (id: string, updatedProduct: Partial<StoreProduct>) => {
+    setStoreProducts(prev => {
+      const next = prev.map(p => p.id === id ? { ...p, ...updatedProduct } : p);
+      try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
+      return next;
+    });
+
     try {
       const res = await fetch(`${API_BASE}/api/store/products/${id}/`, {
         method: 'PATCH',
@@ -299,22 +317,31 @@ export default function App() {
       });
       if (res.ok) {
         const updated = await res.json();
-        setStoreProducts(prev => prev.map(p => p.id === id ? updated : p));
-        return;
+        if (updated && updated.id) {
+          setStoreProducts(prev => {
+            const next = prev.map(p => p.id === id ? updated : p);
+            try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
+            return next;
+          });
+        }
       }
     } catch (err) {
       console.error('Error updating store product:', err);
     }
-    setStoreProducts(prev => prev.map(p => p.id === id ? { ...p, ...updatedProduct } : p));
   };
 
   const handleDeleteStoreProduct = async (id: string) => {
+    setStoreProducts(prev => {
+      const next = prev.filter(p => p.id !== id);
+      try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
+      return next;
+    });
+
     try {
       await fetch(`${API_BASE}/api/store/products/${id}/`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}` },
       });
-      setStoreProducts(prev => prev.filter(p => p.id !== id));
     } catch (err) {
       console.error('Error deleting store product:', err);
     }

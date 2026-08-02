@@ -451,103 +451,77 @@ export default function App() {
 
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 pb-32 md:pb-16 relative">
         <ErrorBoundary fallbackLabel="Hadara Studio Application">
-          <AnimatePresence mode="wait">
-            <Routes location={location} key={location.pathname}>
-              <Route path="/" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
-                </motion.div>
-              } />
-              <Route path="/brief" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  <BriefForm onSubmitBrief={handleSubmitBrief} isSubmitting={isSubmitting} onCancel={() => goTo('home')} />
-                </motion.div>
-              } />
-              <Route path="/portfolio" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  <PortfolioShowcase items={portfolioItems} onSelectCategoryForBrief={() => goTo('brief')} />
-                </motion.div>
-              } />
-              <Route path="/roadmap" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  <RoadmapView onGoToBrief={() => goTo('brief')} />
-                </motion.div>
-              } />
-              <Route path="/cv" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  <ResumeCV onGoToBrief={() => goTo('brief')} onGoToPortfolio={() => goTo('portfolio')} />
-                </motion.div>
-              } />
-              <Route path="/confirmation" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  {currentBrief
-                    ? <BriefConfirmation brief={currentBrief} onNewBrief={() => goTo('brief')} onViewAllBriefs={() => goTo('admin')} onPrintBrief={b => setPrintableBrief(b)} />
-                    : <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
-                  }
-                </motion.div>
-              } />
-              <Route path="/admin" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  {isAdminAuthenticated
-                    ? <ErrorBoundary fallbackLabel="AdminDashboard">
-                        <AdminDashboard 
-                          briefs={briefs} 
-                          portfolioItems={portfolioItems}
-                          onUpdateStatus={handleUpdateStatus} 
-                          onAnalyzeWithAI={handleAnalyzeWithAI} 
-                          onDeleteBrief={handleDeleteBrief} 
-                          onPrintBrief={b => setPrintableBrief(b)} 
-                          onAddNewBriefDirectly={handleSubmitBrief} 
-                          onAddPortfolioItem={handleAddPortfolioItem}
-                          onUpdatePortfolioItem={handleUpdatePortfolioItem}
-                          onDeletePortfolioItem={handleDeletePortfolioItem}
-                          onLogout={handleAdminLogout} 
-                        />
-                      </ErrorBoundary>
-                    : AdminLockScreen
-                  }
-                </motion.div>
-              } />
-              <Route path="/espace-client" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  <ClientPortalView 
-                    briefs={briefs} 
-                    onUpdateBriefEnriched={async (updated) => {
-                      setBriefs(prev => prev.map(b => b.id === updated.id ? updated : b));
-                    }} 
-                    onClosePortal={() => goTo('home')} 
-                  />
-                </motion.div>
-              } />
-              <Route path="/portail-client" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  <ClientPortalView 
-                    briefs={briefs} 
-                    onUpdateBriefEnriched={async (updated) => {
-                      setBriefs(prev => prev.map(b => b.id === updated.id ? updated : b));
-                    }} 
-                    onClosePortal={() => goTo('home')} 
-                  />
-                </motion.div>
-              } />
-              <Route path="/suivi" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  <ClientPortalView 
-                    briefs={briefs} 
-                    onUpdateBriefEnriched={async (updated) => {
-                      setBriefs(prev => prev.map(b => b.id === updated.id ? updated : b));
-                    }} 
-                    onClosePortal={() => goTo('home')} 
-                  />
-                </motion.div>
-              } />
-              <Route path="*" element={
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-                  <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
-                </motion.div>
-              } />
-            </Routes>
-          </AnimatePresence>
+          <Routes>
+            <Route path="/" element={
+              <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
+            } />
+            <Route path="/brief" element={
+              <BriefForm onSubmitBrief={handleSubmitBrief} isSubmitting={isSubmitting} onCancel={() => goTo('home')} />
+            } />
+            <Route path="/portfolio" element={
+              <PortfolioShowcase items={portfolioItems} onSelectCategoryForBrief={() => goTo('brief')} />
+            } />
+            <Route path="/roadmap" element={
+              <RoadmapView onGoToBrief={() => goTo('brief')} />
+            } />
+            <Route path="/cv" element={
+              <ResumeCV onGoToBrief={() => goTo('brief')} onGoToPortfolio={() => goTo('portfolio')} />
+            } />
+            <Route path="/confirmation" element={
+              currentBrief
+                ? <BriefConfirmation brief={currentBrief} onNewBrief={() => goTo('brief')} onViewAllBriefs={() => goTo('admin')} onPrintBrief={b => setPrintableBrief(b)} />
+                : <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
+            } />
+            <Route path="/admin" element={
+              isAdminAuthenticated
+                ? <ErrorBoundary fallbackLabel="AdminDashboard">
+                    <AdminDashboard 
+                      briefs={briefs} 
+                      portfolioItems={portfolioItems}
+                      onUpdateStatus={handleUpdateStatus} 
+                      onAnalyzeWithAI={handleAnalyzeWithAI} 
+                      onDeleteBrief={handleDeleteBrief} 
+                      onPrintBrief={b => setPrintableBrief(b)} 
+                      onAddNewBriefDirectly={handleSubmitBrief} 
+                      onAddPortfolioItem={handleAddPortfolioItem}
+                      onUpdatePortfolioItem={handleUpdatePortfolioItem}
+                      onDeletePortfolioItem={handleDeletePortfolioItem}
+                      onLogout={handleAdminLogout} 
+                    />
+                  </ErrorBoundary>
+                : AdminLockScreen
+            } />
+            <Route path="/espace-client" element={
+              <ClientPortalView 
+                briefs={briefs} 
+                onUpdateBriefEnriched={async (updated) => {
+                  setBriefs(prev => prev.map(b => b.id === updated.id ? updated : b));
+                }} 
+                onClosePortal={() => goTo('home')} 
+              />
+            } />
+            <Route path="/portail-client" element={
+              <ClientPortalView 
+                briefs={briefs} 
+                onUpdateBriefEnriched={async (updated) => {
+                  setBriefs(prev => prev.map(b => b.id === updated.id ? updated : b));
+                }} 
+                onClosePortal={() => goTo('home')} 
+              />
+            } />
+            <Route path="/suivi" element={
+              <ClientPortalView 
+                briefs={briefs} 
+                onUpdateBriefEnriched={async (updated) => {
+                  setBriefs(prev => prev.map(b => b.id === updated.id ? updated : b));
+                }} 
+                onClosePortal={() => goTo('home')} 
+              />
+            } />
+            <Route path="*" element={
+              <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
+            } />
+          </Routes>
         </ErrorBoundary>
       </main>
 

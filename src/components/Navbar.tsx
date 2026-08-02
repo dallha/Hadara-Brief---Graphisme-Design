@@ -195,67 +195,70 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
         </motion.div>
       </header>
 
-      {/* MOBILE BOTTOM NAVBAR */}
+      {/* MOBILE BOTTOM NAVBAR (Clean 5-Item Mobile Layout) */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-        <div className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1 pt-1 pb-2 flex items-center justify-around shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
-          {navItems.slice(0, 2).map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => handleTabChange(id)}
-              className={cn(
-                "flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
-                activeTab === id ? "text-amber-400" : "text-slate-400"
-              )}
-            >
-              <Icon className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === id && "scale-110")} />
-              <span className="text-[9px] font-medium tracking-tight truncate w-full text-center leading-none">{label}</span>
-            </button>
-          ))}
+        <div className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 px-2 pt-1.5 pb-2 flex items-center justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+          {/* Left items: Accueil & Prestations */}
+          <button
+            onClick={() => handleTabChange('home')}
+            className={cn(
+              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+              activeTab === 'home' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
+            )}
+          >
+            <Home className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'home' && "scale-110")} />
+            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">Accueil</span>
+          </button>
 
-          {/* Center Brief Action — elevated pill button */}
-          <div className="relative -top-3 shrink-0 px-1">
+          <button
+            onClick={() => handleTabChange('portfolio')}
+            className={cn(
+              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+              activeTab === 'portfolio' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
+            )}
+          >
+            <FolderKanban className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'portfolio' && "scale-110")} />
+            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">Prestations</span>
+          </button>
+
+          {/* Center Primary Action: Brief */}
+          <div className="relative -top-3 shrink-0 px-2">
             <button
               onClick={() => handleTabChange('brief')}
               className={cn(
-                "flex items-center justify-center w-12 h-12 rounded-full shadow-xl transition-all duration-300 border-[3px] border-slate-950 active:scale-95",
+                "flex items-center justify-center w-12 h-12 rounded-full shadow-2xl transition-all duration-300 border-[3px] border-slate-950 active:scale-95",
                 activeTab === 'brief'
-                  ? "bg-slate-800 text-amber-400 scale-105"
-                  : "bg-amber-400 text-slate-950 hover:bg-amber-300 shadow-amber-400/30"
+                  ? "bg-slate-800 text-amber-400 scale-105 border-amber-400/50"
+                  : "bg-gradient-to-r from-amber-400 to-amber-300 text-slate-950 hover:scale-105 shadow-amber-400/30"
               )}
               aria-label="Nouveau Brief"
             >
               <PlusCircle className="w-6 h-6" />
             </button>
-            <span className="text-[9px] text-amber-400 font-bold text-center block mt-0.5 leading-none">Brief</span>
+            <span className="text-[9px] text-amber-400 font-bold text-center block mt-0.5 leading-none">Nouveau Brief</span>
           </div>
 
-          {navItems.slice(2).map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => handleTabChange(id)}
-              className={cn(
-                "flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
-                activeTab === id ? "text-amber-400" : "text-slate-400"
-              )}
-            >
-              <Icon className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === id && "scale-110")} />
-              <span className="text-[9px] font-medium tracking-tight truncate w-full text-center leading-none">{label}</span>
-            </button>
-          ))}
-
-          {/* Theme Toggle */}
+          {/* Right items: CV & Suivi Client */}
           <button
-            onClick={() => {
-              const newMode = themeMode === 'dark' ? 'light' : 'dark';
-              setThemeMode(newMode);
-            }}
-            className="flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 flex-1 min-w-0 text-slate-400 active:scale-95"
-            aria-label="Changer de thème"
+            onClick={() => handleTabChange('cv')}
+            className={cn(
+              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+              activeTab === 'cv' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
+            )}
           >
-            {themeMode === 'dark'
-              ? <Sun className="w-5 h-5 mb-0.5 shrink-0" />
-              : <Moon className="w-5 h-5 mb-0.5 shrink-0" />}
-            <span className="text-[9px] font-medium tracking-tight truncate w-full text-center leading-none">Thème</span>
+            <UserCheck className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'cv' && "scale-110")} />
+            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">CV Pro</span>
+          </button>
+
+          <button
+            onClick={() => handleTabChange('client')}
+            className={cn(
+              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+              activeTab === 'client' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
+            )}
+          >
+            <User className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'client' && "scale-110")} />
+            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">Suivi Client</span>
           </button>
         </div>
       </nav>

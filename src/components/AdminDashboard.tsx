@@ -41,9 +41,10 @@ import {
   LogOut,
   BarChart3,
   Bell,
-  Cloud
+  Cloud,
+  ShoppingBag
 } from 'lucide-react';
-import { BriefData, BriefStatus, AIAnalysisResult, BriefTemplate, ProjectType, TechnicalFormat, StylePreference, BudgetRange, SamplePortfolioItem, UserRole } from '../types';
+import { BriefData, BriefStatus, AIAnalysisResult, BriefTemplate, ProjectType, TechnicalFormat, StylePreference, BudgetRange, SamplePortfolioItem, UserRole, StoreProduct } from '../types';
 
 import { AnalyticsTab } from './admin/AnalyticsTab';
 import { CRMTab } from './admin/CRMTab';
@@ -703,7 +704,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
               <div>
                 <p className="text-2xl sm:text-3xl font-black text-amber-400">
-                  {templatesCount}
+                  {(templates || []).length}
                 </p>
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Modèles d'Offres</p>
               </div>

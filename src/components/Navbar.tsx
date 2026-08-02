@@ -195,36 +195,38 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
         </motion.div>
       </header>
 
-      {/* MOBILE BOTTOM NAVBAR (Ultra-Compact for Small Screens) */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 pb-safe">
-        <div className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-0.5 py-1 flex items-center justify-around shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
+      {/* MOBILE BOTTOM NAVBAR */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        <div className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1 pt-1 pb-2 flex items-center justify-around shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
           {navItems.slice(0, 2).map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => handleTabChange(id)}
               className={cn(
-                "flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all duration-300 flex-1 min-w-0",
-                activeTab === id ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
+                "flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+                activeTab === id ? "text-amber-400" : "text-slate-400"
               )}
             >
-              <Icon className={cn("w-4 h-4 sm:w-5 sm:h-5 mb-0.5 shrink-0 transition-transform", activeTab === id && "scale-110")} />
-              <span className="text-[8px] sm:text-[10px] tracking-tight truncate w-full text-center">{label}</span>
+              <Icon className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === id && "scale-110")} />
+              <span className="text-[9px] font-medium tracking-tight truncate w-full text-center leading-none">{label}</span>
             </button>
           ))}
 
-          {/* Center Brief Action */}
-          <div className="relative -top-4 shrink-0 px-0.5">
+          {/* Center Brief Action — elevated pill button */}
+          <div className="relative -top-3 shrink-0 px-1">
             <button
               onClick={() => handleTabChange('brief')}
               className={cn(
-                "flex items-center justify-center w-11 h-11 sm:w-13 sm:h-13 rounded-full shadow-2xl transition-all duration-300 border-4 border-slate-950",
+                "flex items-center justify-center w-12 h-12 rounded-full shadow-xl transition-all duration-300 border-[3px] border-slate-950 active:scale-95",
                 activeTab === 'brief'
                   ? "bg-slate-800 text-amber-400 scale-105"
-                  : "bg-amber-400 text-slate-950 hover:bg-amber-300 hover:scale-105 shadow-amber-400/30"
+                  : "bg-amber-400 text-slate-950 hover:bg-amber-300 shadow-amber-400/30"
               )}
+              aria-label="Nouveau Brief"
             >
-              <PlusCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+              <PlusCircle className="w-6 h-6" />
             </button>
+            <span className="text-[9px] text-amber-400 font-bold text-center block mt-0.5 leading-none">Brief</span>
           </div>
 
           {navItems.slice(2).map(({ id, label, icon: Icon }) => (
@@ -232,25 +234,28 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
               key={id}
               onClick={() => handleTabChange(id)}
               className={cn(
-                "flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all duration-300 flex-1 min-w-0",
-                activeTab === id ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
+                "flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+                activeTab === id ? "text-amber-400" : "text-slate-400"
               )}
             >
-              <Icon className={cn("w-4 h-4 sm:w-5 sm:h-5 mb-0.5 shrink-0 transition-transform", activeTab === id && "scale-110")} />
-              <span className="text-[8px] sm:text-[10px] tracking-tight truncate w-full text-center">{label}</span>
+              <Icon className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === id && "scale-110")} />
+              <span className="text-[9px] font-medium tracking-tight truncate w-full text-center leading-none">{label}</span>
             </button>
           ))}
 
-          {/* Small Theme Toggle in Mobile Nav */}
+          {/* Theme Toggle */}
           <button
             onClick={() => {
               const newMode = themeMode === 'dark' ? 'light' : 'dark';
               setThemeMode(newMode);
             }}
-            className="flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all duration-300 flex-1 min-w-0 text-slate-400"
+            className="flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 flex-1 min-w-0 text-slate-400 active:scale-95"
+            aria-label="Changer de thème"
           >
-            {themeMode === 'dark' ? <Sun className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5 shrink-0" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5 shrink-0" />}
-            <span className="text-[8px] sm:text-[10px] tracking-tight truncate w-full text-center">Thème</span>
+            {themeMode === 'dark'
+              ? <Sun className="w-5 h-5 mb-0.5 shrink-0" />
+              : <Moon className="w-5 h-5 mb-0.5 shrink-0" />}
+            <span className="text-[9px] font-medium tracking-tight truncate w-full text-center leading-none">Thème</span>
           </button>
         </div>
       </nav>

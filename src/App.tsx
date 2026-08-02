@@ -451,7 +451,7 @@ export default function App() {
         newBriefsCount={(briefs || []).filter(b => b.status === 'nouveau').length}
       />
 
-      <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 pb-32 md:pb-16 relative">
+      <main className="flex-1 pt-4 pb-36 px-4 sm:px-6 lg:px-8 md:pt-8 md:pb-24 relative">
         <ErrorBoundary fallbackLabel="Hadara Studio Application">
           <Routes>
             {/* /studio = main studio page (navigated to from splash) */}
@@ -534,7 +534,7 @@ export default function App() {
 
       {printableBrief && <PrintableBrief brief={printableBrief} onClose={() => setPrintableBrief(null)} />}
 
-      <footer className="border-t border-slate-800 bg-slate-950/80 backdrop-blur-md pt-8 pb-32 text-center text-xs text-slate-400 space-y-4 print:hidden">
+      <footer className="border-t border-slate-800 bg-slate-950/80 backdrop-blur-md pt-8 pb-36 md:pb-16 text-center text-xs text-slate-400 space-y-4 print:hidden">
         <div className="flex flex-col items-center justify-center space-y-2 mb-4">
           <p className="font-serif font-bold text-amber-400 text-sm sm:text-base tracking-wide">
             Graphiste de la Hadara — El Hadji Abdoulaye Niass

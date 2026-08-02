@@ -31,7 +31,7 @@ export const FloatingWhatsApp: React.FC = () => {
   const isAvailable = status === 'available';
 
   return (
-    <div className="fixed bottom-24 right-3 sm:right-6 md:right-10 z-50 flex flex-col items-end print:hidden pointer-events-auto transition-all duration-300 floating-whatsapp-container">
+    <div className="fixed bottom-24 right-3 sm:right-6 md:right-10 z-40 flex flex-col items-end print:hidden pointer-events-auto transition-all duration-300 floating-whatsapp-container">
       
       {/* Tooltip banner (can be closed by user) */}
       {!isOpen && showTooltip && (

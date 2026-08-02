@@ -221,8 +221,8 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                 )}
                 <div>
                   <h4 className="text-sm font-serif font-bold text-slate-100 line-clamp-1">{product.name}</h4>
-                  <p className="text-sm font-mono font-extrabold text-amber-400 mt-0.5">
-                    {product.priceFCFA.toLocaleString('fr-FR')} FCFA
+                  <p className="text-xs font-mono font-bold text-amber-400 mt-0.5">
+                    {product.priceFCFA && product.priceFCFA > 0 ? `${product.priceFCFA.toLocaleString('fr-FR')} FCFA` : 'Sur demande'}
                   </p>
                   <p className="text-[11px] text-slate-400 line-clamp-2 mt-1 font-light">{product.description}</p>
                 </div>
@@ -310,12 +310,12 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 font-bold mb-1">Prix (FCFA) *</label>
+                  <label className="block text-slate-400 font-bold mb-1">Prix FCFA (Optionnel - 0 = Sur demande)</label>
                   <input
                     type="number"
-                    required
                     min="0"
                     step="500"
+                    placeholder="0 = Sur demande"
                     value={priceFCFA}
                     onChange={e => setPriceFCFA(Number(e.target.value))}
                     className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 font-mono focus:border-amber-400 focus:outline-none"

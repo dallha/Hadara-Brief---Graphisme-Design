@@ -80,7 +80,8 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
 
   const generateWhatsAppUrl = (product: StoreProduct) => {
     const phone = '221776232741';
-    const message = `Bonjour El Hadji Abdoulaye Niass, je souhaite commander l'équipement suivant sur Hadara Store :\n\n🛍️ *Produit* : ${product.name}\n💰 *Prix* : ${product.priceFCFA.toLocaleString('fr-FR')} FCFA\n🏷️ *Catégorie* : ${product.category}\n📦 *Statut* : ${product.stockStatus === 'in_stock' ? 'En Stock' : 'Sur Commande'}`;
+    const priceText = product.priceFCFA && product.priceFCFA > 0 ? `${product.priceFCFA.toLocaleString('fr-FR')} FCFA` : 'Prix sur demande';
+    const message = `Bonjour El Hadji Abdoulaye Niass, je souhaite me renseigner et commander l'équipement suivant sur Hadara Store :\n\n🛍️ *Produit* : ${product.name}\n💰 *Tarif* : ${priceText}\n🏷️ *Catégorie* : ${product.category}\n📦 *Statut* : ${product.stockStatus === 'in_stock' ? 'En Stock' : 'Sur Commande'}`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
 
@@ -215,10 +216,10 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
 
                 {/* Price & Action */}
                 <div className="pt-3 border-t border-slate-800/80 space-y-3">
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-xs text-slate-400 font-mono">Prix :</span>
-                    <span className="text-lg font-mono font-extrabold text-amber-400">
-                      {product.priceFCFA.toLocaleString('fr-FR')} <span className="text-xs font-sans text-amber-300">FCFA</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400 font-medium">Tarif :</span>
+                    <span className="text-xs font-bold text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/30">
+                      {product.priceFCFA && product.priceFCFA > 0 ? `${product.priceFCFA.toLocaleString('fr-FR')} FCFA` : 'Prix sur demande'}
                     </span>
                   </div>
 
@@ -286,9 +287,11 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
               </div>
 
               <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                <span className="text-xs text-slate-400">Prix unitaire :</span>
-                <span className="text-xl font-mono font-extrabold text-amber-400">
-                  {activeModalProduct.priceFCFA.toLocaleString('fr-FR')} FCFA
+                <span className="text-xs text-slate-400">Tarification :</span>
+                <span className="text-sm font-bold text-amber-400">
+                  {activeModalProduct.priceFCFA && activeModalProduct.priceFCFA > 0
+                    ? `${activeModalProduct.priceFCFA.toLocaleString('fr-FR')} FCFA`
+                    : 'Prix sur demande'}
                 </span>
               </div>
 

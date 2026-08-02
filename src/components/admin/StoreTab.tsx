@@ -13,7 +13,8 @@ import {
   Check, 
   X, 
   Tag, 
-  DollarSign 
+  Target,
+  Truck
 } from 'lucide-react';
 import { StoreProduct, StockStatus, ProductCategory } from '../../types';
 
@@ -39,12 +40,14 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
   // Form State
   const [name, setName] = useState('');
+  const [brand, setBrand] = useState('');
   const [category, setCategory] = useState<ProductCategory>('Accessoires');
-  const [priceFCFA, setPriceFCFA] = useState<number>(15000);
+  const [priceFCFA, setPriceFCFA] = useState<number>(0);
   const [stockStatus, setStockStatus] = useState<StockStatus>('in_stock');
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [badge, setBadge] = useState('🟢 En Stock');
+  const [isHadaraSelection, setIsHadaraSelection] = useState(false);
 
   const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -74,12 +77,14 @@ export const StoreTab: React.FC<StoreTabProps> = ({
   const handleOpenEditModal = (product: StoreProduct) => {
     setEditingProductId(product.id);
     setName(product.name);
+    setBrand(product.brand || '');
     setCategory((product.category as ProductCategory) || 'Accessoires');
-    setPriceFCFA(product.priceFCFA);
+    setPriceFCFA(product.priceFCFA || 0);
     setStockStatus(product.stockStatus);
     setDescription(product.description);
     setImageUrl(product.imageUrl || '');
-    setBadge(product.badge || '🟢 En Stock');
+    setBadge(product.badge || '');
+    setIsHadaraSelection(!!product.isHadaraSelection);
     setIsModalOpen(true);
   };
 
@@ -90,12 +95,14 @@ export const StoreTab: React.FC<StoreTabProps> = ({
     try {
       const payload = {
         name,
+        brand: brand.trim() || undefined,
         category,
-        priceFCFA: Number(priceFCFA),
+        priceFCFA: Number(priceFCFA) || 0,
         stockStatus,
         description,
         imageUrl: imageUrl || undefined,
         badge: badge || undefined,
+        isHadaraSelection,
         isActive: true,
       };
 
@@ -115,12 +122,14 @@ export const StoreTab: React.FC<StoreTabProps> = ({
 
   const resetForm = () => {
     setName('');
+    setBrand('');
     setCategory('Accessoires');
-    setPriceFCFA(15000);
+    setPriceFCFA(0);
     setStockStatus('in_stock');
     setDescription('');
     setImageUrl('');
-    setBadge('🟢 En Stock');
+    setBadge('');
+    setIsHadaraSelection(false);
   };
 
   const filteredProducts = (products || []).filter(p => {
@@ -140,7 +149,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             </span>
           </div>
           <h3 className="text-xl font-serif font-bold text-slate-100">Gestion des Produits & Stock</h3>
-          <p className="text-xs text-slate-400">Gérez le catalogue de la boutique, la disponibilité et les prix en FCFA.</p>
+          <p className="text-xs text-slate-400">Gérez le catalogue de la boutique, la marque, les garanties et la disponibilité.</p>
         </div>
 
         <button
@@ -194,9 +203,16 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             {/* Header info */}
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-amber-400 text-[10px] font-mono font-bold">
-                  {product.category}
-                </span>
+                <div className="flex items-center space-x-1.5">
+                  <span className="px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-amber-400 text-[10px] font-mono font-bold">
+                    {product.category}
+                  </span>
+                  {product.brand && (
+                    <span className="px-2 py-0.5 rounded-md bg-amber-400/10 text-amber-300 text-[10px] font-bold">
+                      {product.brand}
+                    </span>
+                  )}
+                </div>
 
                 {/* Stock Selector Dropdown */}
                 <select
@@ -205,8 +221,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                   className="px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-bold text-slate-200 focus:outline-none cursor-pointer"
                 >
                   <option value="in_stock">✅ En Stock</option>
-                  <option value="on_order">⏳ Sur Commande</option>
-                  <option value="out_of_stock">🔴 Rupture</option>
+                  <option value="available_24_48h">🚚 Dispo 24–48h</option>
+                  <option value="on_order">📦 Sur Commande</option>
+                  <option value="unavailable">❌ Indisponible</option>
                 </select>
               </div>
 
@@ -219,30 +236,45 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     <ShoppingBag className="w-6 h-6" />
                   </div>
                 )}
-                <div>
+                <div className="space-y-0.5">
                   <h4 className="text-sm font-serif font-bold text-slate-100 line-clamp-1">{product.name}</h4>
-                  <p className="text-xs font-mono font-bold text-amber-400 mt-0.5">
+                  <p className="text-xs font-mono font-bold text-amber-400">
                     {product.priceFCFA && product.priceFCFA > 0 ? `${product.priceFCFA.toLocaleString('fr-FR')} FCFA` : 'Sur demande'}
                   </p>
-                  <p className="text-[11px] text-slate-400 line-clamp-2 mt-1 font-light">{product.description}</p>
+                  <p className="text-[11px] text-slate-400 line-clamp-2 font-light">{product.description}</p>
                 </div>
               </div>
             </div>
 
             {/* Action Bar */}
             <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
-              <button
-                onClick={() => onUpdateProduct(product.id, { isActive: !(product.isActive !== false) })}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1 ${
-                  product.isActive !== false
-                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-slate-800 text-slate-400'
-                }`}
-                title={product.isActive !== false ? 'Masquer du magasin public' : 'Afficher sur le magasin public'}
-              >
-                {product.isActive !== false ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                <span>{product.isActive !== false ? 'Actif' : 'Masqué'}</span>
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => onUpdateProduct(product.id, { isActive: !(product.isActive !== false) })}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1 ${
+                    product.isActive !== false
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                      : 'bg-slate-800 text-slate-400'
+                  }`}
+                  title={product.isActive !== false ? 'Masquer du magasin public' : 'Afficher sur le magasin public'}
+                >
+                  {product.isActive !== false ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                  <span>{product.isActive !== false ? 'Actif' : 'Masqué'}</span>
+                </button>
+
+                <button
+                  onClick={() => onUpdateProduct(product.id, { isHadaraSelection: !product.isHadaraSelection })}
+                  className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all flex items-center space-x-1 ${
+                    product.isHadaraSelection
+                      ? 'bg-amber-400 text-slate-950 font-black'
+                      : 'bg-slate-800 text-slate-400 border border-slate-700'
+                  }`}
+                  title="Sélection Hadara"
+                >
+                  <Target className="w-3 h-3" />
+                  <span>{product.isHadaraSelection ? '🎯 Sélection' : 'Normal'}</span>
+                </button>
+              </div>
 
               <div className="flex items-center space-x-2">
                 <button
@@ -283,16 +315,29 @@ export const StoreTab: React.FC<StoreTabProps> = ({
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-slate-400 font-bold mb-1">Nom du produit *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="ex: Souris Sans Fil Pro"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:border-amber-400 focus:outline-none"
-                />
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2">
+                  <label className="block text-slate-400 font-bold mb-1">Nom du produit *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="ex: Souris Sans Fil MX Master 3S"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:border-amber-400 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 font-bold mb-1">Marque</label>
+                  <input
+                    type="text"
+                    placeholder="ex: Logitech"
+                    value={brand}
+                    onChange={e => setBrand(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:border-amber-400 focus:outline-none"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -310,7 +355,7 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 font-bold mb-1">Prix FCFA (Optionnel - 0 = Sur demande)</label>
+                  <label className="block text-slate-400 font-bold mb-1">Prix FCFA (0 = Sur demande)</label>
                   <input
                     type="number"
                     min="0"
@@ -332,8 +377,9 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                     className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:border-amber-400 focus:outline-none"
                   >
                     <option value="in_stock">✅ En stock</option>
-                    <option value="on_order">⏳ Sur commande</option>
-                    <option value="out_of_stock">🔴 Rupture</option>
+                    <option value="available_24_48h">🚚 Dispo 24–48h</option>
+                    <option value="on_order">📦 Sur commande</option>
+                    <option value="unavailable">❌ Indisponible</option>
                   </select>
                 </div>
 
@@ -341,12 +387,25 @@ export const StoreTab: React.FC<StoreTabProps> = ({
                   <label className="block text-slate-400 font-bold mb-1">Badge (Optionnel)</label>
                   <input
                     type="text"
-                    placeholder="ex: ⭐ Recommandé"
+                    placeholder="ex: ⭐ Best-Seller"
                     value={badge}
                     onChange={e => setBadge(e.target.value)}
                     className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:border-amber-400 focus:outline-none"
                   />
                 </div>
+              </div>
+
+              <div className="flex items-center space-x-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="isHadaraSelection"
+                  checked={isHadaraSelection}
+                  onChange={e => setIsHadaraSelection(e.target.checked)}
+                  className="w-4 h-4 rounded bg-slate-950 border-slate-700 text-amber-400 focus:ring-amber-400"
+                />
+                <label htmlFor="isHadaraSelection" className="text-amber-400 font-bold cursor-pointer">
+                  🎯 Définir comme "Sélection Hadara Studio" (Produit recommandé)
+                </label>
               </div>
 
               <div>

@@ -9,15 +9,18 @@ import {
   Clock, 
   XCircle, 
   Tag, 
-  ExternalLink,
   Laptop,
   Printer,
   Palette,
   Zap,
   Info,
-  Filter,
+  ShieldCheck,
+  BadgeCheck,
+  Truck,
   Check,
-  X
+  X,
+  Target,
+  Award
 } from 'lucide-react';
 import { StoreProduct, StockStatus } from '../types';
 
@@ -43,10 +46,12 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
 
   const filteredProducts = activeProducts.filter(product => {
     const matchesCategory = selectedCategory === 'all' || product.category.toLowerCase() === selectedCategory.toLowerCase();
+    const query = searchQuery.toLowerCase();
     const matchesSearch = 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (product.badge || '').toLowerCase().includes(searchQuery.toLowerCase());
+      product.name.toLowerCase().includes(query) ||
+      (product.brand || '').toLowerCase().includes(query) ||
+      product.description.toLowerCase().includes(query) ||
+      (product.badge || '').toLowerCase().includes(query);
     return matchesCategory && matchesSearch;
   });
 
@@ -54,23 +59,30 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
     switch (status) {
       case 'in_stock':
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-bold">
+          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold backdrop-blur-md shadow-md">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>En stock</span>
           </span>
         );
+      case 'available_24_48h':
+        return (
+          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/40 text-[11px] font-bold backdrop-blur-md shadow-md">
+            <Truck className="w-3.5 h-3.5" />
+            <span>Dispo 24–48h</span>
+          </span>
+        );
       case 'on_order':
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-bold">
+          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/40 text-[11px] font-bold backdrop-blur-md shadow-md">
             <Clock className="w-3.5 h-3.5" />
             <span>Sur commande</span>
           </span>
         );
-      case 'out_of_stock':
+      case 'unavailable':
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30 text-xs font-bold">
+          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/40 text-[11px] font-bold backdrop-blur-md shadow-md">
             <XCircle className="w-3.5 h-3.5" />
-            <span>Rupture de stock</span>
+            <span>Indisponible</span>
           </span>
         );
       default:
@@ -78,10 +90,31 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
     }
   };
 
+  const getStockText = (status: StockStatus) => {
+    switch (status) {
+      case 'in_stock': return 'En Stock';
+      case 'available_24_48h': return 'Disponible sous 24–48h';
+      case 'on_order': return 'Sur Commande';
+      case 'unavailable': return 'Indisponible';
+    }
+  };
+
   const generateWhatsAppUrl = (product: StoreProduct) => {
     const phone = '221776232741';
-    const priceText = product.priceFCFA && product.priceFCFA > 0 ? `${product.priceFCFA.toLocaleString('fr-FR')} FCFA` : 'Prix sur demande';
-    const message = `Bonjour El Hadji Abdoulaye Niass, je souhaite me renseigner et commander l'équipement suivant sur Hadara Store :\n\n🛍️ *Produit* : ${product.name}\n💰 *Tarif* : ${priceText}\n🏷️ *Catégorie* : ${product.category}\n📦 *Statut* : ${product.stockStatus === 'in_stock' ? 'En Stock' : 'Sur Commande'}`;
+    const message = `Bonjour El Hadji Abdoulaye Niass,
+
+Je souhaite obtenir des informations concernant :
+🛍️ *Produit* : ${product.name}${product.brand ? ` (${product.brand})` : ''}
+🏷️ *Catégorie* : ${product.category}
+📦 *Statut* : ${getStockText(product.stockStatus)}
+
+Merci de me communiquer :
+• Le prix actuel
+• La disponibilité exacte
+• Les modalités de livraison
+
+Merci.`;
+
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
 
@@ -95,9 +128,9 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4 max-w-3xl mx-auto relative z-10 pt-4 sm:pt-8"
+        className="text-center space-y-5 max-w-3xl mx-auto relative z-10 pt-4 sm:pt-8"
       >
-        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-widest">
+        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-widest shadow-lg">
           <ShoppingBag className="w-4 h-4 text-amber-400" />
           <span>Hadara Store — Équipements Créatifs & Tech</span>
         </div>
@@ -110,14 +143,32 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
           Des accessoires et équipements sélectionnés avec soin pour accompagner votre activité numérique et créative au quotidien.
         </p>
 
+        {/* Guarantees Reassurance Bar */}
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 py-2.5 px-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-slate-300 text-xs font-medium max-w-2xl mx-auto shadow-inner">
+          <span className="flex items-center space-x-1.5 text-emerald-400 font-semibold">
+            <ShieldCheck className="w-4 h-4 shrink-0" />
+            <span>Garantie fournisseur</span>
+          </span>
+          <span className="hidden sm:inline text-slate-700">•</span>
+          <span className="flex items-center space-x-1.5 text-amber-400 font-semibold">
+            <BadgeCheck className="w-4 h-4 shrink-0" />
+            <span>Produits neufs</span>
+          </span>
+          <span className="hidden sm:inline text-slate-700">•</span>
+          <span className="flex items-center space-x-1.5 text-blue-400 font-semibold">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>Vérifié avant livraison</span>
+          </span>
+        </div>
+
         {/* Search & Category Filter Section */}
-        <div className="pt-4 space-y-4">
+        <div className="pt-2 space-y-4">
           {/* Search bar */}
           <div className="relative max-w-md mx-auto">
             <Search className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
             <input
               type="text"
-              placeholder="Rechercher un produit (clavier, SSD, câble...)"
+              placeholder="Rechercher un produit ou marque (Logitech, Kingston, SSD...)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-900/90 border border-slate-800 text-slate-100 text-xs sm:text-sm focus:border-amber-400 focus:outline-none shadow-xl transition-all"
@@ -165,15 +216,15 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
             <motion.div
               key={product.id}
               whileHover={{ y: -4 }}
-              className="rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 transition-all overflow-hidden flex flex-col justify-between shadow-xl group"
+              className="rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 transition-all overflow-hidden flex flex-col justify-between shadow-xl group relative"
             >
               {/* Product Image & Badge Overlay */}
-              <div className="relative h-48 bg-slate-950 overflow-hidden flex items-center justify-center p-4">
+              <div className="relative h-52 bg-slate-950 overflow-hidden flex items-center justify-center p-3">
                 {product.imageUrl ? (
                   <img
                     src={product.imageUrl}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400">
@@ -182,25 +233,37 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
                 )}
                 
                 {/* Stock Status Badge */}
-                <div className="absolute top-3 left-3">
+                <div className="absolute top-3 left-3 z-10">
                   {getStockBadge(product.stockStatus)}
                 </div>
 
-                {/* Custom Badge if available */}
-                {product.badge && (
-                  <div className="absolute top-3 right-3">
-                    <span className="px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-700 text-amber-300 text-[10px] font-bold">
+                {/* Hadara Selection Badge OR Custom Badge */}
+                {product.isHadaraSelection ? (
+                  <div className="absolute top-3 right-3 z-10">
+                    <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 text-[10px] font-black shadow-lg flex items-center space-x-1">
+                      <Target className="w-3 h-3 text-slate-950" />
+                      <span>Sélection Hadara</span>
+                    </span>
+                  </div>
+                ) : product.badge ? (
+                  <div className="absolute top-3 right-3 z-10">
+                    <span className="px-2.5 py-1 rounded-full bg-slate-950/90 backdrop-blur-md border border-slate-700 text-amber-300 text-[10px] font-bold shadow-md">
                       {product.badge}
                     </span>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Product Content Details */}
               <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400/80 font-mono">
+                  <div className="flex items-center space-x-2">
+                    {product.brand && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20">
+                        {product.brand}
+                      </span>
+                    )}
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
                       {product.category}
                     </span>
                   </div>
@@ -236,7 +299,7 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
 
                     <button
                       onClick={() => setActiveModalProduct(product)}
-                      className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                      className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors shrink-0"
                       title="Détails du produit"
                     >
                       <Info className="w-4 h-4" />
@@ -260,30 +323,59 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
               className="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-5 text-slate-100 relative"
             >
               <div className="flex items-start justify-between border-b border-slate-800 pb-3">
-                <div>
+                <div className="space-y-1">
                   <div className="flex items-center space-x-2">
                     {getStockBadge(activeModalProduct.stockStatus)}
-                    <span className="text-xs text-amber-400 font-mono font-bold">{activeModalProduct.category}</span>
+                    {activeModalProduct.brand && (
+                      <span className="px-2 py-0.5 rounded-md bg-amber-400/10 text-amber-400 text-xs font-bold border border-amber-400/30">
+                        {activeModalProduct.brand}
+                      </span>
+                    )}
+                    <span className="text-xs text-slate-400 font-mono font-bold">{activeModalProduct.category}</span>
                   </div>
-                  <h3 className="text-xl font-serif font-bold text-slate-100 pt-2">{activeModalProduct.name}</h3>
+                  <h3 className="text-xl font-serif font-bold text-slate-100 pt-1">{activeModalProduct.name}</h3>
                 </div>
                 <button
                   onClick={() => setActiveModalProduct(null)}
-                  className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                  className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {activeModalProduct.imageUrl && (
-                <div className="h-56 rounded-2xl bg-slate-950 overflow-hidden border border-slate-800">
-                  <img src={activeModalProduct.imageUrl} alt={activeModalProduct.name} className="w-full h-full object-cover" />
+                <div className="h-56 rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 p-2">
+                  <img src={activeModalProduct.imageUrl} alt={activeModalProduct.name} className="w-full h-full object-cover rounded-xl" />
+                </div>
+              )}
+
+              {/* Hadara Selection Highlight Tag */}
+              {activeModalProduct.isHadaraSelection && (
+                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center space-x-2.5 text-xs text-amber-300 font-medium">
+                  <Target className="w-5 h-5 text-amber-400 shrink-0" />
+                  <span>🎯 <strong>Sélection Hadara Studio</strong> : Équipement testé et validé par notre équipe créative.</span>
                 </div>
               )}
 
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Description du produit :</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Description & Spécifications :</p>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">{activeModalProduct.description}</p>
+              </div>
+
+              {/* Guarantees Box inside Modal */}
+              <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] text-center text-slate-300 font-medium">
+                <div className="space-y-1">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400 mx-auto" />
+                  <span>Garantie fournisseur</span>
+                </div>
+                <div className="space-y-1">
+                  <BadgeCheck className="w-4 h-4 text-amber-400 mx-auto" />
+                  <span>Produit neuf</span>
+                </div>
+                <div className="space-y-1">
+                  <CheckCircle2 className="w-4 h-4 text-blue-400 mx-auto" />
+                  <span>Contrôlé avant envoi</span>
+                </div>
               </div>
 
               <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
@@ -310,7 +402,7 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
                   className="px-6 py-3.5 rounded-xl font-bold text-slate-950 text-xs bg-gradient-to-r from-emerald-400 to-emerald-300 hover:from-emerald-300 hover:to-emerald-200 transition-all flex items-center space-x-2 shadow-xl shadow-emerald-400/20"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Commander sur WhatsApp</span>
+                  <span>Obtenir les informations sur WhatsApp</span>
                 </a>
               </div>
             </motion.div>

@@ -340,17 +340,19 @@ export interface BriefTemplate {
 }
 
 export type ProductCategory = 'Accessoires' | 'Impression' | 'Graphisme' | 'Électronique';
-export type StockStatus = 'in_stock' | 'on_order' | 'out_of_stock';
+export type StockStatus = 'in_stock' | 'available_24_48h' | 'on_order' | 'unavailable';
 
 export interface StoreProduct {
   id: string;
   name: string;
+  brand?: string;
   category: ProductCategory | string;
-  priceFCFA: number;
+  priceFCFA?: number;
   stockStatus: StockStatus;
   description: string;
   imageUrl?: string;
   badge?: string;
+  isHadaraSelection?: boolean;
   isActive: boolean;
   createdAt: string;
 }

@@ -78,6 +78,7 @@ interface AdminDashboardProps {
   briefs: BriefData[];
   portfolioItems?: SamplePortfolioItem[];
   onUpdateStatus: (briefId: string, status: BriefStatus, notes?: string, price?: number) => Promise<void>;
+  onUpdateBriefEnriched?: (updated: BriefData) => Promise<void>;
   onAnalyzeWithAI: (briefId: string) => Promise<AIAnalysisResult | null>;
   onDeleteBrief: (briefId: string) => Promise<void>;
   onPrintBrief: (brief: BriefData) => void;
@@ -121,6 +122,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   briefs,
   portfolioItems,
   onUpdateStatus,
+  onUpdateBriefEnriched,
   onAnalyzeWithAI,
   onDeleteBrief,
   onPrintBrief,
@@ -1121,9 +1123,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           onClose={() => setSelected360Brief(null)}
           onUpdateStatus={onUpdateStatus}
           onUpdateBriefEnriched={async (updated) => {
-            const idx = briefs.findIndex(b => b.id === updated.id);
-            if (idx !== -1) {
-              briefs[idx] = updated;
+            if (onUpdateBriefEnriched) {
+              await onUpdateBriefEnriched(updated);
             }
           }}
           onPrintBrief={onPrintBrief}
@@ -1153,8 +1154,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <ClientPortalView 
             briefs={briefs}
             onUpdateBriefEnriched={async (b) => {
-              const idx = briefs.findIndex(item => item.id === b.id);
-              if (idx !== -1) briefs[idx] = b;
+              if (onUpdateBriefEnriched) {
+                await onUpdateBriefEnriched(b);
+              }
             }}
             onClosePortal={() => setShowClientPortal(false)}
           />

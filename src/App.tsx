@@ -272,6 +272,29 @@ export default function App() {
     } catch (err) { console.error(err); }
   };
 
+  const handleUpdateBriefEnriched = async (updatedBrief: BriefData) => {
+    setBriefs(prev => prev.map(b => b.id === updatedBrief.id ? updatedBrief : b));
+    try {
+      const res = await fetch(`${API_BASE}/api/briefs/${updatedBrief.id}/`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
+        },
+        body: JSON.stringify(updatedBrief),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const serverUpdated = data.brief || data;
+        if (serverUpdated && serverUpdated.id) {
+          setBriefs(prev => prev.map(b => b.id === serverUpdated.id ? serverUpdated : b));
+        }
+      }
+    } catch (err) {
+      console.error('Error syncing enriched brief to backend:', err);
+    }
+  };
+
   const handleAnalyzeWithAI = async (briefId: string): Promise<AIAnalysisResult | null> => {
     try {
       const res = await fetch(`${API_BASE}/api/briefs/${briefId}/analyze/`, { method: 'POST' });
@@ -486,6 +509,7 @@ export default function App() {
                       briefs={briefs} 
                       portfolioItems={portfolioItems}
                       onUpdateStatus={handleUpdateStatus} 
+                      onUpdateBriefEnriched={handleUpdateBriefEnriched}
                       onAnalyzeWithAI={handleAnalyzeWithAI} 
                       onDeleteBrief={handleDeleteBrief} 
                       onPrintBrief={b => setPrintableBrief(b)} 

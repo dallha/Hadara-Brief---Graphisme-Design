@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import { LandingHero } from './components/LandingHero';
 import { BriefForm } from './components/BriefForm';
@@ -18,6 +17,7 @@ import { ClientPortalView } from './components/client/ClientPortalView';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { SplashEntry } from './components/SplashEntry';
 import { RoadmapView } from './components/RoadmapView';
+import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem } from './types';
 
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';

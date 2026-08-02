@@ -32,6 +32,117 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
+export const DEFAULT_PORTFOLIO_MODELS: SamplePortfolioItem[] = [
+  {
+    id: 'model-1',
+    title: 'Identité Visuelle & Logo Hadara Master',
+    category: 'Identité & Logo',
+    description: 'Conception sur-mesure de votre logo institutionnel ou commercial, livrée avec guide des couleurs, typographies et déclinaisons HD.',
+    badge: 'Pack Signature',
+    priceEstimate: '80 000 FCFA',
+    imageTheme: 'Logo Vectoriel, Charte Graphique & Déclinaisons',
+    colorBg: 'from-[#1c1917] via-[#292524] to-[#0c0a09]',
+    accentHex: '#816C07',
+    features: ['Logo Vectoriel (AI, SVG, PNG)', 'Guide des couleurs & Polices', 'Déclinaisons Noir & Blanc', 'Fichiers HD prêts pour impression']
+  },
+  {
+    id: 'model-2',
+    title: 'Refonte & Modernisation de Logo',
+    category: 'Identité & Logo',
+    description: 'Redonnez vie et éclat à votre logo existant en le convertissant en format vectoriel haute résolution sans perte de qualité.',
+    badge: 'Refonte HD',
+    priceEstimate: '45 000 FCFA',
+    imageTheme: 'Vectorisation & Modernisation',
+    colorBg: 'from-[#0f172a] via-[#1e293b] to-[#020617]',
+    accentHex: '#38bdf8',
+    features: ['Vectorisation haute précision', 'Fichiers HD (PNG 300DPI, PDF)', 'Palette de couleurs optimisée', 'Format Réseaux Sociaux']
+  },
+  {
+    id: 'model-3',
+    title: "Affiche d'Événement Institutionnel & Gamou",
+    category: 'Communication Visuelle',
+    description: 'Conception graphique haut de gamme pour vos conférences, cérémonies, Ziarra, Gamou et événements professionnels.',
+    badge: 'Best Seller',
+    priceEstimate: '35 000 FCFA',
+    imageTheme: 'Affiche Solennelle, Spirituelle & Corporate',
+    colorBg: 'from-[#141c2e] via-[#0d131f] to-[#0a0f18]',
+    accentHex: '#fbbf24',
+    features: ['Format A3 / A4 HD (300 DPI)', 'Composition typographique élégante', 'Bannière Réseaux Sociaux incluse', 'Révisions illimitées']
+  },
+  {
+    id: 'model-4',
+    title: 'Pack Visuels Réseaux Sociaux & Stories',
+    category: 'Communication Visuelle',
+    description: 'Série de visuels captivants et harmonieux adaptés aux dimensions exactes de Facebook, Instagram et WhatsApp.',
+    badge: 'Social Media',
+    priceEstimate: '30 000 FCFA',
+    imageTheme: 'Pack de 5 Visuels Web & Story',
+    colorBg: 'from-[#1e1b4b] via-[#311b92] to-[#0f051d]',
+    accentHex: '#a855f7',
+    features: ['5 Visuels Carrés / Carré 1:1', '5 Stories Verticales 16:9', 'Direction artistique cohérente', 'Exportation rapide PNG HD']
+  },
+  {
+    id: 'model-5',
+    title: 'Bâche Événementielle Grand Format XXL',
+    category: 'Grand Format (Bâches)',
+    description: "Création graphique grand format conçue spécialement pour l'impression sur bâche, avec repères de découpe et œillets d'accroche.",
+    badge: 'Impression HD',
+    priceEstimate: '50 000 FCFA',
+    imageTheme: 'Visuel Bâche XXL & Signalétique',
+    colorBg: 'from-[#064e3b] via-[#022c22] to-[#01140e]',
+    accentHex: '#34d399',
+    features: ['Format vectoriel grand format (3x2m, 5x2m)', 'Résolution optimisée imprimeur', 'Contrôle des marges et œillets', 'Export PDF Haute Définition']
+  },
+  {
+    id: 'model-6',
+    title: 'Roll-up & Kakémono de Présentation',
+    category: 'Grand Format (Bâches)',
+    description: "Visuel vertical élégant et impactant pour vos stands d'exposition, salons et accueils d'entreprise (85x200cm).",
+    badge: 'Signalétique',
+    priceEstimate: '25 000 FCFA',
+    imageTheme: 'Roll-Up Stand & Exposition',
+    colorBg: 'from-[#1e293b] via-[#0f172a] to-[#020617]',
+    accentHex: '#cbd5e1',
+    features: ['Format 85x200cm ou 120x200cm', 'Gabarit imprimeur prêt', 'Design fluide et lisible', 'Fichier PDF HD CMJN']
+  },
+  {
+    id: 'model-7',
+    title: 'Package Pack Starter Événement',
+    category: 'Packages Booster',
+    description: "Solution intégrale comprenant l'affiche principale HD, la bâche grand format et la déclinaison Story WhatsApp & Facebook.",
+    badge: 'Pack Complet 3-en-1',
+    priceEstimate: '75 000 FCFA',
+    imageTheme: 'Pack Communication globale 3-en-1',
+    colorBg: 'from-[#451a03] via-[#78350f] to-[#1c0d02]',
+    accentHex: '#f59e0b',
+    features: ['Affiche A3/A4 HD', 'Bâche Grand Format XXL', 'Story WhatsApp & Facebook', 'Gain de 20% sur le tarif individuel']
+  },
+  {
+    id: 'model-8',
+    title: 'Pack Booster Entreprise & Branding',
+    category: 'Packages Booster',
+    description: "Tout le nécessaire pour lancer votre entreprise avec crédibilité : logo sur-mesure, cartes de visite et papier en-tête.",
+    badge: 'Branding Pro',
+    priceEstimate: '95 000 FCFA',
+    imageTheme: "Pack Identité d'Entreprise Complète",
+    colorBg: 'from-[#311042] via-[#1f0a2b] to-[#0c0412]',
+    accentHex: '#ec4899',
+    features: ['Logo Master Vectoriel', 'Carte de Visite Recto/Verso', 'Papier En-tête Word & PDF', 'Fichiers source complets']
+  },
+  {
+    id: 'model-9',
+    title: 'Site Vitrine Moderne & IA Hadara',
+    category: 'Création Web',
+    description: "Conception d'un site web ultra-moderne, rapide et optimisé pour smartphone avec l'assistance des technologies d'IA créatives.",
+    badge: 'Digital IA',
+    priceEstimate: '150 000 FCFA',
+    imageTheme: 'Site Web Responsive & UI Premium',
+    colorBg: 'from-[#0f2027] via-[#203a43] to-[#2c5364]',
+    accentHex: '#38bdf8',
+    features: ['Design sur-mesure responsive', 'Intégration WhatsApp & Formulaires', 'Référencement SEO optimisé', 'Hébergement & Domaine inclus']
+  }
+];
+
 export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
   items,
   onSelectCategoryForBrief,
@@ -39,7 +150,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [activeModalItem, setActiveModalItem] = useState<SamplePortfolioItem | null>(null);
 
-  const displayItems = items || [];
+  const displayItems = (items && items.length > 0) ? items : DEFAULT_PORTFOLIO_MODELS;
 
   const filteredItems = displayItems.filter((item) => {
     if (selectedFilter === 'all') return true;
@@ -144,10 +255,17 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
               className="group rounded-[2rem] bg-slate-900/50 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 transition-all duration-500 overflow-hidden flex flex-col justify-between shadow-2xl hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.15)]"
             >
               {/* Styled Visual Mockup Container */}
-              <div className={`h-64 sm:h-80 bg-gradient-to-br ${item.colorBg} relative p-6 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-transform duration-700 ease-out origin-bottom`}>
+              <div className={`h-64 sm:h-80 bg-gradient-to-br ${item.colorBg || 'from-slate-900 to-slate-950'} relative p-6 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-transform duration-700 ease-out origin-bottom`}>
                 
-                {/* Background Islamic / Geometric Pattern Overlay */}
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#d97706_1.5px,transparent_1.5px)] [background-size:24px_24px] pointer-events-none mix-blend-overlay" />
+                {/* Background Image if uploaded */}
+                {item.imageUrl ? (
+                  <div className="absolute inset-0 z-0">
+                    <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent opacity-90" />
+                  </div>
+                ) : (
+                  <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#d97706_1.5px,transparent_1.5px)] [background-size:24px_24px] pointer-events-none mix-blend-overlay" />
+                )}
 
                 <div className="relative z-10 flex items-center justify-between">
                   <span className="px-3.5 py-1.5 rounded-full bg-slate-950/80 backdrop-blur-md border border-amber-500/40 text-amber-300 text-xs font-bold shadow-lg">
@@ -158,18 +276,20 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
                   </span>
                 </div>
 
-                {/* Sample Poster Visual Representation */}
-                <div className="relative z-10 my-auto text-center space-y-3 p-6 rounded-3xl bg-slate-950/40 backdrop-blur-lg border border-white/10 shadow-2xl group-hover:bg-slate-950/60 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 mx-auto flex items-center justify-center text-amber-300 font-serif text-lg font-bold shadow-inner">
-                    ح
+                {/* Sample Poster Visual Representation (Model without image) */}
+                {!item.imageUrl && (
+                  <div className="relative z-10 my-auto text-center space-y-3 p-6 rounded-3xl bg-slate-950/40 backdrop-blur-lg border border-white/10 shadow-2xl group-hover:bg-slate-950/60 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 mx-auto flex items-center justify-center text-amber-300 font-serif text-lg font-bold shadow-inner">
+                      ح
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-serif font-extrabold text-white tracking-wide drop-shadow-md">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-amber-200/90 font-medium tracking-wide">
+                      {item.imageTheme}
+                    </p>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-serif font-extrabold text-white tracking-wide drop-shadow-md">
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-amber-200/90 font-medium tracking-wide">
-                    {item.imageTheme}
-                  </p>
-                </div>
+                )}
 
                 {/* Bottom Card Footer */}
                 <div className="relative z-10 flex items-center justify-between text-xs text-slate-300">

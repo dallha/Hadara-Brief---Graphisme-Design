@@ -66,6 +66,7 @@ import { NewBriefModal } from './admin/modals/NewBriefModal';
 import { TemplateModals } from './admin/modals/TemplateModals';
 import { StudioOnboardingModal } from './admin/modals/StudioOnboardingModal';
 import { ClientPortalView } from './client/ClientPortalView';
+import { StoreTab } from './admin/StoreTab';
 
 interface SoftDeleteTrashItem {
   id: string;
@@ -77,6 +78,7 @@ interface SoftDeleteTrashItem {
 interface AdminDashboardProps {
   briefs: BriefData[];
   portfolioItems?: SamplePortfolioItem[];
+  storeProducts?: StoreProduct[];
   onUpdateStatus: (briefId: string, status: BriefStatus, notes?: string, price?: number) => Promise<void>;
   onUpdateBriefEnriched?: (updated: BriefData) => Promise<void>;
   onAnalyzeWithAI: (briefId: string) => Promise<AIAnalysisResult | null>;
@@ -86,6 +88,9 @@ interface AdminDashboardProps {
   onAddPortfolioItem?: (item: Omit<SamplePortfolioItem, 'id'>) => Promise<void>;
   onUpdatePortfolioItem?: (id: string, updatedItem: Partial<SamplePortfolioItem>) => Promise<void>;
   onDeletePortfolioItem?: (id: string) => Promise<void>;
+  onAddStoreProduct?: (product: Omit<StoreProduct, 'id' | 'createdAt'>) => Promise<void>;
+  onUpdateStoreProduct?: (id: string, updatedProduct: Partial<StoreProduct>) => Promise<void>;
+  onDeleteStoreProduct?: (id: string) => Promise<void>;
   onLogout?: () => void;
 }
 
@@ -121,6 +126,7 @@ const getProjectTypeBadge = (type: ProjectType | string) => {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   briefs,
   portfolioItems,
+  storeProducts,
   onUpdateStatus,
   onUpdateBriefEnriched,
   onAnalyzeWithAI,
@@ -130,6 +136,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onAddPortfolioItem,
   onUpdatePortfolioItem,
   onDeletePortfolioItem,
+  onAddStoreProduct,
+  onUpdateStoreProduct,
+  onDeleteStoreProduct,
   onLogout,
 }) => {
   // Main Navigation Tabs
@@ -755,6 +764,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {[
             { id: 'kanban', icon: Layers, label: 'Kanban ERP' },
             { id: 'briefs', icon: FileText, label: 'Briefs' },
+            { id: 'store', icon: ShoppingBag, label: 'Hadara Store' },
             { id: 'bi', icon: BarChart3, label: 'Dashboard BI' },
             { id: 'finance', icon: CreditCard, label: 'Finance' },
             { id: 'calendar', icon: Calendar, label: 'Calendrier' },
@@ -1106,6 +1116,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           onAddPortfolioItem={onAddPortfolioItem || (async () => {})} 
           onUpdatePortfolioItem={onUpdatePortfolioItem || (async () => {})}
           onDeletePortfolioItem={onDeletePortfolioItem || (async () => {})} 
+        />
+      )}
+
+      {adminTab === 'store' && (
+        <StoreTab 
+          products={storeProducts || []}
+          onAddProduct={onAddStoreProduct || (async () => {})}
+          onUpdateProduct={onUpdateStoreProduct || (async () => {})}
+          onDeleteProduct={onDeleteStoreProduct || (async () => {})}
         />
       )}
       <BriefDetailsModal 

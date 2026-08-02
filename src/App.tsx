@@ -17,8 +17,10 @@ import { ClientPortalView } from './components/client/ClientPortalView';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { SplashEntry } from './components/SplashEntry';
 import { RoadmapView } from './components/RoadmapView';
+import { HadaraStore } from './components/HadaraStore';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
-import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem } from './types';
+import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
+import { DEFAULT_STORE_PRODUCTS } from './data/storeData';
 
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
 import API_BASE from './config';
@@ -29,6 +31,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 function pathToTab(pathname: string): string {
   if (pathname.startsWith('/brief')) return 'brief';
   if (pathname.startsWith('/portfolio')) return 'portfolio';
+  if (pathname.startsWith('/store') || pathname.startsWith('/boutique')) return 'store';
   if (pathname.startsWith('/roadmap')) return 'roadmap';
   if (pathname.startsWith('/admin')) return 'admin';
   if (pathname.startsWith('/cv')) return 'cv';
@@ -123,7 +126,7 @@ export default function App() {
 
   const goTo = (tab: string) => {
     const routes: Record<string, string> = {
-      home: '/studio', brief: '/brief', portfolio: '/portfolio',
+      home: '/studio', brief: '/brief', portfolio: '/portfolio', store: '/boutique',
       admin: '/admin', cv: '/cv', confirmation: '/confirmation',
       client: '/espace-client',
     };
@@ -132,6 +135,7 @@ export default function App() {
   };
 
   const [portfolioItems, setPortfolioItems] = useState<SamplePortfolioItem[]>([]);
+  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(DEFAULT_STORE_PRODUCTS);
 
   const fetchBriefs = async () => {
     try {
@@ -158,7 +162,20 @@ export default function App() {
     }
   };
 
-  useEffect(() => { fetchBriefs(); fetchPortfolio(); }, []);
+  const fetchStoreProducts = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/store/products/`);
+      if (res.ok) {
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : (data.results || data.products || []);
+        if (items.length > 0) setStoreProducts(items);
+      }
+    } catch (err) {
+      console.warn('Could not connect to store backend API.');
+    }
+  };
+
+  useEffect(() => { fetchBriefs(); fetchPortfolio(); fetchStoreProducts(); }, []);
 
   useEffect(() => {
     if (activeTab === 'admin' && isAdminAuthenticated) {
@@ -222,6 +239,65 @@ export default function App() {
       setPortfolioItems(prev => prev.filter(item => item.id !== id));
     } catch (err) {
       console.error('Error deleting portfolio item:', err);
+    }
+  };
+
+  const handleAddStoreProduct = async (product: Omit<StoreProduct, 'id' | 'createdAt'>) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/store/products/`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
+        },
+        body: JSON.stringify(product),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setStoreProducts(prev => [created, ...prev]);
+        return;
+      }
+    } catch (err) {
+      console.error('Error creating store product:', err);
+    }
+    const fallback: StoreProduct = {
+      ...product,
+      id: `prod-${Date.now()}`,
+      createdAt: new Date().toISOString()
+    };
+    setStoreProducts(prev => [fallback, ...prev]);
+  };
+
+  const handleUpdateStoreProduct = async (id: string, updatedProduct: Partial<StoreProduct>) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/store/products/${id}/`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
+        },
+        body: JSON.stringify(updatedProduct),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setStoreProducts(prev => prev.map(p => p.id === id ? updated : p));
+        return;
+      }
+    } catch (err) {
+      console.error('Error updating store product:', err);
+    }
+    setStoreProducts(prev => prev.map(p => p.id === id ? { ...p, ...updatedProduct } : p));
+  };
+
+  const handleDeleteStoreProduct = async (id: string) => {
+    try {
+      await fetch(`${API_BASE}/api/store/products/${id}/`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}` },
+      });
+      setStoreProducts(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      console.error('Error deleting store product:', err);
     }
   };
 
@@ -491,6 +567,12 @@ export default function App() {
             <Route path="/portfolio" element={
               <PortfolioShowcase items={portfolioItems} onSelectCategoryForBrief={() => goTo('brief')} />
             } />
+            <Route path="/boutique" element={
+              <HadaraStore products={storeProducts} />
+            } />
+            <Route path="/store" element={
+              <HadaraStore products={storeProducts} />
+            } />
             <Route path="/roadmap" element={
               <RoadmapView onGoToBrief={() => goTo('brief')} />
             } />
@@ -508,6 +590,7 @@ export default function App() {
                     <AdminDashboard 
                       briefs={briefs} 
                       portfolioItems={portfolioItems}
+                      storeProducts={storeProducts}
                       onUpdateStatus={handleUpdateStatus} 
                       onUpdateBriefEnriched={handleUpdateBriefEnriched}
                       onAnalyzeWithAI={handleAnalyzeWithAI} 
@@ -517,6 +600,9 @@ export default function App() {
                       onAddPortfolioItem={handleAddPortfolioItem}
                       onUpdatePortfolioItem={handleUpdatePortfolioItem}
                       onDeletePortfolioItem={handleDeletePortfolioItem}
+                      onAddStoreProduct={handleAddStoreProduct}
+                      onUpdateStoreProduct={handleUpdateStoreProduct}
+                      onDeleteStoreProduct={handleDeleteStoreProduct}
                       onLogout={handleAdminLogout} 
                     />
                   </ErrorBoundary>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FolderKanban, Home, PlusCircle, UserCheck, Sun, Moon, Laptop, ChevronDown, Check, Sparkles, User, Rocket } from 'lucide-react';
+import { FolderKanban, Home, PlusCircle, UserCheck, Sun, Moon, Laptop, ChevronDown, Check, Sparkles, User, Rocket, ShoppingBag } from 'lucide-react';
 import { HadaraLogo } from './HadaraLogo';
 import { cn } from '../utils/cn';
 
 interface NavbarProps {
-  activeTab: 'splash' | 'home' | 'brief' | 'portfolio' | 'admin' | 'confirmation' | 'cv' | 'client';
-  setActiveTab: (tab: 'splash' | 'home' | 'brief' | 'portfolio' | 'admin' | 'confirmation' | 'cv' | 'client') => void;
+  activeTab: 'splash' | 'home' | 'brief' | 'portfolio' | 'store' | 'admin' | 'confirmation' | 'cv' | 'client';
+  setActiveTab: (tab: 'splash' | 'home' | 'brief' | 'portfolio' | 'store' | 'admin' | 'confirmation' | 'cv' | 'client') => void;
   briefsCount: number;
   newBriefsCount: number;
 }
@@ -76,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   const navItems = [
     { id: 'home', label: 'Accueil', icon: Home },
     { id: 'portfolio', label: 'Prestations', icon: FolderKanban },
-    { id: 'roadmap', label: 'Roadmap', icon: Rocket },
+    { id: 'store', label: 'Boutique', icon: ShoppingBag },
     { id: 'cv', label: 'CV', icon: UserCheck },
     { id: 'client', label: 'Suivi', icon: User },
   ];
@@ -238,16 +238,16 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             <span className="text-[9px] text-amber-400 font-bold text-center block mt-0.5 leading-none">Nouveau Brief</span>
           </div>
 
-          {/* Right items: CV & Suivi Client */}
+          {/* Right items: Boutique & Suivi Client */}
           <button
-            onClick={() => handleTabChange('cv')}
+            onClick={() => handleTabChange('store')}
             className={cn(
               "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
-              activeTab === 'cv' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
+              activeTab === 'store' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
             )}
           >
-            <UserCheck className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'cv' && "scale-110")} />
-            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">CV Pro</span>
+            <ShoppingBag className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'store' && "scale-110")} />
+            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">Boutique</span>
           </button>
 
           <button

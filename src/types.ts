@@ -338,3 +338,19 @@ export interface BriefTemplate {
   suggestedPriceFCFA: number;
   usageCount?: number;
 }
+
+export type ProductCategory = 'Accessoires' | 'Impression' | 'Graphisme' | 'Électronique';
+export type StockStatus = 'in_stock' | 'on_order' | 'out_of_stock';
+
+export interface StoreProduct {
+  id: string;
+  name: string;
+  category: ProductCategory | string;
+  priceFCFA: number;
+  stockStatus: StockStatus;
+  description: string;
+  imageUrl?: string;
+  badge?: string;
+  isActive: boolean;
+  createdAt: string;
+}

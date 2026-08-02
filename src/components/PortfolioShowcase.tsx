@@ -360,16 +360,16 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
         </p>
 
         {/* External Behance Link Banner */}
-        <div className="pt-2">
+        <div className="pt-2 px-2">
           <a
             href="https://www.behance.net/mrniasse"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center space-x-3 px-6 py-3.5 rounded-2xl bg-[#0057ff]/10 border border-[#0057ff]/30 hover:bg-[#0057ff]/20 font-serif font-bold text-sm shadow-xl hover:shadow-[#0057ff]/20 transition-all group"
+            className="inline-flex items-center space-x-2 sm:space-x-3 px-4 py-3 sm:px-6 sm:py-3.5 rounded-2xl bg-[#0057ff]/10 border border-[#0057ff]/30 hover:bg-[#0057ff]/20 font-serif font-bold text-xs sm:text-sm shadow-xl hover:shadow-[#0057ff]/20 transition-all group max-w-full"
           >
-            <Globe className="w-5 h-5 text-[#0057ff]" />
-            <span className="text-slate-200">Consulter le Portfolio Complet sur Behance</span>
-            <ExternalLink className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+            <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-[#0057ff] shrink-0" />
+            <span className="text-slate-200 truncate">Portfolio Behance Officiel</span>
+            <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 group-hover:translate-x-1 transition-transform shrink-0" />
           </a>
         </div>
 
@@ -406,7 +406,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 relative z-10"
       >
         <AnimatePresence mode="popLayout">
           {filteredItems.map((item) => (
@@ -420,7 +420,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
               className="group rounded-[2rem] bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 transition-all duration-500 overflow-hidden flex flex-col justify-between shadow-2xl hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.2)]"
             >
               {/* Styled Visual Mockup Container */}
-              <div className={`h-64 bg-gradient-to-br ${item.colorBg || 'from-slate-900 to-slate-950'} relative p-6 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-transform duration-700 ease-out origin-bottom`}>
+              <div className={`h-48 sm:h-64 bg-gradient-to-br ${item.colorBg || 'from-slate-900 to-slate-950'} relative p-4 sm:p-6 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-transform duration-700 ease-out origin-bottom`}>
                 
                 {/* Background Image if uploaded */}
                 {item.imageUrl ? (
@@ -536,12 +536,12 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
       {/* Detail Modal */}
       <AnimatePresence>
         {activeModalItem && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-6 text-slate-100 relative"
+              className="bg-slate-900 border border-slate-700/80 rounded-3xl p-4 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-5 sm:space-y-6 text-slate-100 relative"
             >
               {/* Top Banner */}
               <div className="flex items-start justify-between border-b border-slate-800 pb-4">
@@ -668,10 +668,10 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
               </div>
 
               {/* Actions */}
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-between gap-4">
+              <div className="pt-4 border-t border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
                 <button
                   onClick={() => setActiveModalItem(null)}
-                  className="px-5 py-3 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  className="px-5 py-3 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-center"
                 >
                   Fermer
                 </button>
@@ -682,10 +682,10 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
                     setActiveModalItem(null);
                     onSelectCategoryForBrief(cat);
                   }}
-                  className="px-6 py-3.5 rounded-xl font-bold text-slate-950 text-xs bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 transition-all flex items-center space-x-2 shadow-xl shadow-amber-400/20"
+                  className="px-5 sm:px-6 py-3.5 rounded-xl font-bold text-slate-950 text-xs bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 transition-all flex items-center justify-center space-x-2 shadow-xl shadow-amber-400/20"
                 >
                   <span>Obtenir une estimation avec Brief Intelligent ✨</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 shrink-0" />
                 </button>
               </div>
             </motion.div>

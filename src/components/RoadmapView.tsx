@@ -53,9 +53,9 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ onGoToBrief }) => {
   ];
 
   return (
-    <div className="space-y-12 pb-16 max-w-5xl mx-auto px-4 sm:px-6 relative">
-      {/* Background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
+    <div className="space-y-12 pb-16 max-w-5xl mx-auto px-4 sm:px-6 relative overflow-hidden">
+      {/* Decorative ambient background */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] sm:w-[700px] h-[350px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Header */}
       <motion.div 
@@ -125,13 +125,15 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ onGoToBrief }) => {
         })}
       </div>
 
-      {/* CTA Box */}
+      {/* CTA Bottom Banner */}
       {onGoToBrief && (
-        <div className="p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-amber-950/30 to-slate-900 border border-amber-500/30 text-center space-y-4 shadow-2xl relative z-10">
-          <h3 className="text-2xl font-serif font-bold text-slate-100">Prêt à lancer votre projet avec Hadara ?</h3>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto">
-            Bénéficiez immédiatement du Brief Intelligent et d’un suivi dédié sur votre Espace Client sécurisé.
-          </p>
+        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-amber-500/10 via-slate-900 to-slate-900 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative z-10">
+          <div className="text-center sm:text-left space-y-1">
+            <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-100">Prêt à lancer votre projet avec Hadara ?</h3>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+              Bénéficiez immédiatement du Brief Intelligent et d’un suivi dédié sur votre Espace Client sécurisé.
+            </p>
+          </div>
           <button
             onClick={onGoToBrief}
             className="px-8 py-4 rounded-2xl font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:brightness-110 shadow-xl shadow-amber-400/20 active:scale-95 transition-all inline-flex items-center space-x-2 text-sm"

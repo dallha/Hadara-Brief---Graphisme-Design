@@ -53,7 +53,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
   onOpenCV,
 }) => {
   return (
-    <div className="space-y-16 sm:space-y-24 pb-12 pt-16 sm:pt-24 max-w-7xl mx-auto">
+    <div className="space-y-12 sm:space-y-20 pb-12 pt-8 sm:pt-20 max-w-7xl mx-auto px-1">
 
       {/* ── HERO SECTION ── */}
       <motion.section 
@@ -70,7 +70,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
             <span>Studio Créatif Premium</span>
           </motion.div>
 
-          <motion.h1 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-serif font-extrabold tracking-tight leading-[1.1]">
+          <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl lg:text-7xl font-serif font-extrabold tracking-tight leading-[1.15] px-2 sm:px-0">
             <span className="text-slate-100">Des designs qui</span>
             <br />
             <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent">
@@ -110,10 +110,10 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
         transition={{ duration: 0.6 }}
       >
         <div className="relative p-6 sm:p-12 rounded-[2rem] bg-slate-900/50 border border-slate-800 backdrop-blur-md overflow-hidden">
-          <div className="flex flex-col lg:flex-row items-center gap-10">
+          <div className="flex flex-col lg:flex-row items-center gap-8">
             <div className="shrink-0 relative group">
               <div className="absolute inset-0 bg-amber-500/20 blur-3xl group-hover:bg-amber-500/30 transition-all duration-500" />
-              <HadaraLogo size="xl" variant="or" className="relative w-32 h-32 sm:w-40 sm:h-40" />
+              <HadaraLogo size="xl" variant="or" className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40" />
             </div>
 
             <div className="flex-1 space-y-6 text-center lg:text-left">
@@ -176,9 +176,8 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Card 1: Identité Visuelle (Span 8) */}
-          <motion.div 
-            whileHover={{ y: -4 }}
-            className="md:col-span-8 p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between min-h-[340px] group shadow-xl relative overflow-hidden"
+            <motion.div whileHover={{ y: -4 }}
+            className="md:col-span-8 p-5 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between min-h-[260px] sm:min-h-[340px] group shadow-xl relative overflow-hidden"
           >
             <div className="flex justify-between items-start mb-6">
               <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500 transition-colors">
@@ -206,9 +205,8 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
           </motion.div>
 
           {/* Card 2: Communication Visuelle (Span 4) */}
-          <motion.div 
-            whileHover={{ y: -4 }}
-            className="md:col-span-4 p-8 rounded-3xl bg-gradient-to-br from-[#335A79] to-[#184260] text-slate-100 flex flex-col justify-between min-h-[340px] shadow-xl relative overflow-hidden"
+          <motion.div whileHover={{ y: -4 }}
+            className="md:col-span-4 p-5 sm:p-8 rounded-3xl bg-gradient-to-br from-[#335A79] to-[#184260] text-slate-100 flex flex-col justify-between min-h-[220px] sm:min-h-[340px] shadow-xl relative overflow-hidden"
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-amber-400/20 flex items-center justify-center">
@@ -229,9 +227,8 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
           </motion.div>
 
           {/* Card 3: Packages Booster (Span 4) */}
-          <motion.div 
-            whileHover={{ y: -4 }}
-            className="md:col-span-4 p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between min-h-[300px] group shadow-xl"
+          <motion.div whileHover={{ y: -4 }}
+            className="md:col-span-4 p-5 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between min-h-[220px] sm:min-h-[300px] group shadow-xl"
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500 transition-colors">

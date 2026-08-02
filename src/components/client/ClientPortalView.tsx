@@ -242,7 +242,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           
           {/* Left Column: Orders List */}
           <div className="space-y-4">
@@ -303,12 +303,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 </div>
 
                 {/* Workflow Timeline Tracker */}
-                <div className="space-y-3">
-                  <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-slate-400">
-                    Avancement du Projet dans le Studio
-                  </h3>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl">
+                  <h3 className="text-sm font-serif font-bold text-slate-200 uppercase tracking-wider">Avancement du Projet</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
                     {WORKFLOW_STEPS.map((step, idx) => {
                       const isPast = idx < currentStepIdx;
                       const isCurrent = idx === currentStepIdx;

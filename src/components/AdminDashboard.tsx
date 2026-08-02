@@ -613,7 +613,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         {/* Dynamic Stats Grid - Ultra-Compact Mobile-First */}
         {adminTab !== 'templates' ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
             {/* Card 1: Briefs en attente */}
             <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#816C07]/40 shadow-md space-y-1.5">
               <div className="flex items-center justify-between">
@@ -685,16 +685,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#816C07]/40 shadow-lg space-y-3">
               <div className="p-2 w-fit rounded-xl bg-[#816C07]/15 border border-[#816C07]/30">
                 <BookOpen className="w-4 h-4 text-[#816C07]" />
               </div>
-              <p className="text-3xl font-black font-mono text-[#F5F5DC]">{templates.length}</p>
               <div>
-                <p className="text-[10px] font-serif font-bold uppercase tracking-wider text-[#816C07]">Modèles Disponibles</p>
-                <p className="text-[10px] text-[#D4C9BF]/70">Briefs types configurés</p>
+                <p className="text-2xl sm:text-3xl font-black text-amber-400">
+                  {templatesCount}
+                </p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Modèles d'Offres</p>
               </div>
+            </div>
+
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+              <p className="text-2xl sm:text-3xl font-black text-slate-100">
+                100%
+              </p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Performance</p>
             </div>
 
             <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#141c2e] to-[#0d131f] border border-[#224A33]/50 shadow-lg space-y-3">

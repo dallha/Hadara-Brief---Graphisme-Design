@@ -34,6 +34,7 @@ function pathToTab(pathname: string): string {
   if (pathname.startsWith('/cv')) return 'cv';
   if (pathname.startsWith('/confirmation')) return 'confirmation';
   if (pathname.startsWith('/espace-client') || pathname.startsWith('/portail-client') || pathname.startsWith('/suivi')) return 'client';
+  if (pathname.startsWith('/studio') || pathname === '/') return 'home';
   return 'home';
 }
 
@@ -126,11 +127,11 @@ export default function App() {
 
   const goTo = (tab: string) => {
     const routes: Record<string, string> = {
-      home: '/', brief: '/brief', portfolio: '/portfolio',
+      home: '/studio', brief: '/brief', portfolio: '/portfolio',
       admin: '/admin', cv: '/cv', confirmation: '/confirmation',
       client: '/espace-client',
     };
-    navigate(routes[tab] || '/');
+    navigate(routes[tab] || '/studio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -329,21 +330,29 @@ export default function App() {
   const handleAdminLogout = () => {
     sessionStorage.removeItem('hadara_admin_token');
     setIsAdminAuthenticated(false);
-    navigate('/');
+    navigate('/studio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEnterStudio = () => {
-    setHasVisited(true);
+    // Write to sessionStorage FIRST, synchronously, before any navigation
     try {
       sessionStorage.setItem('hadara_has_visited', 'true');
     } catch {}
-    navigate('/');
+    // Navigate to /studio — a route distinct from '/', so the splash condition
+    // (pathname === '/' && !hasVisited) can NEVER re-trigger during this render cycle
+    navigate('/studio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // ── SPLASH SCREEN ─────────────────────────────────────────────
-  if ((location.pathname === '/' && !hasVisited) || location.pathname === '/splash') {
+  // Show splash ONLY on the bare '/' path when user has never visited.
+  // Navigating to /studio bypasses this check entirely — no race condition possible.
+  const shouldShowSplash =
+    (location.pathname === '/' && !hasVisited) ||
+    location.pathname === '/splash';
+
+  if (shouldShowSplash) {
     return (
       <div className="min-h-screen bg-[#0d131f] text-[#F5F5DC] font-sans">
         <SplashEntry onEnter={handleEnterStudio} />
@@ -452,6 +461,11 @@ export default function App() {
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 pb-32 md:pb-16 relative">
         <ErrorBoundary fallbackLabel="Hadara Studio Application">
           <Routes>
+            {/* /studio = main studio page (navigated to from splash) */}
+            <Route path="/studio" element={
+              <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
+            } />
+            {/* '/' also shows studio when hasVisited (prevents back-button showing splash) */}
             <Route path="/" element={
               <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
             } />

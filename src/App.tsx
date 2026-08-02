@@ -263,6 +263,77 @@ export default function App() {
     }
   };
 
+  const enqueuePendingMutation = (action: 'ADD' | 'UPDATE' | 'DELETE', targetId: string, payload?: any) => {
+    try {
+      const queue = JSON.parse(localStorage.getItem('hadara_pending_mutations') || '[]');
+      queue.push({
+        id: `mut-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        action,
+        targetId,
+        payload,
+        timestamp: Date.now()
+      });
+      localStorage.setItem('hadara_pending_mutations', JSON.stringify(queue));
+    } catch (err) {
+      console.warn('Could not enqueue pending mutation:', err);
+    }
+  };
+
+  const processPendingMutations = async () => {
+    try {
+      const queueRaw = localStorage.getItem('hadara_pending_mutations');
+      if (!queueRaw) return;
+      const queue = JSON.parse(queueRaw);
+      if (!Array.isArray(queue) || queue.length === 0) return;
+
+      const remaining = [];
+      for (const item of queue) {
+        try {
+          let res;
+          if (item.action === 'UPDATE') {
+            res = await fetch(`${API_BASE}/api/store/products/${item.targetId}/`, {
+              method: 'PATCH',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
+              },
+              body: JSON.stringify(item.payload),
+            });
+          } else if (item.action === 'ADD') {
+            res = await fetch(`${API_BASE}/api/store/products/`, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
+              },
+              body: JSON.stringify(item.payload),
+            });
+          } else if (item.action === 'DELETE') {
+            res = await fetch(`${API_BASE}/api/store/products/${item.targetId}/`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}` },
+            });
+          }
+          if (!res || !res.ok) {
+            remaining.push(item);
+          }
+        } catch (err) {
+          remaining.push(item);
+        }
+      }
+      localStorage.setItem('hadara_pending_mutations', JSON.stringify(remaining));
+    } catch (err) {
+      console.warn('Error processing pending mutations:', err);
+    }
+  };
+
+  useEffect(() => {
+    const handleOnline = () => { processPendingMutations(); };
+    window.addEventListener('online', handleOnline);
+    processPendingMutations();
+    return () => window.removeEventListener('online', handleOnline);
+  }, []);
+
   const handleAddStoreProduct = async (product: Omit<StoreProduct, 'id' | 'createdAt'>) => {
     const fallback: StoreProduct = {
       ...product,
@@ -293,9 +364,11 @@ export default function App() {
             return next;
           });
         }
+      } else {
+        enqueuePendingMutation('ADD', fallback.id, product);
       }
     } catch (err) {
-      console.error('Error creating store product:', err);
+      enqueuePendingMutation('ADD', fallback.id, product);
     }
   };
 
@@ -324,9 +397,11 @@ export default function App() {
             return next;
           });
         }
+      } else {
+        enqueuePendingMutation('UPDATE', id, updatedProduct);
       }
     } catch (err) {
-      console.error('Error updating store product:', err);
+      enqueuePendingMutation('UPDATE', id, updatedProduct);
     }
   };
 
@@ -338,12 +413,15 @@ export default function App() {
     });
 
     try {
-      await fetch(`${API_BASE}/api/store/products/${id}/`, {
+      const res = await fetch(`${API_BASE}/api/store/products/${id}/`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}` },
       });
+      if (!res.ok) {
+        enqueuePendingMutation('DELETE', id);
+      }
     } catch (err) {
-      console.error('Error deleting store product:', err);
+      enqueuePendingMutation('DELETE', id);
     }
   };
 

@@ -55,13 +55,9 @@ export default function App() {
     }
   });
 
-  const [hasVisited, setHasVisited] = useState(() => {
-    try {
-      return sessionStorage.getItem('hadara_has_visited') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  // Simple React state — resets to false on every page load, so splash
+  // always appears when the user opens the site fresh. No sessionStorage needed.
+  const [hasVisited, setHasVisited] = useState(false);
 
   const [adminUsernameInput, setAdminUsernameInput] = useState('');
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
@@ -335,12 +331,9 @@ export default function App() {
   };
 
   const handleEnterStudio = () => {
-    // Write to sessionStorage FIRST, synchronously, before any navigation
-    try {
-      sessionStorage.setItem('hadara_has_visited', 'true');
-    } catch {}
-    // Navigate to /studio — a route distinct from '/', so the splash condition
-    // (pathname === '/' && !hasVisited) can NEVER re-trigger during this render cycle
+    // Update state AND navigate to /studio (not /) — no race condition possible
+    // because the splash condition only checks pathname === '/', not '/studio'
+    setHasVisited(true);
     navigate('/studio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

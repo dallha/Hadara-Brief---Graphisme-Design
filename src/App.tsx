@@ -53,13 +53,7 @@ export default function App() {
     }
   });
 
-  const [hasVisited, setHasVisited] = useState(() => {
-    try {
-      return !!sessionStorage.getItem('hadara_visited');
-    } catch {
-      return false;
-    }
-  });
+  const [hasVisited, setHasVisited] = useState(false);
 
   const [adminUsernameInput, setAdminUsernameInput] = useState('');
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
@@ -333,16 +327,13 @@ export default function App() {
   };
 
   const handleEnterStudio = () => {
-    try {
-      sessionStorage.setItem('hadara_visited', 'true');
-    } catch (e) {}
     setHasVisited(true);
     navigate('/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // ── SPLASH SCREEN ─────────────────────────────────────────────
-  if (location.pathname === '/' && !hasVisited) {
+  if ((location.pathname === '/' && !hasVisited) || location.pathname === '/splash') {
     return (
       <div className="min-h-screen bg-[#0d131f] text-[#F5F5DC] font-sans">
         <SplashEntry onEnter={handleEnterStudio} />

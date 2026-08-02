@@ -195,9 +195,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
         </motion.div>
       </header>
 
-      {/* MOBILE BOTTOM NAVBAR (Clean 5-Item Mobile Layout) */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-        <div className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 px-2 pt-1.5 pb-2 flex items-center justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+      {/* MOBILE BOTTOM NAVBAR (100% Fixed & Ultra-Responsive) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full pointer-events-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        <div className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 px-2 pt-1.5 pb-2 flex items-center justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.5)] relative overflow-visible">
           {/* Left items: Accueil & Prestations */}
           <button
             onClick={() => handleTabChange('home')}
@@ -221,19 +221,19 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">Prestations</span>
           </button>
 
-          {/* Center Primary Action: Brief */}
-          <div className="relative -top-3 shrink-0 px-2">
+          {/* Center Primary Action: Brief (Elevated Floating Button) */}
+          <div className="relative -top-4 shrink-0 px-1 flex flex-col items-center justify-center">
             <button
               onClick={() => handleTabChange('brief')}
               className={cn(
-                "flex items-center justify-center w-12 h-12 rounded-full shadow-2xl transition-all duration-300 border-[3px] border-slate-950 active:scale-95",
+                "flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-all duration-300 border-[4px] border-slate-950 active:scale-95",
                 activeTab === 'brief'
                   ? "bg-slate-800 text-amber-400 scale-105 border-amber-400/50"
-                  : "bg-gradient-to-r from-amber-400 to-amber-300 text-slate-950 hover:scale-105 shadow-amber-400/30"
+                  : "bg-gradient-to-r from-amber-400 to-amber-300 text-slate-950 hover:scale-105 shadow-amber-400/40"
               )}
               aria-label="Nouveau Brief"
             >
-              <PlusCircle className="w-6 h-6" />
+              <PlusCircle className="w-7 h-7" />
             </button>
             <span className="text-[9px] text-amber-400 font-bold text-center block mt-0.5 leading-none">Nouveau Brief</span>
           </div>

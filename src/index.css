@@ -64,6 +64,21 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
+  html,
+  body,
+  #root {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   /* Mode clair : fond parchemin chaud */
   [data-theme="light"] body {
     background-color: #faf7f2 !important;
@@ -253,18 +268,68 @@
   background: #816C07;
 }
 
-/* Explicit Hadara Styling for Mobile Fixed Bottom Navigation and Floating WhatsApp Elements */
-nav.fixed.bottom-0 {
-  background-color: rgba(51, 90, 121, 0.92) !important;
-  border-top-color: #816C07 !important;
-  backdrop-filter: blur(18px) !important;
-  -webkit-backdrop-filter: blur(18px) !important;
+/* Mobile fixed bottom navigation */
+.mobile-bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background-color: rgba(15, 23, 42, 0.96);
+  border-top: 1px solid rgba(129, 108, 7, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 -12px 36px rgba(0, 0, 0, 0.42);
 }
 
-nav.fixed.bottom-0 span,
-nav.fixed.bottom-0 button,
-nav.fixed.bottom-0 p {
-  font-family: 'Playfair Display', Georgia, serif !important;
+.mobile-bottom-nav__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 4rem minmax(0, 1fr) minmax(0, 1fr);
+  align-items: end;
+  width: 100%;
+  min-width: 0;
+  min-height: 4.25rem;
+  padding: 0.45rem 0.35rem 0.5rem;
+  overflow: visible;
+}
+
+.mobile-bottom-nav__item {
+  display: flex;
+  min-width: 0;
+  min-height: 3.25rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.875rem;
+  padding: 0.35rem 0.15rem;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.mobile-bottom-nav__item:active {
+  transform: scale(0.96);
+}
+
+.mobile-bottom-nav__item span,
+.mobile-bottom-nav__brief span {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.mobile-bottom-nav__brief {
+  position: relative;
+  top: -0.85rem;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fbbf24;
 }
 
 /* Behance Action Button Styling */
@@ -302,9 +367,9 @@ nav.fixed.bottom-0 p {
 }
 
 .floating-whatsapp-container .text-\[\#F5F5DC\],
-nav.fixed.bottom-0 .text-\[\#F5F5DC\],
+.mobile-bottom-nav .text-\[\#F5F5DC\],
 [data-theme="light"] .floating-whatsapp-container .text-\[\#F5F5DC\],
-[data-theme="light"] nav.fixed.bottom-0 .text-\[\#F5F5DC\],
+[data-theme="light"] .mobile-bottom-nav .text-\[\#F5F5DC\],
 [data-theme="light"] .bg-\[\#335A79\] .text-\[\#F5F5DC\],
 [data-theme="light"] .bg-\[\#224A33\] .text-\[\#F5F5DC\],
 [data-theme="light"] .bg-\[\#816C07\] .text-\[\#F5F5DC\] {
@@ -312,9 +377,9 @@ nav.fixed.bottom-0 .text-\[\#F5F5DC\],
 }
 
 .floating-whatsapp-container .text-\[\#816C07\],
-nav.fixed.bottom-0 .text-\[\#816C07\],
+.mobile-bottom-nav .text-\[\#816C07\],
 [data-theme="light"] .floating-whatsapp-container .text-\[\#816C07\],
-[data-theme="light"] nav.fixed.bottom-0 .text-\[\#816C07\],
+[data-theme="light"] .mobile-bottom-nav .text-\[\#816C07\],
 [data-theme="light"] .bg-\[\#335A79\] .text-\[\#816C07\] {
   color: #816C07 !important;
 }
@@ -323,7 +388,7 @@ nav.fixed.bottom-0 .text-\[\#816C07\],
 @media (max-width: 767px) {
   .floating-whatsapp-container,
   .fixed.bottom-20 {
-    bottom: 5.5rem !important; /* 88px offset to comfortably clear the bottom navigation bar */
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
@@ -350,7 +415,7 @@ nav.fixed.bottom-0 .text-\[\#816C07\],
   .no-print,
   .print\:hidden,
   .floating-whatsapp-container,
-  nav.fixed.bottom-0,
+  .mobile-bottom-nav,
   .fixed.bottom-0,
   .fixed.bottom-20,
   button,
@@ -478,8 +543,6 @@ nav.fixed.bottom-0 .text-\[\#816C07\],
   outline: 2px solid #fbbf24 !important;
   outline-offset: 2px !important;
 }
-
-
 
 
 

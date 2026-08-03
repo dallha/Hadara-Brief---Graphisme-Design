@@ -615,7 +615,7 @@ export default function App() {
         newBriefsCount={(briefs || []).filter(b => b.status === 'nouveau').length}
       />
 
-      <main className="flex-1 pt-4 pb-36 px-4 sm:px-6 lg:px-8 md:pt-8 md:pb-24 relative">
+      <main className="flex-1 w-full min-w-0 overflow-x-hidden pt-4 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] px-2 sm:px-6 lg:px-8 md:pt-8 md:pb-24 relative">
         <ErrorBoundary fallbackLabel="Hadara Studio Application">
           <Routes>
             {/* /studio = main studio page (navigated to from splash) */}

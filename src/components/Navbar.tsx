@@ -195,34 +195,34 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
         </motion.div>
       </header>
 
-      {/* MOBILE BOTTOM NAVBAR (100% Fixed & Ultra-Responsive) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full pointer-events-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-        <div className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 px-2 pt-1.5 pb-2 flex items-center justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.5)] relative overflow-visible">
+      {/* MOBILE BOTTOM NAVBAR */}
+      <nav className="mobile-bottom-nav md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full pointer-events-auto">
+        <div className="mobile-bottom-nav__inner">
           {/* Left items: Accueil & Prestations */}
           <button
             onClick={() => handleTabChange('home')}
             className={cn(
-              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+              "mobile-bottom-nav__item",
               activeTab === 'home' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
             )}
           >
             <Home className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'home' && "scale-110")} />
-            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">Accueil</span>
+            <span>Accueil</span>
           </button>
 
           <button
             onClick={() => handleTabChange('portfolio')}
             className={cn(
-              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+              "mobile-bottom-nav__item",
               activeTab === 'portfolio' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
             )}
           >
             <FolderKanban className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'portfolio' && "scale-110")} />
-            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">Prestations</span>
+            <span>Prestations</span>
           </button>
 
           {/* Center Primary Action: Brief (Elevated Floating Button) */}
-          <div className="relative -top-4 shrink-0 px-1 flex flex-col items-center justify-center">
+          <div className="mobile-bottom-nav__brief">
             <button
               onClick={() => handleTabChange('brief')}
               className={cn(
@@ -235,30 +235,30 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             >
               <PlusCircle className="w-7 h-7" />
             </button>
-            <span className="text-[9px] text-amber-400 font-bold text-center block mt-0.5 leading-none">Nouveau Brief</span>
+            <span>Nouveau</span>
           </div>
 
           {/* Right items: Boutique & Suivi Client */}
           <button
             onClick={() => handleTabChange('store')}
             className={cn(
-              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+              "mobile-bottom-nav__item",
               activeTab === 'store' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
             )}
           >
             <ShoppingBag className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'store' && "scale-110")} />
-            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">Boutique</span>
+            <span>Boutique</span>
           </button>
 
           <button
             onClick={() => handleTabChange('client')}
             className={cn(
-              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 flex-1 min-w-0 active:scale-95",
+              "mobile-bottom-nav__item",
               activeTab === 'client' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
             )}
           >
             <User className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'client' && "scale-110")} />
-            <span className="text-[10px] font-medium tracking-tight truncate w-full text-center leading-none">Suivi Client</span>
+            <span>Suivi</span>
           </button>
         </div>
       </nav>

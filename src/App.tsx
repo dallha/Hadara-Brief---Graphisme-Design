@@ -180,7 +180,7 @@ export default function App() {
   const [portfolioItems, setPortfolioItems] = useState<SamplePortfolioItem[]>([]);
   const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(() => {
     const cached = loadCachedStoreProducts();
-    return cached.length > 0 ? cached : DEFAULT_STORE_PRODUCTS;
+    return cached.length > 0 ? cached : [];
   });
 
   const fetchBriefs = async () => {
@@ -216,21 +216,17 @@ export default function App() {
         const items = (Array.isArray(data) ? data : (data.results || data.products || []))
           .map(normalizeStoreProduct)
           .filter(Boolean) as StoreProduct[];
-        if (items.length > 0) {
-          setStoreProducts(items);
-          cacheStoreProducts(items);
-          return;
-        }
+        setStoreProducts(items);
+        cacheStoreProducts(items);
+        return;
       }
-      console.warn(`Store backend API returned empty array or non-200 response.`);
+      console.warn(`Store backend API returned ${res.status}.`);
     } catch (err) {
       console.warn('Could not connect to store backend API.');
     }
     const cachedProducts = loadCachedStoreProducts();
     if (cachedProducts.length > 0) {
       setStoreProducts(cachedProducts);
-    } else {
-      setStoreProducts(DEFAULT_STORE_PRODUCTS);
     }
   };
 

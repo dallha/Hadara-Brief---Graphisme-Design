@@ -10,6 +10,7 @@ class StoreProductApiTests(TestCase):
         self.client = APIClient()
         self.token = signer.sign("admin_user")
         self.auth_header = {"HTTP_AUTHORIZATION": f"Bearer {self.token}"}
+        StoreProduct.objects.all().delete()
 
     def test_store_product_crud_persists_and_reads_from_database(self):
         payload = {

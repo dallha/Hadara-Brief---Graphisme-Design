@@ -20,11 +20,54 @@ import { RoadmapView } from './components/RoadmapView';
 import { HadaraStore } from './components/HadaraStore';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
-import { DEFAULT_STORE_PRODUCTS } from './data/storeData';
 
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
 import API_BASE from './config';
 import { ErrorBoundary } from './components/ErrorBoundary';
+
+const STORE_PRODUCTS_CACHE_KEY = 'hadara_store_products';
+
+const normalizeStoreProduct = (item: any): StoreProduct | null => {
+  if (!item || typeof item !== 'object' || !item.id || !item.name || !item.description) {
+    return null;
+  }
+
+  return {
+    id: String(item.id),
+    name: String(item.name),
+    brand: item.brand || undefined,
+    category: item.category || 'Accessoires',
+    description: String(item.description),
+    image: item.image ?? item.imageUrl ?? undefined,
+    status: item.status ?? item.stockStatus ?? 'on_order',
+    featured: Boolean(item.featured ?? item.isHadaraSelection ?? false),
+    visible: item.visible ?? item.isActive ?? true,
+    price: item.price ?? item.priceFCFA ?? undefined,
+    createdAt: item.createdAt ?? item.created_at ?? '',
+    updatedAt: item.updatedAt ?? item.updated_at ?? undefined,
+  };
+};
+
+const cacheStoreProducts = (products: StoreProduct[]) => {
+  try {
+    localStorage.setItem(STORE_PRODUCTS_CACHE_KEY, JSON.stringify(products));
+  } catch (err) {
+    console.warn('Could not cache store products:', err);
+  }
+};
+
+const loadCachedStoreProducts = (): StoreProduct[] => {
+  try {
+    const saved = localStorage.getItem(STORE_PRODUCTS_CACHE_KEY);
+    if (!saved) return [];
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map(normalizeStoreProduct).filter(Boolean) as StoreProduct[];
+  } catch (err) {
+    console.warn('Could not load cached store products:', err);
+    return [];
+  }
+};
 
 
 // Derive active tab from URL path for Navbar highlighting
@@ -135,26 +178,7 @@ export default function App() {
   };
 
   const [portfolioItems, setPortfolioItems] = useState<SamplePortfolioItem[]>([]);
-  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(() => {
-    try {
-      const saved = localStorage.getItem('hadara_store_products');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (err) {
-      console.warn('Could not load store products from localStorage:', err);
-    }
-    return DEFAULT_STORE_PRODUCTS;
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('hadara_store_products', JSON.stringify(storeProducts));
-    } catch (err) {
-      console.warn('Could not save store products to localStorage:', err);
-    }
-  }, [storeProducts]);
+  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>([]);
 
   const fetchBriefs = async () => {
     try {
@@ -186,14 +210,20 @@ export default function App() {
       const res = await fetch(`${API_BASE}/api/store/products/`);
       if (res.ok) {
         const data = await res.json();
-        const items = Array.isArray(data) ? data : (data.results || data.products || []);
-        if (items.length > 0) {
-          setStoreProducts(items);
-          try { localStorage.setItem('hadara_store_products', JSON.stringify(items)); } catch {}
-        }
+        const items = (Array.isArray(data) ? data : (data.results || data.products || []))
+          .map(normalizeStoreProduct)
+          .filter(Boolean) as StoreProduct[];
+        setStoreProducts(items);
+        cacheStoreProducts(items);
+        return;
       }
+      console.warn(`Store backend API returned ${res.status}.`);
     } catch (err) {
       console.warn('Could not connect to store backend API.');
+    }
+    const cachedProducts = loadCachedStoreProducts();
+    if (cachedProducts.length > 0) {
+      setStoreProducts(cachedProducts);
     }
   };
 
@@ -203,6 +233,7 @@ export default function App() {
     if (activeTab === 'admin' && isAdminAuthenticated) {
       fetchBriefs();
       fetchPortfolio();
+      fetchStoreProducts();
     }
   }, [activeTab, isAdminAuthenticated]);
 
@@ -264,170 +295,72 @@ export default function App() {
     }
   };
 
-  const enqueuePendingMutation = (action: 'ADD' | 'UPDATE' | 'DELETE', targetId: string, payload?: any) => {
-    try {
-      const queue = JSON.parse(localStorage.getItem('hadara_pending_mutations') || '[]');
-      queue.push({
-        id: `mut-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-        action,
-        targetId,
-        payload,
-        timestamp: Date.now()
-      });
-      localStorage.setItem('hadara_pending_mutations', JSON.stringify(queue));
-    } catch (err) {
-      console.warn('Could not enqueue pending mutation:', err);
-    }
-  };
-
-  const processPendingMutations = async () => {
-    try {
-      const queueRaw = localStorage.getItem('hadara_pending_mutations');
-      if (!queueRaw) return;
-      const queue = JSON.parse(queueRaw);
-      if (!Array.isArray(queue) || queue.length === 0) return;
-
-      const remaining = [];
-      for (const item of queue) {
-        try {
-          let res;
-          if (item.action === 'UPDATE') {
-            res = await fetch(`${API_BASE}/api/store/products/${item.targetId}/`, {
-              method: 'PATCH',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
-              },
-              body: JSON.stringify(item.payload),
-            });
-          } else if (item.action === 'ADD') {
-            res = await fetch(`${API_BASE}/api/store/products/`, {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
-              },
-              body: JSON.stringify(item.payload),
-            });
-          } else if (item.action === 'DELETE') {
-            res = await fetch(`${API_BASE}/api/store/products/${item.targetId}/`, {
-              method: 'DELETE',
-              headers: { 'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}` },
-            });
-          }
-          if (!res || !res.ok) {
-            remaining.push(item);
-          }
-        } catch (err) {
-          remaining.push(item);
-        }
-      }
-      localStorage.setItem('hadara_pending_mutations', JSON.stringify(remaining));
-    } catch (err) {
-      console.warn('Error processing pending mutations:', err);
-    }
-  };
-
   useEffect(() => {
-    const handleOnline = () => { processPendingMutations(); };
+    const handleOnline = () => { fetchStoreProducts(); };
+    const handleFocus = () => { fetchStoreProducts(); };
     window.addEventListener('online', handleOnline);
-    processPendingMutations();
-    return () => window.removeEventListener('online', handleOnline);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
-  const handleAddStoreProduct = async (product: Omit<StoreProduct, 'id' | 'createdAt'>) => {
-    const fallback: StoreProduct = {
-      ...product,
-      id: `prod-${Date.now()}`,
-      createdAt: new Date().toISOString()
-    };
+  const handleAddStoreProduct = async (product: Omit<StoreProduct, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const res = await fetch(`${API_BASE}/api/store/products/`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
+      },
+      body: JSON.stringify(product),
+    });
+    if (!res.ok) {
+      throw new Error(`Impossible d'enregistrer le produit (${res.status}).`);
+    }
+    const created = normalizeStoreProduct(await res.json());
+    if (!created) throw new Error("La réponse produit est invalide.");
     setStoreProducts(prev => {
-      const next = [fallback, ...prev];
-      try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
+      const next = [created, ...prev.filter(p => p.id !== created.id)];
+      cacheStoreProducts(next);
       return next;
     });
-
-    try {
-      const res = await fetch(`${API_BASE}/api/store/products/`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
-        },
-        body: JSON.stringify(product),
-      });
-      if (res.ok) {
-        const created = await res.json();
-        if (created && created.id) {
-          setStoreProducts(prev => {
-            const next = prev.map(p => p.id === fallback.id ? created : p);
-            try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
-            return next;
-          });
-        }
-      } else {
-        enqueuePendingMutation('ADD', fallback.id, product);
-      }
-    } catch (err) {
-      enqueuePendingMutation('ADD', fallback.id, product);
-    }
   };
 
   const handleUpdateStoreProduct = async (id: string, updatedProduct: Partial<StoreProduct>) => {
+    const res = await fetch(`${API_BASE}/api/store/products/${id}/`, {
+      method: 'PATCH',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
+      },
+      body: JSON.stringify(updatedProduct),
+    });
+    if (!res.ok) {
+      throw new Error(`Impossible de mettre à jour le produit (${res.status}).`);
+    }
+    const updated = normalizeStoreProduct(await res.json());
+    if (!updated) throw new Error("La réponse produit est invalide.");
     setStoreProducts(prev => {
-      const next = prev.map(p => p.id === id ? { ...p, ...updatedProduct } : p);
-      try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
+      const next = prev.map(p => p.id === id ? updated : p);
+      cacheStoreProducts(next);
       return next;
     });
-
-    try {
-      const res = await fetch(`${API_BASE}/api/store/products/${id}/`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}`
-        },
-        body: JSON.stringify(updatedProduct),
-      });
-      if (res.ok || res.status === 204) {
-        if (res.status === 204) {
-          fetchStoreProducts();
-        } else {
-          const updated = await res.json();
-          if (updated && updated.id) {
-            setStoreProducts(prev => {
-              const next = prev.map(p => p.id === id ? updated : p);
-              try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
-              return next;
-            });
-          }
-        }
-      } else {
-        enqueuePendingMutation('UPDATE', id, updatedProduct);
-      }
-    } catch (err) {
-      enqueuePendingMutation('UPDATE', id, updatedProduct);
-    }
   };
 
   const handleDeleteStoreProduct = async (id: string) => {
+    const res = await fetch(`${API_BASE}/api/store/products/${id}/`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}` },
+    });
+    if (!res.ok && res.status !== 204) {
+      throw new Error(`Impossible de supprimer le produit (${res.status}).`);
+    }
     setStoreProducts(prev => {
       const next = prev.filter(p => p.id !== id);
-      try { localStorage.setItem('hadara_store_products', JSON.stringify(next)); } catch {}
+      cacheStoreProducts(next);
       return next;
     });
-
-    try {
-      const res = await fetch(`${API_BASE}/api/store/products/${id}/`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('hadara_admin_token') || ''}` },
-      });
-      if (!res.ok) {
-        enqueuePendingMutation('DELETE', id);
-      }
-    } catch (err) {
-      enqueuePendingMutation('DELETE', id);
-    }
   };
 
   const handleSubmitBrief = async (briefData: Omit<BriefData, 'id' | 'createdAt' | 'status'>) => {

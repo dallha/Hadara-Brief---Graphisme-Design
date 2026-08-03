@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from google import genai
 from google.genai import types
 
-from .models import Brief, Template, PortfolioItem
-from .serializers import BriefSerializer, TemplateSerializer, PortfolioItemSerializer
+from .models import Brief, Template, PortfolioItem, StoreProduct
+from .serializers import BriefSerializer, TemplateSerializer, PortfolioItemSerializer, StoreProductSerializer
 from .auth_views import verify_admin_token
 
 class BriefViewSet(viewsets.ModelViewSet):
@@ -212,6 +212,31 @@ class PortfolioItemViewSet(viewsets.ModelViewSet):
             return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
         kwargs['partial'] = True
         return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        return super().destroy(request, *args, **kwargs)
+
+class StoreProductViewSet(viewsets.ModelViewSet):
+    queryset = StoreProduct.objects.all().order_by('-created_at')
+    serializer_class = StoreProductSerializer
+
+    def create(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        kwargs['partial'] = True
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        if not verify_admin_token(request):
+            return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        return super().partial_update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         if not verify_admin_token(request):

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Brief, Template, PortfolioItem
+from .models import Brief, Template, PortfolioItem, StoreProduct
 
 class BriefSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
@@ -78,4 +78,21 @@ class PortfolioItemSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'createdAt', 'title', 'category', 'description', 'imageUrl',
             'badge', 'priceEstimate', 'accentHex', 'features'
+        ]
+
+class StoreProductSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
+    image = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    brand = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    price = serializers.IntegerField(required=False, allow_null=True, min_value=0)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+    createdAt = serializers.DateTimeField(source='created_at', read_only=True)
+    updatedAt = serializers.DateTimeField(source='updated_at', read_only=True)
+
+    class Meta:
+        model = StoreProduct
+        fields = [
+            'id', 'name', 'brand', 'category', 'description', 'image', 'status',
+            'featured', 'visible', 'price', 'created_at', 'updated_at', 'createdAt', 'updatedAt'
         ]

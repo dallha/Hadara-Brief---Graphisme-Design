@@ -347,6 +347,21 @@ export interface StoreProduct {
   name: string;
   brand?: string;
   category: ProductCategory | string;
+  description: string;
+  image?: string;
+  status: StockStatus;
+  featured: boolean;
+  visible: boolean;
+  price?: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface LegacyStoreProduct {
+  id: string;
+  name: string;
+  brand?: string;
+  category: ProductCategory | string;
   priceFCFA?: number;
   stockStatus: StockStatus;
   description: string;

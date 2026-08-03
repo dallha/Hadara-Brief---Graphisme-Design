@@ -125,3 +125,49 @@ class PortfolioItem(models.Model):
 
     def __str__(self):
         return f"{self.id} - {self.title}"
+
+class StoreProduct(models.Model):
+    STATUS_IN_STOCK = 'in_stock'
+    STATUS_AVAILABLE_24_48H = 'available_24_48h'
+    STATUS_ON_ORDER = 'on_order'
+    STATUS_UNAVAILABLE = 'unavailable'
+
+    STATUS_CHOICES = [
+        (STATUS_IN_STOCK, 'En stock'),
+        (STATUS_AVAILABLE_24_48H, 'Disponible 24-48h'),
+        (STATUS_ON_ORDER, 'Sur commande'),
+        (STATUS_UNAVAILABLE, 'Indisponible'),
+    ]
+
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=200)
+    brand = models.CharField(max_length=120, blank=True, null=True)
+    category = models.CharField(max_length=100)
+    description = models.TextField()
+    image = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_ON_ORDER)
+    featured = models.BooleanField(default=False)
+    visible = models.BooleanField(default=True)
+    price = models.PositiveIntegerField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            from django.db import transaction
+            with transaction.atomic():
+                last_product = StoreProduct.objects.select_for_update().order_by('-created_at').first()
+                if last_product and last_product.id.startswith('PRD-'):
+                    try:
+                        last_id_num = int(last_product.id.split('-')[1])
+                        self.id = f"PRD-{(last_id_num + 1):04d}"
+                    except (ValueError, IndexError):
+                        self.id = "PRD-0001"
+                else:
+                    self.id = "PRD-0001"
+                super().save(*args, **kwargs)
+                return
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.id} - {self.name}"

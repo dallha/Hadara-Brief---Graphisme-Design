@@ -1,6 +1,6 @@
-import { StoreProduct } from '../types';
+import { LegacyStoreProduct } from '../types';
 
-export const DEFAULT_STORE_PRODUCTS: StoreProduct[] = [
+export const DEFAULT_STORE_PRODUCTS: LegacyStoreProduct[] = [
   // ⌨️ ACCESSOIRES
   {
     id: 'prod-01',

@@ -89,7 +89,7 @@ interface AdminDashboardProps {
   onAddPortfolioItem?: (item: Omit<SamplePortfolioItem, 'id'>) => Promise<void>;
   onUpdatePortfolioItem?: (id: string, updatedItem: Partial<SamplePortfolioItem>) => Promise<void>;
   onDeletePortfolioItem?: (id: string) => Promise<void>;
-  onAddStoreProduct?: (product: Omit<StoreProduct, 'id' | 'createdAt'>) => Promise<void>;
+  onAddStoreProduct?: (product: Omit<StoreProduct, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onUpdateStoreProduct?: (id: string, updatedProduct: Partial<StoreProduct>) => Promise<void>;
   onDeleteStoreProduct?: (id: string) => Promise<void>;
   onLogout?: () => void;

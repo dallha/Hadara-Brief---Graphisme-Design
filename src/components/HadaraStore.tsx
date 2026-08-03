@@ -42,7 +42,7 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
   const [activeModalProduct, setActiveModalProduct] = useState<StoreProduct | null>(null);
 
   // Active products only for public store
-  const activeProducts = (products || []).filter(p => p.isActive !== false);
+  const activeProducts = (products || []).filter(p => p.visible !== false);
 
   const filteredProducts = activeProducts.filter(product => {
     const matchesCategory = selectedCategory === 'all' || product.category.toLowerCase() === selectedCategory.toLowerCase();
@@ -50,8 +50,7 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
     const matchesSearch = 
       product.name.toLowerCase().includes(query) ||
       (product.brand || '').toLowerCase().includes(query) ||
-      product.description.toLowerCase().includes(query) ||
-      (product.badge || '').toLowerCase().includes(query);
+      product.description.toLowerCase().includes(query);
     return matchesCategory && matchesSearch;
   });
 
@@ -106,7 +105,7 @@ export const HadaraStore: React.FC<HadaraStoreProps> = ({ products }) => {
 Je souhaite obtenir des informations concernant :
 🛍️ *Produit* : ${product.name}${product.brand ? ` (${product.brand})` : ''}
 🏷️ *Catégorie* : ${product.category}
-📦 *Statut* : ${getStockText(product.stockStatus)}
+📦 *Statut* : ${getStockText(product.status)}
 
 Merci de me communiquer :
 • Le prix actuel
@@ -220,9 +219,9 @@ Merci.`;
             >
               {/* Product Image & Badge Overlay */}
               <div className="relative h-52 bg-slate-950 overflow-hidden flex items-center justify-center p-3">
-                {product.imageUrl ? (
+                {product.image ? (
                   <img
-                    src={product.imageUrl}
+                    src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
                   />
@@ -234,21 +233,15 @@ Merci.`;
                 
                 {/* Stock Status Badge */}
                 <div className="absolute top-3 left-3 z-10">
-                  {getStockBadge(product.stockStatus)}
+                  {getStockBadge(product.status)}
                 </div>
 
-                {/* Hadara Selection Badge OR Custom Badge */}
-                {product.isHadaraSelection ? (
+                {/* Hadara Selection Badge */}
+                {product.featured ? (
                   <div className="absolute top-3 right-3 z-10">
                     <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 text-[10px] font-black shadow-lg flex items-center space-x-1">
                       <Target className="w-3 h-3 text-slate-950" />
                       <span>Sélection Hadara</span>
-                    </span>
-                  </div>
-                ) : product.badge ? (
-                  <div className="absolute top-3 right-3 z-10">
-                    <span className="px-2.5 py-1 rounded-full bg-slate-950/90 backdrop-blur-md border border-slate-700 text-amber-300 text-[10px] font-bold shadow-md">
-                      {product.badge}
                     </span>
                   </div>
                 ) : null}
@@ -281,9 +274,9 @@ Merci.`;
                 <div className="pt-3 border-t border-slate-800/80 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-slate-400 font-medium">Tarif :</span>
-                    <span className="text-xs font-bold text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/30">
-                      {product.priceFCFA && product.priceFCFA > 0 ? `${product.priceFCFA.toLocaleString('fr-FR')} FCFA` : 'Prix sur demande'}
-                    </span>
+	                    <span className="text-xs font-bold text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/30">
+	                      {product.price && product.price > 0 ? `${product.price.toLocaleString('fr-FR')} FCFA` : 'Prix sur demande'}
+	                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -325,7 +318,7 @@ Merci.`;
               <div className="flex items-start justify-between border-b border-slate-800 pb-3">
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2">
-                    {getStockBadge(activeModalProduct.stockStatus)}
+                    {getStockBadge(activeModalProduct.status)}
                     {activeModalProduct.brand && (
                       <span className="px-2 py-0.5 rounded-md bg-amber-400/10 text-amber-400 text-xs font-bold border border-amber-400/30">
                         {activeModalProduct.brand}
@@ -343,17 +336,17 @@ Merci.`;
                 </button>
               </div>
 
-              {activeModalProduct.imageUrl && (
+              {activeModalProduct.image && (
                 <div className="h-56 rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 p-2">
-                  <img src={activeModalProduct.imageUrl} alt={activeModalProduct.name} className="w-full h-full object-cover rounded-xl" />
+                  <img src={activeModalProduct.image} alt={activeModalProduct.name} className="w-full h-full object-cover rounded-xl" />
                 </div>
               )}
 
               {/* Hadara Selection Highlight Tag */}
-              {activeModalProduct.isHadaraSelection && (
+              {activeModalProduct.featured && (
                 <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center space-x-2.5 text-xs text-amber-300 font-medium">
                   <Target className="w-5 h-5 text-amber-400 shrink-0" />
-                  <span>🎯 <strong>Sélection Hadara Studio</strong> : Équipement testé et validé par notre équipe créative.</span>
+                  <span><strong>Sélection Hadara Studio</strong> : équipement validé par notre équipe créative.</span>
                 </div>
               )}
 
@@ -381,8 +374,8 @@ Merci.`;
               <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
                 <span className="text-xs text-slate-400">Tarification :</span>
                 <span className="text-sm font-bold text-amber-400">
-                  {activeModalProduct.priceFCFA && activeModalProduct.priceFCFA > 0
-                    ? `${activeModalProduct.priceFCFA.toLocaleString('fr-FR')} FCFA`
+                  {activeModalProduct.price && activeModalProduct.price > 0
+                    ? `${activeModalProduct.price.toLocaleString('fr-FR')} FCFA`
                     : 'Prix sur demande'}
                 </span>
               </div>

@@ -86,10 +86,15 @@ WSGI_APPLICATION = 'hadara_project.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 import os
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if not DATABASE_URL and not DEBUG:
+    raise ImproperlyConfigured('DATABASE_URL must be configured in production.')
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        default=DATABASE_URL or f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
         conn_health_checks=True,
     )

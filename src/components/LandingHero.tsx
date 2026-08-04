@@ -84,9 +84,9 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
           </motion.p>
 
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <button
+            <button 
               onClick={onStartBrief}
-              className="w-full sm:w-auto px-8 py-4 rounded-full font-sans font-bold text-slate-950 text-base shadow-[0_0_40px_rgba(251,191,36,0.3)] bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 active:scale-95 transition-all flex items-center justify-center gap-3 group"
+              className="w-full sm:w-auto px-8 py-4 rounded-full font-sans font-bold text-slate-950 text-base shadow-[0_0_40px_rgba(251,191,36,0.3)] bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(251,191,36,0.4)] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 group"
             >
               <span>Démarrer un projet</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -176,8 +176,9 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Card 1: Identité Visuelle (Span 8) */}
-            <motion.div whileHover={{ y: -4 }}
-            className="md:col-span-8 p-5 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between min-h-[260px] sm:min-h-[340px] group shadow-xl relative overflow-hidden"
+            <motion.div 
+            variants={fadeUp}
+            className="md:col-span-8 p-5 sm:p-8 rounded-3xl bg-slate-900/90 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.2)] transition-all duration-300 flex flex-col justify-between min-h-[260px] sm:min-h-[340px] group shadow-xl relative overflow-hidden"
           >
             <div className="flex justify-between items-start mb-6">
               <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500 transition-colors">

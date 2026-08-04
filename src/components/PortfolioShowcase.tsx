@@ -417,7 +417,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
               animate="show"
               exit={{ opacity: 0, scale: 0.9 }}
               key={item.id}
-              className="group rounded-[2rem] bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 transition-all duration-500 overflow-hidden flex flex-col justify-between shadow-2xl hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.2)]"
+              className="group rounded-[2rem] bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 transition-all duration-500 overflow-hidden flex flex-col justify-between shadow-2xl hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.2)] hover:-translate-y-2 cursor-pointer"
             >
               {/* Styled Visual Mockup Container */}
               <div className={`h-48 sm:h-64 bg-gradient-to-br ${item.colorBg || 'from-slate-900 to-slate-950'} relative p-4 sm:p-6 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-transform duration-700 ease-out origin-bottom`}>

@@ -37,7 +37,7 @@ class AdminLoginView(APIView):
         
         # Use fallback if not set in production
         admin_username = os.getenv("ADMIN_USERNAME", "admin@hadara.com")
-        admin_password = os.getenv("ADMIN_PASSWORD", "hadara2026")
+        admin_password = os.getenv("ADMIN_PASSWORD", "Rienk#$lamoure87")
         
         # Accept either the exact env username or a generic 'admin' username for flexibility
         is_valid_user = username.lower() == admin_username.lower() or username.lower() == "admin"

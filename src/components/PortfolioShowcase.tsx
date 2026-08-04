@@ -329,7 +329,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
     <div className="space-y-12 pb-16 max-w-7xl mx-auto px-4 sm:px-6 relative">
       
       {/* Decorative background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] sm:w-[800px] h-[350px] sm:h-[400px] bg-amber-500/5 rounded-full blur-[100px] sm:blur-[120px] pointer-events-none" />
 
       {/* Header with Artist Artwork Showcase */}
       <motion.div 

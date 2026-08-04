@@ -62,7 +62,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
         animate="show"
         className="relative"
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-amber-500/5 rounded-full blur-[80px] sm:blur-[100px] pointer-events-none" />
         
         <div className="relative text-center max-w-4xl mx-auto space-y-8">
           <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-amber-500 text-xs font-semibold uppercase tracking-widest shadow-sm">

@@ -37,7 +37,7 @@ export const SplashEntry: React.FC<SplashEntryProps> = ({ onEnter }) => {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2, ease: "easeOut" }}
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] sm:w-[700px] sm:h-[700px] bg-[#816C07]/10 rounded-full blur-[120px] pointer-events-none" 
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[700px] sm:h-[700px] bg-[#816C07]/10 rounded-full blur-[80px] sm:blur-[120px] pointer-events-none" 
       />
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#335A79]/15 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute top-10 right-10 w-96 h-96 bg-[#224A33]/15 rounded-full blur-[100px] pointer-events-none" />

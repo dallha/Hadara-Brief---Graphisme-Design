@@ -139,6 +139,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/api/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 WHITENOISE_USE_FINDERS = True
 STORAGES = {
@@ -174,12 +175,16 @@ JAZZMIN_SETTINGS = {
     "site_title": "Hadara Studio Admin",
     "site_header": "Hadara",
     "site_brand": "Hadara Admin",
+    "site_logo": "img/logo.png",
+    "login_logo": "img/logo.png",
+    "site_logo_classes": "img-circle",
     "welcome_sign": "Bienvenue sur l'administration Hadara Studio",
     "copyright": "Hadara Studio",
     
     "topmenu_links": [
-        {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "View Site", "url": "/", "new_window": True},
+        {"name": "Dashboard",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Portail Client", "url": "/espace-client", "new_window": True},
+        {"name": "Site Public", "url": "/", "new_window": True},
     ],
     
     "show_sidebar": True,
@@ -202,23 +207,23 @@ JAZZMIN_SETTINGS = {
 JAZZMIN_UI_TWEAKS = {
     "theme": "darkly",
     "dark_mode_theme": "darkly",
-    "navbar_small_text": False,
-    "footer_small_text": False,
+    "navbar_small_text": True,
+    "footer_small_text": True,
     "body_small_text": False,
     "brand_small_text": False,
     "brand_colour": "navbar-warning",
     "accent": "accent-warning",
     "navbar": "navbar-dark",
-    "no_navbar_border": False,
+    "no_navbar_border": True,
     "navbar_fixed": True,
     "layout_boxed": False,
     "footer_fixed": False,
     "sidebar_fixed": True,
     "sidebar": "sidebar-dark-warning",
-    "sidebar_nav_small_text": False,
+    "sidebar_nav_small_text": True,
     "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": False,
-    "sidebar_nav_compact_style": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": True,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
 }

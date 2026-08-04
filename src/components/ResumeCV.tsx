@@ -916,7 +916,7 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
               <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                 DOMAINES D’EXPERTISE
               </h2>
-              <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-800">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] text-slate-800">
                 <div><strong>Identité visuelle:</strong> Logos, Branding, Charte graphique, Identité de marque</div>
                 <div><strong>Communication événementielle:</strong> Affiches, Flyers, Dépliants, Brochures, Magazines, Invitations, Certificats</div>
                 <div><strong>Supports publicitaires:</strong> Bâches grand format, Roll-up, Kakémonos, Panneaux, Signalétique</div>
@@ -971,7 +971,7 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </div>
 
             {/* Formations & Certifications */}
-            <div className="grid grid-cols-2 gap-4 avoid-break-print">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 avoid-break-print">
               <div className="space-y-1">
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                   FORMATIONS
@@ -997,7 +997,7 @@ export const ResumeCV: React.FC<ResumeCVProps> = ({ onGoToBrief, onGoToPortfolio
             </div>
 
             {/* Langues & Qualités */}
-            <div className="grid grid-cols-2 gap-4 avoid-break-print">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 avoid-break-print">
               <div className="space-y-1">
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-0.5">
                   LANGUES

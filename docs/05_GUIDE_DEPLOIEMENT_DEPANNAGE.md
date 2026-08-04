@@ -1,54 +1,73 @@
-# Déploiement & Dépannage (Troubleshooting)
+# Hadara Suite - Documentation Officielle
+## Volume 3 : Guide de Déploiement & DevOps
+
+Ce volume s'adresse aux administrateurs système et au personnel en charge de l'hébergement de l'application Hadara Suite. Il documente exclusivement la configuration de déploiement en place sur la plateforme Render.
 
 > [!WARNING]  
-> **Clause de Stricte Réalité** : Cette section se base exclusivement sur l'environnement de production configuré dans `render.json` et les journaux (logs) du backend Django.
+> **Clause de Stricte Réalité** : Cette documentation est générée à partir de l'état actuel du code source et de la configuration (`render.json`, `.env`).
 
 ---
 
-## 1. Processus de Déploiement
+## 1. Architecture de Déploiement (Render)
 
-Le projet se déploie via la plateforme **Render.com**.
-Le fichier `render.json` à la racine configure deux services (un Frontend Vite et un Backend Django) avec des *Rewrites* pour que toutes les requêtes `/api/*` aillent au backend, et le reste au frontend.
+L'application est configurée pour être déployée sur [Render.com](https://render.com) en utilisant le fichier `render.json` fourni à la racine du dépôt.
 
-### A. Variables d'Environnement Obligatoires (Secrets)
-*   `DATABASE_URL` : Connexion PostgreSQL (obligatoire en prod).
-*   `GEMINI_API_KEY` : Requis pour la fonctionnalité d'Analyse IA.
-*   `TELEGRAM_BOT_TOKEN` & `TELEGRAM_CHAT_ID` : Requis pour les alertes sur nouveaux briefs.
-*   Variables d'authentification Admin de Django.
+### 1.1 Fichier `render.json`
+Le projet utilise une configuration de type "Blueprint" contenant deux services virtuels (Frontend et Backend) avec un mécanisme de réécriture d'URL (Rewrites) :
+*   **Service Frontend** : Situé à la racine (`.`), utilise le framework `vite` (Génère le build React dans `dist/`).
+*   **Service Backend** : Situé dans le dossier `backend`.
+*   **Règles de Routage** :
+    *   Toutes les requêtes commençant par `/api/` sont redirigées vers le service **Backend**.
+    *   Toutes les autres requêtes (`/(.*)`) sont servies par le service **Frontend** (Support du routage côté client via React Router).
 
 ---
 
-## 2. Guide de Dépannage (Troubleshooting)
+## 2. Variables d'Environnement (Secrets)
 
-Cette section aide à résoudre les problèmes d'exploitation les plus courants.
+Pour fonctionner correctement en production, les variables d'environnement suivantes doivent être configurées dans le tableau de bord Render :
 
-### 🔴 Erreur 404 (Not Found)
-*   **Symptôme** : L'accès à une page spécifique renvoie une erreur 404 ou une page blanche.
-*   **Cause probable** : Sur l'environnement de production (Render), le routage côté client (React Router) n'est pas transmis au fichier `index.html`.
-*   **Solution** : Assurez-vous que le fichier `render.json` contient bien la règle de rewrite : `{"source": "/(.*)", "destination": "/index.html"}` pour le service Frontend.
+### 2.1 Backend (`backend/.env`)
+*   `GEMINI_API_KEY` : Clé API pour le service Google Gemini (Requis pour l'analyse IA des briefs).
+*   `TELEGRAM_BOT_TOKEN` : Jeton d'authentification du Bot Telegram.
+*   `TELEGRAM_CHAT_ID` : L'identifiant du chat administrateur pour recevoir les notifications.
+*   `DATABASE_URL` : URL de connexion à la base de données PostgreSQL de production (ex: `postgresql://user:password@host:port/dbname`). Fournie par Render ou Supabase.
+*   *(Variables d'authentification Admin)* : Les identifiants administrateurs définis dans les paramètres du projet Django.
 
-### 🔴 Erreur 500 (Internal Server Error)
-*   **Symptôme** : Le bouton d'enregistrement dans l'admin renvoie un bandeau rouge.
-*   **Solution** : Vérifiez les logs Render du service Backend. C'est généralement causé par un champ obligatoire manquant dans la base de données, ou une variable d'environnement (ex: Clé secrète Django) absente.
+### 2.2 Frontend (`.env`)
+Bien que le backend proxy gère la majorité des requêtes internes, si des clés API publiques sont requises côté client (ex: Analytics, Bien que non implémenté actuellement), elles doivent être préfixées par `VITE_`.
 
-### 🔴 Erreur PostgreSQL (`dj_database_url`)
-*   **Symptôme** : Les produits ou les briefs disparaissent, ou l'application tourne dans le vide.
-*   **Solution** : Assurez-vous que la variable `DATABASE_URL` (format `postgresql://...`) est bien définie. Si elle est absente, Django tentera d'écrire dans SQLite (qui sera écrasé à chaque redéploiement sur Render).
+---
 
-### 🔴 Erreur Gemini (IA Indisponible)
-*   **Symptôme** : Le bouton "Analyser avec l'IA" retourne l'erreur "Clé API Gemini non configurée".
-*   **Solution** : La variable `GEMINI_API_KEY` a expiré ou n'a pas été fournie dans les Settings de Render. Mettez-la à jour. Si le problème persiste, vérifiez les quotas Google Cloud.
+## 3. Processus de Build & Déploiement
 
-### 🔴 Erreur Telegram (Aucune notification)
-*   **Symptôme** : Un client soumet un brief, mais aucune alerte n'arrive sur le téléphone de l'administrateur.
-*   **Solution** : Le thread asynchrone a probablement échoué en silence (pour ne pas bloquer le client). Lisez les logs Render pour trouver `Erreur d'envoi Telegram asynchrone`. Vérifiez que le `TELEGRAM_CHAT_ID` correspond toujours (il peut changer si le bot est supprimé puis recréé).
+### 3.1 Côté Frontend
+Le processus de build du frontend est géré par Node.js via le fichier `package.json`.
+1.  **Installation** : `npm install`
+2.  **Compilation** : `npm run build`
+    *   Appelle Vite via TypeScript (`tsc -b && vite build`).
+    *   Les fichiers de production optimisés sont générés dans le dossier `/dist/`.
 
-### 🔴 Erreurs de Build & Render
-*   **Symptôme** : Le déploiement "Build Failed" sur Render.
-*   **Solution** : 
-    *   **Backend** : Vérifiez `requirements.txt` (Assurez-vous que les librairies sont figées avec leurs numéros de version).
-    *   **Frontend** : Vérifiez la compilation TypeScript en exécutant localement `npm run build`. Souvent causé par des erreurs de typage dans `src/types.ts`.
+### 3.2 Côté Backend
+Le backend Django nécessite un environnement Python.
+1.  **Installation** : `pip install -r backend/requirements.txt`
+2.  **Migrations de Base de Données** : `python manage.py migrate`
+    *   Crée les tables (Briefs, Portfolio, StoreProduct).
+    *   **Auto-Seeding** : La migration `api/migrations/0003_seed_store_products.py` s'exécute automatiquement et insère les 12 produits par défaut dans la base de données PostgreSQL si elle est vierge.
+    *   **Mise à jour des URLs** : La migration `0004_update_store_images.py` s'exécute pour modifier l'ancienne URL des images (`Unsplash`) par les images locales HD stockées dans le build public (`/images/store/prod-XX.jpg`).
+3.  **Collecte des fichiers statiques** : `python manage.py collectstatic --noinput` (Pour servir l'interface d'administration Django de base si activée).
 
-### 🔴 Erreur de Migration (Auto-Seeding)
-*   **Symptôme** : L'application backend plante au démarrage (Render logs : `django.db.migrations.exceptions...`).
-*   **Solution** : La migration `0003_seed_store_products.py` ou `0004` essaie d'insérer des données, mais la structure de la table a changé (ou il y a un conflit d'ID). Purgez la base de données PostgreSQL ou utilisez `python manage.py migrate api zero` (attention : supprime les données de l'application) pour réinitialiser la structure.
+---
+
+## 4. Stratégie de Base de Données
+*   **Développement Local** : SQLite (`backend/db.sqlite3`).
+*   **Production** : PostgreSQL (configuré via `DATABASE_URL`). Django détecte la présence de la variable et bascule automatiquement sur `dj_database_url`.
+
+---
+
+## 5. Maintenance Opérationnelle
+
+### 5.1 Sécurisation des accès
+*   Si le panneau d'administration subit des tentatives de force brute (erreurs 429), le blocage est temporaire (15 minutes). Aucune intervention DevOps n'est nécessaire pour débloquer, le délai expirera tout seul.
+
+### 5.2 Mise à jour des assets locaux
+Les images HD générées de la boutique sont des assets statiques traqués sous Git (`public/images/store/`). Toute nouvelle image ajoutée devra être commitée et poussée vers Render qui servira automatiquement les nouveaux fichiers via le build de Vite.

@@ -47,8 +47,9 @@ Cette documentation décrit l'ensemble de l'architecture, du fonctionnement, des
 L'application repose sur un découpage strict et modulaire :
 
 - **Frontend** : SPA + PWA construite avec **React 18**, **TypeScript**, **Tailwind CSS (v4)** et **Vite**.
-- **Backend API** : Python 3.10+ avec **Django REST Framework (DRF)**.
-- **Base de Données** : **Supabase (PostgreSQL Cloud)** gérée via l'ORM Django (avec support SQLite en local).
+- **Backend API** : Python 3.10+ avec **Django REST Framework (DRF)** et **Django Jazzmin** (Admin SaaS).
+- **Base de Données** : **PostgreSQL** gérée via l'ORM Django (hébergée sur Render).
+- **Moteur PDF & Email** : `reportlab` pour les devis dynamiques et `django.core.mail` pour les notifications SMTP.
 - **Hébergement & CDN** : Déploiement continu sur **Render** protégé par la couche de sécurité et CDN **Cloudflare** (SSL Full Mode).
 
 ```mermaid
@@ -56,9 +57,10 @@ graph TD
     Client[Client Mobile / Web] -->|HTTPS / WAF| Cloudflare[Cloudflare Security & CDN]
     Cloudflare -->|SSL Proxy| RenderFrontend[Frontend React / Vite PWA]
     RenderFrontend -->|API REST JSON| RenderBackend[Backend Django REST API]
-    RenderBackend -->|ORM PostgreSQL| Supabase[(Supabase DB Cloud)]
+    RenderBackend -->|ORM PostgreSQL| RenderDB[(PostgreSQL sur Render)]
     RenderBackend -->|Prompt IA| Gemini[Google Gemini 2.5 API]
-    RenderBackend -->|Alertes HTTP| CallMeBot[CallMeBot WhatsApp API]
+    RenderBackend -->|Génération PDF| Reportlab[Module PDF en Mémoire]
+    RenderBackend -->|SMTP Gmail| ClientEmail[Notifications Client]
 ```
 
 ---
@@ -77,8 +79,9 @@ graph TD
 
 ### Modèles & Intégrité des Données
 - **Briefs & Projets (`BriefData`)** : Persistance intégrale des versions de livrables (V1, V2, HD), de l'historique d'activité (`activityLog`), des checklists qualité 5 points (`qualityChecklist`), de l'identité de marque du client (`clientBranding`) et des révisions.
-- **Soft-Delete (Corbeille)** : Suppression non destructrice (`isDeleted=True`) permettant la restauration instantanée depuis la corbeille `TrashBinModal`.
-- **Facturation & Finance (`InvoiceData`)** : Gestion des acomptes 50%, soldes 50% et modes de paiement locaux (Wave Sénégal, Orange Money, Free Money, Espèces, Virement).
+- **Moteur Automatisé** : À chaque changement de statut d'un brief, le système génère et envoie automatiquement un email transactionnel au client.
+- **Facturation & PDF** : Gestion des devis, acomptes 50%, soldes 50% et modes de paiement locaux. Génération à la volée de factures et devis PDF téléchargeables par le client.
+- **Administration** : Propulsée par **Django Jazzmin** pour une interface backend professionnelle, responsive, avec thème sombre intégré et gestion fine des données.
 
 ---
 

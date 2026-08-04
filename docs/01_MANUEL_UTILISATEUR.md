@@ -1,11 +1,33 @@
-# Volume 1 : Manuel Utilisateur & Administrateur
+# Hadara Suite
+## Plateforme SaaS de gestion et d'orchestration de projets créatifs
 
-> [!WARNING]  
-> **Clause de Stricte Réalité** : Toutes les fonctionnalités décrites ici reflètent fidèlement le comportement de l'application en production (Code base actuel). Les fonctionnalités prévues mais non implémentées sont explicitement signalées.
+**Documentation officielle**  
+**Version :** 2.0.0  
+**Date :** Août 2026  
+**Auteur :** El Hadji Abdoulaye Mouhamed Lamine Niass (Graphiste de la Hadara)
 
 ---
 
-## 1. Vue d'Ensemble des Espaces (Routage)
+## Sommaire
+1. [Historique des versions](#historique-des-versions)
+2. [Vue d'Ensemble des Espaces (Routage)](#2-vue-densemble-des-espaces-routage)
+3. [Espace Client (Utilisateur Final)](#3-espace-client-utilisateur-final)
+4. [Espace Administrateur (Django Jazzmin)](#4-espace-administrateur-django-jazzmin)
+5. [Système de Notifications et Devis PDF](#5-système-de-notifications-et-devis-pdf)
+
+---
+
+## Historique des versions
+
+| Version | Date | Modifications |
+| :--- | :--- | :--- |
+| 1.0 | Février 2026 | Première version (Socle SaaS & Brief Intelligent) |
+| 1.5 | Avril 2026 | Ajout Hadara Store et Espace Client |
+| 2.0.0 | Août 2026 | Intégration de Django Jazzmin, Génération PDF et Notifications Email |
+
+---
+
+## 2. Vue d'Ensemble des Espaces (Routage)
 
 L'application web est structurée autour de plusieurs chemins principaux (`routes`), chacun correspondant à un espace dédié :
 - `/studio` (ou `/`) : Page d'accueil principale (Landing Hero).
@@ -15,88 +37,69 @@ L'application web est structurée autour de plusieurs chemins principaux (`route
 - `/cv` : Curriculum Vitae interactif du graphiste.
 - `/roadmap` : Feuille de route des fonctionnalités (Roadmap).
 - `/espace-client` (ou `/portail-client`, `/suivi`) : Portail sécurisé pour le suivi des projets clients.
-- `/admin` : Espace d'administration sécurisé (Hadara Manager).
+- `/api/django-admin/` : Espace d'administration centralisé backend (Django Jazzmin).
 
 ---
 
-## 2. Espace Client (Utilisateur Final)
+## 3. Espace Client (Utilisateur Final)
 
 Cette section couvre les parcours destinés aux visiteurs et clients du studio.
 
-### 2.1 Navigation & Découverte
+### 3.1 Navigation & Découverte
 *   **Écran d'Accueil (Splash Screen)** : Lors de la première visite stricte sur `/`, un écran de chargement (SplashEntry) s'affiche avec le slogan *"L'art de donner vie à vos idées"*, avant d'entrer dans le Studio.
 *   **Portfolio** : Les utilisateurs peuvent consulter les projets filtrables par catégories. Ils peuvent cliquer sur "Je veux ce style !" sur un projet spécifique pour être redirigés vers le formulaire de brief avec le style présélectionné.
+*   **Curriculum Vitae** : Présentation interactive du parcours professionnel et des compétences du graphiste (optimisée Mobile-First), avec des boutons d'appel à l'action pour démarrer un projet.
 
-![Accueil Hadara Studio](/public/images/docs/accueil.png)
-*(Aperçu de la Landing Page)*
-
-![Portfolio Hadara](/public/images/docs/portfolio.png)
-*(Aperçu de la vue Portfolio)*
-
-### 2.2 Création de Projet (Le Brief Intelligent)
+### 3.2 Création de Projet (Le Brief Intelligent)
 Le parcours de commande s'effectue via le composant **BriefForm**.
-1.  **Formulaire Multi-étapes** : L'utilisateur remplit un formulaire détaillé structurant sa demande.
-2.  **Soumission** : Le backend génère un identifiant unique (ex: `HAD-0001`). Une notification Telegram est envoyée.
-3.  **Confirmation** : L'utilisateur est redirigé vers la page `/confirmation`.
+1.  **Formulaire Multi-étapes** : L'utilisateur remplit un formulaire détaillé structurant sa demande (Client, WhatsApp, Titre, Contexte, Objectif, Cible, Textes, Formats techniques).
+2.  **Soumission** : 
+    *   L'application vérifie l'idempotence (si le même client avec le même numéro WhatsApp soumet un brief dans les 5 minutes, il n'est pas dupliqué).
+    *   Le backend génère un identifiant unique (ex: `HAD-0001`).
+    *   **Notification Email & Telegram** : Un email de confirmation est envoyé au client. Un message récapitulatif est instantanément envoyé au bot Telegram de l'administrateur.
+3.  **Confirmation** : L'utilisateur est redirigé vers la page `/confirmation` avec la possibilité d'imprimer son ticket récapitulatif.
 
-![Formulaire de Brief](/public/images/docs/brief.png)
-*(Aperçu du Formulaire Intelligent)*
+### 3.3 La Boutique (Hadara Store)
+*   **Consultation** : Les utilisateurs accèdent au catalogue des produits (Accessoires informatiques, impression, etc.).
+*   **Statuts de Stock** : Les produits affichent leur disponibilité (ex: *Sur Commande (24-48h)*, *En Stock*).
+*   **Achat** : L'achat s'effectue via le bouton "Commander sur WhatsApp" qui génère un message pré-rempli redirigeant vers le numéro `+221 77 623 27 41`.
 
-### 2.3 La Boutique (Hadara Store)
-*   **Consultation** : Accès au catalogue (avec fallback de cache local hors ligne).
-*   **Achat** : L'achat s'effectue via le bouton "Commander sur WhatsApp".
-
-![Boutique Hadara](/public/images/docs/boutique.png)
-*(Aperçu de la Boutique)*
-
-### 2.4 Le Portail Client (`/espace-client`)
-*   **Suivi de projet** : Le client consulte les détails de son brief (Statut, Devis, Notes) via un Code d'Accès.
-
-![Portail Client](/public/images/docs/portail_client.png)
-*(Aperçu du Portail Client)*
+### 3.4 Le Portail Client (`/espace-client`)
+*   **Suivi de projet** : Le client peut y accéder avec un Code d'Accès ou son numéro de téléphone. Il peut alors consulter les détails de son brief (Statut, Devis estimatif FCFA, Notes du designer).
+*   **Téléchargement du Devis PDF** : Le client dispose d'un bouton pour générer et télécharger automatiquement son devis/facture au format PDF.
+*   **Validation des Livrables** : Le client peut valider ou demander des révisions sur les versions HD livrées par le graphiste.
 
 ---
 
-## 3. Espace Administrateur (Hadara Manager)
+## 4. Espace Administrateur (Django Jazzmin)
 
-L'espace `/admin` est le poste de contrôle complet du graphiste.
+L'administration backend (accessible via `/api/django-admin/`) a été totalement refondue en utilisant le thème SaaS premium **Django Jazzmin**.
 
-### 3.1 Sécurité & Authentification
-*   **Verrouillage (Lock Screen)** : Protection Brute-Force (Verrouillage de 15 minutes après 5 erreurs). Déconnexion automatique après 30 minutes d'inactivité.
+### 4.1 Interface & Ergonomie (SaaS Mode)
+*   **Thème Sombre Intégré** : L'interface utilise le mode *Darkly* avec des accents *Ambre/Or* pour respecter l'identité de marque Hadara.
+*   **Menu Latéral & Icônes** : Navigation fluide avec des icônes FontAwesome spécifiques à chaque modèle (Briefs, Portfolio, Store, Users).
 
-### 3.2 Tableau de Bord (Dashboard & CRM)
-L'administrateur navigue dans un tableau de bord à plusieurs onglets.
+### 4.2 Gestion des Données
+*   **Gestion des Briefs** : L'administrateur peut visualiser tous les briefs clients, modifier leur statut, et définir le prix devisé (qui se mettra à jour en temps réel sur l'espace client).
+*   **Boutique (Hadara Store)** : Gestion complète (Ajout/Modification/Suppression) des produits, prix et statuts de stock.
+*   **Portfolio** : Mise à jour de la vitrine avec la possibilité d'uploader des images de présentation.
 
-#### A. Onglet "Briefs & Commandes" (Vue Kanban)
-*   Les briefs sont organisés en colonnes Kanban : **Nouveau**, **En Cours**, **En Attente**, et **Terminé**.
-
-![Dashboard Kanban](/public/images/docs/dashboard.png)
-*(Aperçu de la vue Kanban / CRM)*
-
-#### B. Analyse IA (Bouton "Analyser avec l'IA")
-*   Envoie le contenu du brief au backend (modèle **Gemini 2.5 Flash**). Le modèle génère une analyse, un brouillon WhatsApp et 3 concepts artistiques originaux.
-
-![Analyse IA](/public/images/docs/ia.png)
-*(Aperçu du résultat d'Analyse IA)*
-
-#### C. Onglet "Boutique & Produits"
-*   **Inventaire** : CRUD complet des produits. (Attention : Nécessite une connexion réseau. Aucune file d'attente hors-ligne n'est implémentée).
+### 4.3 Analyse IA Intégrée (Hadara AI)
+*   L'application intègre **Gemini 2.5 Pro/Flash** pour analyser les briefs soumis.
+*   L'IA génère automatiquement un brouillon de devis, une estimation de budget, et 3 propositions de concepts créatifs originaux pour inspirer le graphiste.
 
 ---
 
-## 4. Foire Aux Questions (FAQ)
+## 5. Système de Notifications et Devis PDF
 
-**Q : Pourquoi mon brief n'arrive pas ?**
-> Assurez-vous que les champs obligatoires sont bien remplis. Si la notification Telegram n'arrive pas, vérifiez que le backend possède bien la variable d'environnement `TELEGRAM_BOT_TOKEN` correcte. Le brief reste néanmoins visible dans la vue Kanban de l'admin.
+Afin d'offrir une expérience utilisateur irréprochable digne d'une plateforme SaaS professionnelle, le système est doté d'outils d'automatisation.
 
-**Q : Pourquoi la boutique n'est pas synchronisée / modifiée ?**
-> Actuellement, les actions de modification du catalogue (Admin) échouent si vous êtes hors-ligne. Une connexion à Internet est indispensable pour que les changements soient envoyés au serveur PostgreSQL.
+### 5.1 Génération Automatique de Devis (PDF)
+*   La plateforme utilise la librairie `reportlab` pour générer des PDF à la volée.
+*   Le PDF inclut le logo Hadara, le résumé détaillé du besoin client, et la tarification chiffrée.
+*   Les fichiers PDF ne sont pas stockés sur le serveur pour économiser l'espace, ils sont générés dynamiquement via la route API `/api/briefs/<id>/download_pdf/`.
 
-**Q : Comment modifier un produit ?**
-> Connectez-vous à l'espace Admin (`/admin`), allez dans l'onglet "Boutique", cliquez sur l'icône de crayon (Édition) sur le produit souhaité, modifiez les champs et cliquez sur "Mettre à jour".
-
-**Q : Comment changer Gemini ou Telegram ?**
-> L'intégration IA et Telegram est gérée exclusivement via le backend. Modifiez les variables `GEMINI_API_KEY` et `TELEGRAM_BOT_TOKEN` dans le tableau de bord de votre hébergeur (Render) et redémarrez le serveur.
-
-**Q : Comment restaurer une sauvegarde ?**
-> La base de données PostgreSQL de production gère ses propres backups (gérés par Supabase ou Render). Aucune restauration en un clic n'est disponible depuis l'interface web.
+### 5.2 Emails Transactionnels
+*   Le système est connecté à un relais SMTP Gmail (`mrniass@gmail.com`).
+*   **Création de projet** : Email de confirmation de réception avec un lien d'accès à l'espace client.
+*   **Changement d'état** : Dès que l'administrateur passe un projet en statut "Devis Envoyé" ou "Terminé" via le panel Django, un email HTML charté est automatiquement expédié au client pour l'informer de l'avancement.

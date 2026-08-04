@@ -294,11 +294,24 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                     </h2>
                   </div>
 
-                  <div className="text-left sm:text-right shrink-0">
-                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Tarif Officiel Devisé</p>
-                    <p className="text-xl font-black font-mono text-emerald-400">
-                      {activeBrief.quotedPriceFCFA ? `${activeBrief.quotedPriceFCFA.toLocaleString('fr-FR')} FCFA` : 'Sur devis (en étude)'}
-                    </p>
+                  <div className="text-left sm:text-right shrink-0 flex flex-col sm:items-end gap-2">
+                    <div>
+                      <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Tarif Officiel Devisé</p>
+                      <p className="text-xl font-black font-mono text-emerald-400">
+                        {activeBrief.quotedPriceFCFA ? `${activeBrief.quotedPriceFCFA.toLocaleString('fr-FR')} FCFA` : 'Sur devis (en étude)'}
+                      </p>
+                    </div>
+                    {activeBrief.id && (
+                      <a
+                        href={`/api/briefs/${activeBrief.id}/download_pdf/`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-bold transition-colors w-fit"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Télécharger le Devis PDF</span>
+                      </a>
+                    )}
                   </div>
                 </div>
 

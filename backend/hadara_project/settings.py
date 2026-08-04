@@ -147,6 +147,15 @@ STORAGES = {
     },
 }
 
+# Email Configuration (Gmail SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' if os.environ.get('EMAIL_HOST_PASSWORD') else 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'mrniass@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = f"Hadara Studio <{EMAIL_HOST_USER}>"
+
 # Sentry Configuration
 SENTRY_DSN = os.environ.get('SENTRY_DSN')
 if SENTRY_DSN:

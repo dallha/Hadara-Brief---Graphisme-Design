@@ -1,7 +1,11 @@
 import os
 import json
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.http import HttpResponse
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from google import genai
 from google.genai import types
@@ -9,6 +13,52 @@ from google.genai import types
 from .models import Brief, Template, PortfolioItem, StoreProduct
 from .serializers import BriefSerializer, TemplateSerializer, PortfolioItemSerializer, StoreProductSerializer
 from .auth_views import verify_admin_token
+from .pdf_utils import generate_brief_pdf
+
+def send_status_email(brief, old_status, new_status):
+    if old_status == new_status or not brief.email:
+        return
+        
+    subject = f"[Hadara Studio] Mise à jour de votre projet : {brief.main_title}"
+    
+    # Text message based on status
+    status_msg = ""
+    if new_status == 'devis_envoye':
+        status_msg = "Votre devis a été généré et est disponible sur votre espace client."
+    elif new_status == 'acompte_recu':
+        status_msg = "Nous avons bien reçu votre acompte de démarrage. L'équipe commence la création."
+    elif new_status == 'en_creation':
+        status_msg = "Votre projet est actuellement en cours de création par notre équipe."
+    elif new_status == 'validation':
+        status_msg = "Une première version de votre projet est prête. Veuillez vous connecter pour la valider."
+    elif new_status == 'termine':
+        status_msg = "Félicitations, votre projet est terminé et vos fichiers finaux (HD) sont disponibles au téléchargement."
+    
+    if not status_msg:
+        return
+        
+    html_content = f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; color: #333;">
+            <h2 style="color: #FBBF24;">Bonjour {brief.client_name},</h2>
+            <p>{status_msg}</p>
+            <p><strong>Statut actuel :</strong> {new_status.replace('_', ' ').title()}</p>
+            <br/>
+            <p>Consultez votre espace client pour plus de détails et pour télécharger votre devis PDF :</p>
+            <p><a href="{os.getenv('FRONTEND_URL', 'https://hadara-design.com')}" style="padding: 10px 20px; background-color: #FBBF24; color: #000; text-decoration: none; border-radius: 5px; font-weight: bold;">Accéder à mon espace</a></p>
+            <br/><br/>
+            <p>L'équipe Hadara Studio.</p>
+        </body>
+    </html>
+    """
+    text_content = strip_tags(html_content)
+    
+    try:
+        msg = EmailMultiAlternatives(subject, text_content, os.getenv('DEFAULT_FROM_EMAIL', 'Hadara Studio <mrniass@gmail.com>'), [brief.email])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+    except Exception as e:
+        print(f"Erreur envoi email: {e}")
 
 class BriefViewSet(viewsets.ModelViewSet):
     queryset = Brief.objects.all().order_by('-created_at')
@@ -17,13 +67,33 @@ class BriefViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         if not verify_admin_token(request):
             return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
+        instance = self.get_object()
+        old_status = instance.status
         kwargs['partial'] = True
-        return super().update(request, *args, **kwargs)
+        response = super().update(request, *args, **kwargs)
+        if response.status_code == 200:
+            new_status = response.data.get('status')
+            send_status_email(instance, old_status, new_status)
+        return response
 
     def partial_update(self, request, *args, **kwargs):
         if not verify_admin_token(request):
             return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
-        return super().partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        old_status = instance.status
+        response = super().partial_update(request, *args, **kwargs)
+        if response.status_code == 200:
+            new_status = response.data.get('status')
+            send_status_email(instance, old_status, new_status)
+        return response
+        
+    @action(detail=True, methods=['get'])
+    def download_pdf(self, request, pk=None):
+        brief = self.get_object()
+        pdf_bytes = generate_brief_pdf(brief)
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="Devis_Brief_{brief.id}.pdf"'
+        return response
 
     def destroy(self, request, *args, **kwargs):
         if not verify_admin_token(request):
@@ -106,6 +176,32 @@ class BriefViewSet(viewsets.ModelViewSet):
                 # Launch thread
                 thread = threading.Thread(target=send_telegram_alert, args=(response.data, telegram_token, telegram_chat_id))
                 thread.start()
+            
+            # Send Email Confirmation to Client
+            client_email = response.data.get('email')
+            if client_email:
+                try:
+                    subject = "[Hadara Studio] Confirmation de réception de votre brief"
+                    html_content = f"""
+                    <html>
+                        <body style="font-family: Arial, sans-serif; color: #333;">
+                            <h2 style="color: #FBBF24;">Bonjour {response.data.get('clientName')},</h2>
+                            <p>Nous vous confirmons la bonne réception de votre demande (Projet: {response.data.get('mainTitle', '')}).</p>
+                            <p>Notre équipe va l'étudier avec attention. Vous recevrez très prochainement une estimation ou un devis détaillé.</p>
+                            <br/>
+                            <p>Vous pouvez suivre l'avancement de votre projet depuis votre espace client :</p>
+                            <p><a href="{os.getenv('FRONTEND_URL', 'https://hadara-design.com')}" style="padding: 10px 20px; background-color: #FBBF24; color: #000; text-decoration: none; border-radius: 5px; font-weight: bold;">Mon espace projet</a></p>
+                            <br/><br/>
+                            <p>L'équipe Hadara Studio.</p>
+                        </body>
+                    </html>
+                    """
+                    text_content = strip_tags(html_content)
+                    msg = EmailMultiAlternatives(subject, text_content, os.getenv('DEFAULT_FROM_EMAIL', 'Hadara Studio <mrniass@gmail.com>'), [client_email])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
+                except Exception as e:
+                    print(f"Erreur envoi email confirmation: {e}")
                     
         return response
 

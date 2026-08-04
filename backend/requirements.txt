@@ -34,3 +34,4 @@ websockets==16.1.1
 gunicorn==22.0.0
 whitenoise==6.6.0
 django-jazzmin==3.0.0
+reportlab==4.1.0

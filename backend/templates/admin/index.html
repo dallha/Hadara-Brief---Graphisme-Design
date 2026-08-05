@@ -1,5 +1,16 @@
-{% extends "admin/index.html" %}
-{% load i18n %}
+{% extends "admin/base_site.html" %}
+{% load i18n log %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content_title %}{% trans 'Dashboard' %}{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+    <li class="breadcrumb-item active">{% trans 'Dashboard' %}</li>
+</ol>
+{% endblock %}
 
 {% block content %}
 
@@ -13,7 +24,7 @@
                 <p>Nouveaux Briefs</p>
             </div>
             <div class="icon"><i class="fas fa-file-signature"></i></div>
-            <a href="{% url 'hadara_admin:api_brief_changelist' %}" class="small-box-footer">
+            <a href="{% url 'admin:api_brief_changelist' %}" class="small-box-footer">
                 Traiter <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -26,7 +37,7 @@
                 <p>CA Potentiel Estimé</p>
             </div>
             <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
-            <a href="{% url 'hadara_admin:api_brief_changelist' %}" class="small-box-footer">
+            <a href="{% url 'admin:api_brief_changelist' %}" class="small-box-footer">
                 Voir Briefs <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -39,7 +50,7 @@
                 <p>Produits en Boutique</p>
             </div>
             <div class="icon"><i class="fas fa-shopping-cart"></i></div>
-            <a href="{% url 'hadara_admin:api_storeproduct_changelist' %}" class="small-box-footer">
+            <a href="{% url 'admin:api_storeproduct_changelist' %}" class="small-box-footer">
                 Gérer <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -49,10 +60,10 @@
         <div class="small-box bg-danger">
             <div class="inner">
                 <h3>{{ kpi_all_briefs }}</h3>
-                <p>Briefs Total</p>
+                <p>Total Briefs</p>
             </div>
             <div class="icon"><i class="fas fa-archive"></i></div>
-            <a href="{% url 'hadara_admin:api_brief_changelist' %}" class="small-box-footer">
+            <a href="{% url 'admin:api_brief_changelist' %}" class="small-box-footer">
                 Historique <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -64,11 +75,9 @@
     <div class="col-12">
         <div class="card card-primary card-outline">
             <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-clock mr-1"></i> Derniers Briefs Reçus
-                </h3>
+                <h3 class="card-title"><i class="fas fa-clock mr-1"></i> Derniers Briefs Reçus</h3>
                 <div class="card-tools">
-                    <a href="{% url 'hadara_admin:api_brief_changelist' %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'admin:api_brief_changelist' %}" class="btn btn-sm btn-primary">
                         Voir tout <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
@@ -78,13 +87,8 @@
                     <table class="table table-hover table-striped mb-0">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Client</th>
-                                <th>Email</th>
-                                <th>Statut</th>
-                                <th>Devis</th>
-                                <th>Date</th>
-                                <th>Action</th>
+                                <th>ID</th><th>Client</th><th>Email</th>
+                                <th>Statut</th><th>Devis</th><th>Date</th><th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -109,14 +113,12 @@
                                 <td>
                                     {% if brief.quoted_price_fcfa %}
                                         <strong>{{ brief.quoted_price_fcfa }} FCFA</strong>
-                                    {% else %}
-                                        <em class="text-muted">À estimer</em>
-                                    {% endif %}
+                                    {% else %}<em class="text-muted">À estimer</em>{% endif %}
                                 </td>
-                                <td><small>{{ brief.created_at|date:"d/m/Y H:i" }}</small></td>
+                                <td><small>{{ brief.created_at|date:"d/m/Y" }}</small></td>
                                 <td>
-                                    <a href="{% url 'hadara_admin:api_brief_change' brief.id %}" class="btn btn-xs btn-primary">
-                                        <i class="fas fa-edit"></i> Ouvrir
+                                    <a href="{% url 'admin:api_brief_change' brief.id %}" class="btn btn-xs btn-primary">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -136,7 +138,86 @@
     </div>
 </div>
 
-<!-- ===== DASHBOARD JAZZMIN STANDARD (App list + Recent Actions) ===== -->
-{{ block.super }}
+<!-- ===== APP LIST (modèles standard) ===== -->
+<div class="row">
+    <div class="col-lg-8">
+        {% if app_list %}
+            {% for app in app_list %}
+            <div class="card card-secondary card-outline mb-3">
+                <div class="card-header">
+                    <h5 class="card-title m-0">{{ app.name }}</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover mb-0">
+                        <tbody>
+                            {% for model in app.models %}
+                            <tr>
+                                <td>
+                                    {% if model.admin_url %}<a href="{{ model.admin_url }}">{{ model.name }}</a>
+                                    {% else %}{{ model.name }}{% endif %}
+                                </td>
+                                <td class="text-right">
+                                    {% if model.add_url %}
+                                        <a href="{{ model.add_url }}" class="btn btn-xs btn-success">
+                                            <i class="fas fa-plus"></i> {% trans 'Add' %}
+                                        </a>
+                                    {% endif %}
+                                    {% if model.admin_url %}
+                                        <a href="{{ model.admin_url }}" class="btn btn-xs btn-info">
+                                            <i class="fas fa-list"></i> {% trans 'Change' %}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>{% trans "You don't have permission to view or edit anything." %}</p>
+        {% endif %}
+    </div>
+
+    <!-- ===== RECENT ACTIONS ===== -->
+    <div class="col-lg-4">
+        <div class="card card-outline card-warning">
+            <div class="card-header">
+                <h5 class="card-title m-0"><i class="fas fa-history mr-1"></i> {% trans 'Recent actions' %}</h5>
+            </div>
+            <div class="card-body p-2">
+                {% get_admin_log 10 as admin_log for_user user %}
+                {% if admin_log %}
+                    <ul class="list-unstyled mb-0">
+                        {% for entry in admin_log %}
+                        <li class="d-flex align-items-start mb-2 pb-2 border-bottom">
+                            {% if entry.is_addition %}
+                                <span class="badge badge-success mr-2 mt-1">+</span>
+                            {% elif entry.is_change %}
+                                <span class="badge badge-info mr-2 mt-1">~</span>
+                            {% elif entry.is_deletion %}
+                                <span class="badge badge-danger mr-2 mt-1">-</span>
+                            {% endif %}
+                            <div>
+                                {% if not entry.is_deletion and entry.get_admin_url %}
+                                    <a href="{{ entry.get_admin_url }}" class="d-block font-weight-bold small">
+                                        {{ entry.object_repr }}
+                                    </a>
+                                {% else %}
+                                    <span class="d-block font-weight-bold small">{{ entry.object_repr }}</span>
+                                {% endif %}
+                                <small class="text-muted">{{ entry.action_time|timesince }} ago</small>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted text-center py-3">{% trans 'None available' %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

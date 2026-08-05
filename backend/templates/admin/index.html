@@ -1,0 +1,218 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin dashboard_tags %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content_title %} {% trans 'Dashboard' %} {% endblock %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item">{% trans 'Dashboard' %}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    {% get_jazzmin_app_list request as app_list %}
+    {% get_jazzmin_settings request as jazzmin_settings %}
+    {% get_jazzmin_ui_tweaks as jazzmin_ui %}
+    {% get_dashboard_stats as stats %}
+
+    <!-- KPI CARDS -->
+    <div class="row mb-4">
+        <!-- Nouveaux Briefs -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>{{ stats.pending_briefs }}</h3>
+                    <p>Nouveaux Briefs</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <a href="{% url 'admin:api_brief_changelist' %}?status__exact=pending" class="small-box-footer">Voir tout <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- CA Estimé -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>{{ stats.total_revenue }}<sup style="font-size: 20px"> FCFA</sup></h3>
+                    <p>CA Potentiel</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <a href="{% url 'admin:api_brief_changelist' %}" class="small-box-footer">Ouvrir Briefs <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- Produits -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>{{ stats.active_products }}</h3>
+                    <p>Produits Actifs</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <a href="{% url 'admin:api_storeproduct_changelist' %}" class="small-box-footer">Gérer <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- Site Public -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>Site</h3>
+                    <p>Accès Public</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <a href="/" target="_blank" class="small-box-footer">Visiter <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="row">
+        <!-- LEFT COLUMN: Apps & Models -->
+        <div class="col-lg-8 col-12">
+            
+            <!-- Quick View: Derniers Briefs -->
+            <div class="card card-primary card-outline mb-4">
+                <div class="card-header">
+                    <h5 class="m-0">Derniers Briefs Reçus</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover text-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client</th>
+                                    <th>Statut</th>
+                                    <th>Prix</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for brief in stats.latest_briefs %}
+                                <tr>
+                                    <td>#{{ brief.id }}</td>
+                                    <td>{{ brief.client_name }}</td>
+                                    <td>
+                                        {% if brief.status == 'pending' %}<span class="badge badge-warning">En attente</span>
+                                        {% elif brief.status == 'in_progress' %}<span class="badge badge-info">En cours</span>
+                                        {% elif brief.status == 'completed' %}<span class="badge badge-success">Terminé</span>
+                                        {% else %}<span class="badge badge-secondary">{{ brief.status }}</span>{% endif %}
+                                    </td>
+                                    <td>{{ brief.quoted_price_fcfa }} FCFA</td>
+                                    <td>{{ brief.created_at|date:"d M Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'admin:api_brief_change' brief.id %}" class="btn btn-xs btn-primary">Ouvrir</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-3">Aucun brief reçu pour le moment.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Standard App List (Jazzmin Default Style) -->
+            <div class="row">
+                {% for app in app_list %}
+                    <div class="col-md-6">
+                        <div class="card card-secondary card-outline">
+                            <div class="card-header">
+                                <h5 class="m-0">{{ app.name }}</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-hover">
+                                    <tbody>
+                                        {% for model in app.models %}
+                                            <tr>
+                                                <td>
+                                                    {% if model.url %}<a href="{{ model.url }}">{{ model.name }}</a>{% else %}{{ model.name }}{% endif %}
+                                                </td>
+                                                <td class="text-right">
+                                                    {% if model.add_url %}
+                                                        <a href="{{ model.add_url }}" class="btn btn-xs btn-success"><i class="fas fa-plus"></i> {% trans 'Add' %}</a>
+                                                    {% endif %}
+                                                    {% if model.url %}
+                                                        <a href="{{ model.url }}" class="btn btn-xs btn-info"><i class="fas fa-edit"></i> {% trans 'Change' %}</a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Recent Actions -->
+        <div class="col-lg-4 col-12">
+            <div id="content-related">
+                <div class="module" id="recent-actions-module">
+                    <h4 class="mb-3">{% trans 'Recent actions' %}</h4>
+                    {% load log %}
+                    {% get_admin_log 10 as admin_log for_user user %}
+                    {% if not admin_log %}
+                        <p>{% trans 'None available' %}</p>
+                    {% else %}
+                        <div class="timeline">
+                            {% for entry in admin_log %}
+                                <div>
+                                    {% if entry.is_addition %}
+                                        <i class="fas fa-plus bg-success"></i>
+                                    {% elif entry.is_change %}
+                                        <i class="fas fa-edit bg-blue"></i>
+                                    {% elif entry.is_deletion %}
+                                        <i class="fas fa-trash bg-danger"></i>
+                                    {% endif %}
+
+                                    <div class="timeline-item">
+                                        <span class="time"><i class="fas fa-clock"></i> {{ entry.action_time|timesince }} ago</span>
+                                        <h3 class="timeline-header no-border">
+                                            {% if entry.is_deletion or not entry.url %}
+                                                {{ entry.object_repr }}
+                                            {% else %}
+                                                <a href="{{ entry.url }}">{{ entry.object_repr }}</a>
+                                            {% endif %}
+                                            
+                                            {% if entry.content_type %}
+                                                <span class="text-muted text-sm">({{ entry.content_type }})</span>
+                                            {% endif %}
+                                        </h3>
+                                        {% if not entry.is_deletion %}
+                                            <div class="timeline-body text-sm">
+                                                {% if entry.is_addition %}
+                                                    {% trans 'Added.' %}
+                                                {% elif entry.is_change %}
+                                                    {% trans 'Changed.' %} {{ entry.change_message }}
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div>
+                                <i class="fas fa-clock bg-gray"></i>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -48,17 +48,6 @@ class BriefAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'created_at', 'ai_analysis')
     ordering = ('-created_at',)
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        try:
-            response = super().change_view(request, object_id, form_url, extra_context)
-            if hasattr(response, 'render') and callable(response.render):
-                response.render()
-            return response
-        except Exception as e:
-            import traceback
-            from django.http import HttpResponse
-            return HttpResponse(f"<h1>Error in change_view</h1><pre>{traceback.format_exc()}</pre>", status=500)
-
     fieldsets = (
         ('Informations Client', {
             'fields': ('id', 'client_name', 'organization', 'email', 'whatsapp', 'city_country')

@@ -100,18 +100,19 @@
                             <tbody>
                                 {% for brief in stats.latest_briefs %}
                                 <tr>
-                                    <td>#{{ brief.id }}</td>
+                                    <td><strong>#{{ brief.id }}</strong></td>
                                     <td>{{ brief.client_name }}</td>
                                     <td>
-                                        {% if brief.status == 'pending' %}<span class="badge badge-warning">En attente</span>
-                                        {% elif brief.status == 'in_progress' %}<span class="badge badge-info">En cours</span>
-                                        {% elif brief.status == 'completed' %}<span class="badge badge-success">Terminé</span>
+                                        {% if brief.status == 'nouveau' or brief.status == 'pending' %}<span class="badge badge-warning">Nouveau</span>
+                                        {% elif brief.status == 'in_progress' or brief.status == 'en_cours' %}<span class="badge badge-info">En cours</span>
+                                        {% elif brief.status == 'completed' or brief.status == 'terminé' %}<span class="badge badge-success">Terminé</span>
+                                        {% elif brief.status == 'rejected' or brief.status == 'refusé' %}<span class="badge badge-danger">Refusé</span>
                                         {% else %}<span class="badge badge-secondary">{{ brief.status }}</span>{% endif %}
                                     </td>
-                                    <td>{{ brief.quoted_price_fcfa }} FCFA</td>
+                                    <td>{% if brief.quoted_price_fcfa %}{{ brief.quoted_price_fcfa }} FCFA{% else %}<em class="text-muted">À estimer</em>{% endif %}</td>
                                     <td>{{ brief.created_at|date:"d M Y" }}</td>
                                     <td>
-                                        <a href="{% url 'admin:api_brief_change' brief.id %}" class="btn btn-xs btn-primary">Ouvrir</a>
+                                        <a href="{% url 'admin:api_brief_change' brief.id %}" class="btn btn-xs btn-primary"><i class="fas fa-edit"></i> Ouvrir</a>
                                     </td>
                                 </tr>
                                 {% empty %}

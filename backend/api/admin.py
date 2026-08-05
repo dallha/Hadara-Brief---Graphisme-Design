@@ -3,44 +3,50 @@ from .models import Brief, PortfolioItem, StoreProduct, Template
 
 @admin.register(Brief)
 class BriefAdmin(admin.ModelAdmin):
-    list_display = ('id', 'client_name', 'client_email', 'client_whatsapp', 'status', 'created_at', 'quoted_price_fcfa')
+    list_display = ('id', 'client_name', 'email', 'whatsapp', 'status', 'created_at', 'quoted_price_fcfa')
     list_filter = ('status', 'created_at')
-    search_fields = ('id', 'client_name', 'client_email', 'client_whatsapp')
-    readonly_fields = ('id', 'created_at', 'updated_at', 'ai_analysis')
+    search_fields = ('id', 'client_name', 'email', 'whatsapp')
+    readonly_fields = ('id', 'created_at', 'ai_analysis')
     ordering = ('-created_at',)
     fieldsets = (
         ('Informations Client', {
-            'fields': ('id', 'client_name', 'client_email', 'client_whatsapp')
+            'fields': ('id', 'client_name', 'organization', 'email', 'whatsapp', 'city_country')
         }),
         ('Détails du Projet', {
-            'fields': ('project_context', 'project_objective', 'target_audience', 'creative_style', 'color_preferences', 'specific_texts')
+            'fields': ('project_type', 'project_type_custom', 'context_description', 'primary_objective', 'target_audience', 'main_title', 'full_text_content')
+        }),
+        ('Style & Direction', {
+            'fields': ('style_preferences', 'preferred_colors', 'avoid_colors')
         }),
         ('Spécifications Techniques', {
-            'fields': ('dimensions', 'required_formats', 'budget_estimate', 'urgency')
+            'fields': ('technical_format', 'custom_dimensions', 'usage_type', 'budget_range', 'desired_delivery_date', 'critical_deadline')
+        }),
+        ('Références', {
+            'fields': ('reference_links', 'attachments', 'accept_process', 'accept_deadlines')
         }),
         ('Administration & IA', {
             'fields': ('status', 'quoted_price_fcfa', 'designer_notes', 'ai_analysis')
         }),
         ('Dates', {
-            'fields': ('created_at', 'updated_at')
+            'fields': ('created_at',)
         }),
     )
 
 @admin.register(PortfolioItem)
 class PortfolioItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'category', 'estimated_price_fcfa')
+    list_display = ('id', 'title', 'category', 'price_estimate', 'badge')
     list_filter = ('category',)
     search_fields = ('title', 'id')
 
 @admin.register(StoreProduct)
 class StoreProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'brand', 'category', 'price_fcfa', 'status', 'visible', 'featured')
+    list_display = ('id', 'name', 'brand', 'category', 'price', 'status', 'visible', 'featured')
     list_filter = ('status', 'category', 'visible', 'featured')
-    search_fields = ('title', 'brand', 'id')
-    list_editable = ('status', 'visible', 'featured', 'price_fcfa')
+    search_fields = ('name', 'brand', 'id')
+    list_editable = ('status', 'visible', 'featured', 'price')
 
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'category')
+    list_display = ('id', 'title', 'category', 'suggested_price_fcfa')
     list_filter = ('category',)
-    search_fields = ('name',)
+    search_fields = ('title',)

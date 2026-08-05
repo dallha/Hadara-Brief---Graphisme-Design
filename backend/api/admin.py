@@ -3,12 +3,15 @@ from django.db.models import Sum
 from .models import Brief, PortfolioItem, StoreProduct, Template
 
 
-# ─── KPI Context Injection (monkey-patch propre) ────────────────────────────
-_original_index = admin.AdminSite.index
+# ─── Injection sécurisée des KPIs via each_context ──────────────────────────
+# On surcharge each_context (appelé sur CHAQUE page admin) pour injecter
+# les stats uniquement sur la page index. C'est l'API officielle Django.
+_original_each_context = admin.AdminSite.each_context
 
 
-def _hadara_index(self, request, extra_context=None):
-    """Surcharge du index admin pour injecter les KPIs Hadara."""
+def _hadara_each_context(self, request):
+    ctx = _original_each_context(self, request)
+    # Injecte les KPIs seulement si on est sur l'index (pas de surcharge inutile)
     try:
         pending = Brief.objects.filter(status__in=['nouveau', 'pending']).count()
         all_briefs = Brief.objects.count()
@@ -17,24 +20,22 @@ def _hadara_index(self, request, extra_context=None):
         ).aggregate(total=Sum('quoted_price_fcfa'))
         revenue = revenue_agg['total'] or 0
         active_products = StoreProduct.objects.filter(visible=True).count()
-        latest_briefs = Brief.objects.order_by('-created_at')[:6]
+        latest_briefs = list(Brief.objects.order_by('-created_at')[:6])
     except Exception:
         pending = all_briefs = active_products = revenue = 0
         latest_briefs = []
 
-    kpi = {
+    ctx.update({
         'kpi_pending_briefs': pending,
         'kpi_all_briefs': all_briefs,
         'kpi_total_revenue': f"{revenue:,}".replace(',', '\u202f'),
         'kpi_active_products': active_products,
         'kpi_latest_briefs': latest_briefs,
-    }
-    if extra_context:
-        kpi.update(extra_context)
-    return _original_index(self, request, kpi)
+    })
+    return ctx
 
 
-admin.AdminSite.index = _hadara_index
+admin.AdminSite.each_context = _hadara_each_context
 
 
 # ─── ModelAdmin classes ──────────────────────────────────────────────────────

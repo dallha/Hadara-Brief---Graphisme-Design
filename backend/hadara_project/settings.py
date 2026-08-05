@@ -71,12 +71,20 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
+        # APP_DIRS doit être False quand on utilise 'loaders' dans OPTIONS
+        'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+            ],
+            'loaders': [
+                # 1. Cherche dans DIRS en premier (nos overrides)
+                'django.template.loaders.filesystem.Loader',
+                # 2. Cherche dans les apps installées (jazzmin, django admin...)
+                'django.template.loaders.app_directories.Loader',
             ],
         },
     },
@@ -139,7 +147,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/api/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+_STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [_STATIC_DIR] if os.path.isdir(_STATIC_DIR) else []
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 WHITENOISE_USE_FINDERS = True
 STORAGES = {

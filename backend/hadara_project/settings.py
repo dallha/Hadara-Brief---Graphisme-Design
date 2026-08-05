@@ -207,8 +207,8 @@ JAZZMIN_SETTINGS = {
     
     "topmenu_links": [
         {"name": "Dashboard",  "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Portail Client", "url": "/espace-client", "new_window": True},
-        {"name": "Site Public", "url": "/", "new_window": True},
+        {"name": "Portail Client", "url": "https://hadara-design.com/espace-client", "new_window": True},
+        {"name": "Site Public", "url": "https://hadara-design.com/", "new_window": True},
     ],
     
     "show_sidebar": True,

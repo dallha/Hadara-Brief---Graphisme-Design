@@ -97,6 +97,29 @@ body.login-page .btn-primary:hover {
     border-bottom: 1px solid rgba(245,158,11,0.15) !important;
 }
 
+/* Assurer que le bouton hamburger et les icônes sont bien visibles (surtout sur mobile) */
+.main-header.navbar .nav-link {
+    color: var(--hadara-slate-100) !important;
+}
+.main-header.navbar .nav-link:hover {
+    color: var(--hadara-gold) !important;
+}
+
+/* Sur mobile, afficher correctement les liens du menu haut (topmenu_links) s'ils sont masqués */
+@media (max-width: 768px) {
+    .main-header.navbar .navbar-nav {
+        flex-direction: row;
+    }
+    .main-header.navbar .navbar-nav .nav-item {
+        display: block !important;
+    }
+    .main-header.navbar .nav-link {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        font-size: 0.9rem !important;
+    }
+}
+
 .brand-link {
     background: var(--hadara-slate-950) !important;
     border-bottom: 1px solid rgba(245,158,11,0.15) !important;

@@ -1,7 +1,10 @@
 from django.contrib import admin
 from .models import Brief, PortfolioItem, StoreProduct, Template
+from .admin_site import hadara_admin_site
 
-@admin.register(Brief)
+
+# ─── Classes ModelAdmin ────────────────────────────────────────────────────────
+
 class BriefAdmin(admin.ModelAdmin):
     list_display = ('id', 'client_name', 'email', 'whatsapp', 'status', 'created_at', 'quoted_price_fcfa')
     list_filter = ('status', 'created_at')
@@ -32,21 +35,34 @@ class BriefAdmin(admin.ModelAdmin):
         }),
     )
 
-@admin.register(PortfolioItem)
+
 class PortfolioItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'category', 'price_estimate', 'badge')
     list_filter = ('category',)
     search_fields = ('title', 'id')
 
-@admin.register(StoreProduct)
+
 class StoreProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'brand', 'category', 'price', 'status', 'visible', 'featured')
     list_filter = ('status', 'category', 'visible', 'featured')
     search_fields = ('name', 'brand', 'id')
     list_editable = ('status', 'visible', 'featured', 'price')
 
-@admin.register(Template)
+
 class TemplateAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'category', 'suggested_price_fcfa')
     list_filter = ('category',)
     search_fields = ('title',)
+
+
+# ─── Register in default admin (garde la compatibilité) ────────────────────────
+admin.site.register(Brief, BriefAdmin)
+admin.site.register(PortfolioItem, PortfolioItemAdmin)
+admin.site.register(StoreProduct, StoreProductAdmin)
+admin.site.register(Template, TemplateAdmin)
+
+# ─── Register in custom HadaraAdminSite ───────────────────────────────────────
+hadara_admin_site.register(Brief, BriefAdmin)
+hadara_admin_site.register(PortfolioItem, PortfolioItemAdmin)
+hadara_admin_site.register(StoreProduct, StoreProductAdmin)
+hadara_admin_site.register(Template, TemplateAdmin)

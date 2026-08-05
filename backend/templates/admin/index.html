@@ -1,153 +1,142 @@
-{% extends "admin/base_site.html" %}
-{% load i18n static dashboard_tags %}
-
-{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
-
-{% block content_title %}{% trans 'Dashboard' %}{% endblock %}
+{% extends "admin/index.html" %}
+{% load i18n %}
 
 {% block content %}
-    {% get_dashboard_stats as stats %}
 
-    <!-- ===== KPI CARDS ROW ===== -->
-    <div class="row mb-4">
+<!-- ===== KPI CARDS ===== -->
+<div class="row mb-4">
 
-        <!-- Nouveaux Briefs -->
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>{{ stats.pending_briefs }}</h3>
-                    <p>Nouveaux Briefs</p>
-                </div>
-                <div class="icon"><i class="fas fa-file-signature"></i></div>
-                <a href="{% url 'admin:api_brief_changelist' %}" class="small-box-footer">
-                    Traiter <i class="fas fa-arrow-circle-right"></i>
-                </a>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>{{ kpi_pending_briefs }}</h3>
+                <p>Nouveaux Briefs</p>
             </div>
-        </div>
-
-        <!-- CA Potentiel -->
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3 style="font-size:1.6rem;">{{ stats.total_revenue }} <sup style="font-size:14px">FCFA</sup></h3>
-                    <p>CA Potentiel</p>
-                </div>
-                <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
-                <a href="{% url 'admin:api_brief_changelist' %}" class="small-box-footer">
-                    Voir Briefs <i class="fas fa-arrow-circle-right"></i>
-                </a>
-            </div>
-        </div>
-
-        <!-- Produits Actifs -->
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>{{ stats.active_products }}</h3>
-                    <p>Produits Actifs</p>
-                </div>
-                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
-                <a href="{% url 'admin:api_storeproduct_changelist' %}" class="small-box-footer">
-                    Gérer <i class="fas fa-arrow-circle-right"></i>
-                </a>
-            </div>
-        </div>
-
-        <!-- Site Public -->
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>Live</h3>
-                    <p>Site Public</p>
-                </div>
-                <div class="icon"><i class="fas fa-globe"></i></div>
-                <a href="https://hadara-design.com" target="_blank" class="small-box-footer">
-                    Visiter <i class="fas fa-arrow-circle-right"></i>
-                </a>
-            </div>
+            <div class="icon"><i class="fas fa-file-signature"></i></div>
+            <a href="{% url 'hadara_admin:api_brief_changelist' %}" class="small-box-footer">
+                Traiter <i class="fas fa-arrow-circle-right"></i>
+            </a>
         </div>
     </div>
 
-    <!-- ===== DERNIERS BRIEFS ===== -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card card-primary card-outline">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-clock mr-1"></i> Derniers Briefs Reçus
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{% url 'admin:api_brief_changelist' %}" class="btn btn-sm btn-primary">
-                            Voir tout <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3 style="font-size:1.5rem;">{{ kpi_total_revenue }}&thinsp;<sup style="font-size:12px">FCFA</sup></h3>
+                <p>CA Potentiel Estimé</p>
+            </div>
+            <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+            <a href="{% url 'hadara_admin:api_brief_changelist' %}" class="small-box-footer">
+                Voir Briefs <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>{{ kpi_active_products }}</h3>
+                <p>Produits en Boutique</p>
+            </div>
+            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+            <a href="{% url 'hadara_admin:api_storeproduct_changelist' %}" class="small-box-footer">
+                Gérer <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>{{ kpi_all_briefs }}</h3>
+                <p>Briefs Total</p>
+            </div>
+            <div class="icon"><i class="fas fa-archive"></i></div>
+            <a href="{% url 'hadara_admin:api_brief_changelist' %}" class="small-box-footer">
+                Historique <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== DERNIERS BRIEFS ===== -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-clock mr-1"></i> Derniers Briefs Reçus
+                </h3>
+                <div class="card-tools">
+                    <a href="{% url 'hadara_admin:api_brief_changelist' %}" class="btn btn-sm btn-primary">
+                        Voir tout <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Client</th>
-                                    <th>Email</th>
-                                    <th>Statut</th>
-                                    <th>Devis</th>
-                                    <th>Date</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for brief in stats.latest_briefs %}
-                                <tr>
-                                    <td><strong>{{ brief.id }}</strong></td>
-                                    <td>{{ brief.client_name }}</td>
-                                    <td><small>{{ brief.email }}</small></td>
-                                    <td>
-                                        {% if brief.status == 'nouveau' %}
-                                            <span class="badge badge-warning">Nouveau</span>
-                                        {% elif brief.status == 'pending' %}
-                                            <span class="badge badge-warning">En attente</span>
-                                        {% elif brief.status == 'in_progress' %}
-                                            <span class="badge badge-info">En cours</span>
-                                        {% elif brief.status == 'completed' %}
-                                            <span class="badge badge-success">Terminé</span>
-                                        {% elif brief.status == 'rejected' %}
-                                            <span class="badge badge-danger">Refusé</span>
-                                        {% else %}
-                                            <span class="badge badge-secondary">{{ brief.status }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if brief.quoted_price_fcfa %}
-                                            <strong>{{ brief.quoted_price_fcfa }} FCFA</strong>
-                                        {% else %}
-                                            <em class="text-muted">À estimer</em>
-                                        {% endif %}
-                                    </td>
-                                    <td><small>{{ brief.created_at|date:"d/m/Y H:i" }}</small></td>
-                                    <td>
-                                        <a href="{% url 'admin:api_brief_change' brief.id %}" class="btn btn-xs btn-primary">
-                                            <i class="fas fa-edit"></i> Ouvrir
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted">
-                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                        Aucun brief reçu pour le moment.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Client</th>
+                                <th>Email</th>
+                                <th>Statut</th>
+                                <th>Devis</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for brief in kpi_latest_briefs %}
+                            <tr>
+                                <td><strong>{{ brief.id }}</strong></td>
+                                <td>{{ brief.client_name }}</td>
+                                <td><small>{{ brief.email }}</small></td>
+                                <td>
+                                    {% if brief.status == 'nouveau' or brief.status == 'pending' %}
+                                        <span class="badge badge-warning">Nouveau</span>
+                                    {% elif brief.status == 'in_progress' %}
+                                        <span class="badge badge-info">En cours</span>
+                                    {% elif brief.status == 'completed' %}
+                                        <span class="badge badge-success">Terminé</span>
+                                    {% elif brief.status == 'rejected' %}
+                                        <span class="badge badge-danger">Refusé</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">{{ brief.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if brief.quoted_price_fcfa %}
+                                        <strong>{{ brief.quoted_price_fcfa }} FCFA</strong>
+                                    {% else %}
+                                        <em class="text-muted">À estimer</em>
+                                    {% endif %}
+                                </td>
+                                <td><small>{{ brief.created_at|date:"d/m/Y H:i" }}</small></td>
+                                <td>
+                                    <a href="{% url 'hadara_admin:api_brief_change' brief.id %}" class="btn btn-xs btn-primary">
+                                        <i class="fas fa-edit"></i> Ouvrir
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                    Aucun brief pour le moment.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- ===== DASHBOARD STANDARD JAZZMIN (App list + Recent Actions) ===== -->
-    {{ block.super }}
+<!-- ===== DASHBOARD JAZZMIN STANDARD (App list + Recent Actions) ===== -->
+{{ block.super }}
 
 {% endblock %}

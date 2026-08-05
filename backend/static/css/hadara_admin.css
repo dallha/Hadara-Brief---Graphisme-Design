@@ -1,19 +1,25 @@
-/* ===== HADARA ADMIN - Custom CSS ===== */
+/* ================================================================
+   HADARA ADMIN — Custom Theme CSS
+   Palette : Slate-950 background · Amber-400/500 accent · Or doré
+   ================================================================ */
 
-/* ─── Page de connexion : logo compact ─────────────────────────────────────── */
-.login-logo,
-.login-logo a {
-    font-size: 0 !important; /* cache le texte éventuel */
+/* ─── Variables de couleurs Hadara ─────────────────────────────── */
+:root {
+    --hadara-gold:        #f59e0b;
+    --hadara-gold-light:  #fbbf24;
+    --hadara-gold-dark:   #d97706;
+    --hadara-slate-950:   #020617;
+    --hadara-slate-900:   #0f172a;
+    --hadara-slate-800:   #1e293b;
+    --hadara-slate-700:   #334155;
+    --hadara-slate-400:   #94a3b8;
+    --hadara-slate-100:   #f1f5f9;
 }
 
-.login-logo img {
-    max-width: 120px !important;
-    max-height: 80px !important;
-    width: auto !important;
-    height: auto !important;
-    object-fit: contain;
-    margin: 0 auto;
-    display: block;
+/* ─── Page de connexion ─────────────────────────────────────────── */
+body.login-page {
+    background: var(--hadara-slate-950) !important;
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.08) 0%, transparent 70%) !important;
 }
 
 .login-box {
@@ -21,32 +27,215 @@
     max-width: 95vw;
 }
 
-/* Réduction de l'espace au-dessus du formulaire sur petits écrans */
-@media (max-height: 700px) {
-    .login-box {
-        margin-top: 10px !important;
-    }
-    .login-logo {
-        margin-bottom: 10px !important;
-    }
-    .login-logo img {
-        max-height: 60px !important;
-    }
+.login-logo {
+    margin-bottom: 16px !important;
 }
 
-/* ─── Navbar & Sidebar : logo compact ──────────────────────────────────────── */
-.brand-image {
-    max-height: 33px !important;
+.login-logo img {
+    max-width: 110px !important;
+    max-height: 75px !important;
     width: auto !important;
-    margin-right: 8px;
+    height: auto !important;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 0 12px rgba(245,158,11,0.3));
 }
 
-/* ─── KPI Cards : typographie propre ───────────────────────────────────────── */
-.small-box h3 {
-    font-weight: 700;
+/* Boîte de connexion */
+.login-card-body,
+.card.login-card-body {
+    background: var(--hadara-slate-800) !important;
+    border: 1px solid rgba(245,158,11,0.2) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 30px rgba(245,158,11,0.05) !important;
 }
 
-.small-box .icon {
+.login-card-body .form-control,
+.card.login-card-body .form-control {
+    background: var(--hadara-slate-900) !important;
+    border-color: var(--hadara-slate-700) !important;
+    color: var(--hadara-slate-100) !important;
+    border-radius: 8px !important;
+}
+
+.login-card-body .form-control:focus,
+.card.login-card-body .form-control:focus {
+    border-color: var(--hadara-gold) !important;
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.15) !important;
+}
+
+/* Bouton Se connecter → Amber/Gold */
+.login-card-body .btn-primary,
+.card.login-card-body .btn-primary,
+body.login-page .btn-primary {
+    background: linear-gradient(135deg, var(--hadara-gold) 0%, var(--hadara-gold-dark) 100%) !important;
+    border-color: var(--hadara-gold-dark) !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 15px rgba(245,158,11,0.3) !important;
+    transition: all 0.2s ease !important;
+}
+
+.login-card-body .btn-primary:hover,
+body.login-page .btn-primary:hover {
+    background: linear-gradient(135deg, var(--hadara-gold-light) 0%, var(--hadara-gold) 100%) !important;
+    box-shadow: 0 6px 20px rgba(245,158,11,0.5) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Texte de bienvenue */
+.login-box-msg {
+    color: var(--hadara-slate-400) !important;
+    font-size: 0.9rem !important;
+}
+
+/* ─── Navbar ────────────────────────────────────────────────────── */
+.main-header.navbar {
+    background: var(--hadara-slate-900) !important;
+    border-bottom: 1px solid rgba(245,158,11,0.15) !important;
+}
+
+.brand-link {
+    background: var(--hadara-slate-950) !important;
+    border-bottom: 1px solid rgba(245,158,11,0.15) !important;
+}
+
+.brand-image {
+    max-height: 32px !important;
+    width: auto !important;
+    filter: drop-shadow(0 0 6px rgba(245,158,11,0.2));
+}
+
+/* ─── Sidebar ───────────────────────────────────────────────────── */
+.main-sidebar {
+    background: var(--hadara-slate-950) !important;
+}
+
+.nav-sidebar .nav-link.active,
+.nav-sidebar .nav-link:hover {
+    background: rgba(245,158,11,0.12) !important;
+    color: var(--hadara-gold) !important;
+    border-left: 3px solid var(--hadara-gold) !important;
+}
+
+/* ─── KPI Cards (small-box) — couleurs Hadara ───────────────────── */
+
+/* Remplace le jaune Bootstrap (Nouveaux Briefs) */
+.small-box.bg-warning {
+    background: linear-gradient(135deg, #92400e 0%, #b45309 50%, var(--hadara-gold-dark) 100%) !important;
+    color: #fff !important;
+}
+
+/* Remplace le vert Bootstrap (CA Potentiel) */
+.small-box.bg-success {
+    background: linear-gradient(135deg, var(--hadara-slate-800) 0%, var(--hadara-slate-700) 100%) !important;
+    border: 1px solid rgba(245,158,11,0.4) !important;
+    color: #fff !important;
+}
+.small-box.bg-success .inner h3,
+.small-box.bg-success .inner p {
+    color: var(--hadara-gold-light) !important;
+}
+
+/* Remplace le bleu Bootstrap (Produits en Boutique) */
+.small-box.bg-info {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%) !important;
+    color: #fff !important;
+}
+
+/* Remplace le rouge Bootstrap (Total Briefs) */
+.small-box.bg-danger {
+    background: linear-gradient(135deg, var(--hadara-slate-800) 0%, #1e293b 100%) !important;
+    border: 1px solid rgba(148,163,184,0.2) !important;
+    color: #fff !important;
+}
+
+/* Pied des KPI cards */
+.small-box .small-box-footer {
+    background: rgba(0,0,0,0.25) !important;
+    color: rgba(255,255,255,0.8) !important;
+    transition: background 0.2s;
+}
+.small-box .small-box-footer:hover {
+    background: rgba(245,158,11,0.3) !important;
+    color: #fff !important;
+}
+
+/* Icônes des KPI cards */
+.small-box > .icon {
     font-size: 70px !important;
-    top: 5px !important;
+    top: 10px !important;
+    opacity: 0.25;
+}
+
+/* ─── Cards (tableau briefs, app list) ──────────────────────────── */
+.card {
+    background: var(--hadara-slate-900) !important;
+    border-color: rgba(245,158,11,0.15) !important;
+    border-radius: 12px !important;
+}
+
+.card-header {
+    background: var(--hadara-slate-800) !important;
+    border-bottom: 1px solid rgba(245,158,11,0.15) !important;
+    color: var(--hadara-gold-light) !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.card-primary.card-outline {
+    border-top: 3px solid var(--hadara-gold) !important;
+}
+
+/* ─── Tableau des briefs ────────────────────────────────────────── */
+.table {
+    color: var(--hadara-slate-100) !important;
+}
+
+.table thead th {
+    background: var(--hadara-slate-800) !important;
+    border-color: rgba(245,158,11,0.1) !important;
+    color: var(--hadara-gold) !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+.table tbody td {
+    border-color: rgba(255,255,255,0.05) !important;
+}
+
+.table-hover tbody tr:hover {
+    background: rgba(245,158,11,0.05) !important;
+}
+
+/* Badges statuts */
+.badge-warning { background-color: var(--hadara-gold-dark) !important; color: #fff !important; }
+.badge-info    { background-color: #1d4ed8 !important; }
+.badge-success { background-color: #059669 !important; }
+.badge-danger  { background-color: #dc2626 !important; }
+
+/* ─── Boutons ───────────────────────────────────────────────────── */
+.btn-primary {
+    background: var(--hadara-gold) !important;
+    border-color: var(--hadara-gold-dark) !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+.btn-primary:hover {
+    background: var(--hadara-gold-light) !important;
+    border-color: var(--hadara-gold) !important;
+    color: #0f172a !important;
+}
+
+.btn-success {
+    background: #059669 !important;
+    border-color: #047857 !important;
+}
+
+/* ─── Responsive mobile ─────────────────────────────────────────── */
+@media (max-height: 700px) {
+    .login-logo { margin-bottom: 10px !important; }
+    .login-logo img { max-height: 55px !important; }
 }

@@ -50,7 +50,10 @@ class BriefAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         try:
-            return super().change_view(request, object_id, form_url, extra_context)
+            response = super().change_view(request, object_id, form_url, extra_context)
+            if hasattr(response, 'render') and callable(response.render):
+                response.render()
+            return response
         except Exception as e:
             import traceback
             from django.http import HttpResponse

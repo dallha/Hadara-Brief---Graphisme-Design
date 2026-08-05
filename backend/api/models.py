@@ -61,7 +61,7 @@ class Brief(models.Model):
         if not self.id:
             from django.db import transaction
             with transaction.atomic():
-                # Lock the table/row to prevent race conditions during ID generation
+                # Lock the table to prevent race conditions during ID generation
                 last_brief = Brief.objects.select_for_update().order_by('-created_at').first()
                 if last_brief and (last_brief.id.startswith('HAD-') or last_brief.id.startswith('HDR-')):
                     try:
@@ -71,6 +71,8 @@ class Brief(models.Model):
                         self.id = "HAD-0001"
                 else:
                     self.id = "HAD-0001"
+                super().save(*args, **kwargs)  # Dans l'atomic block — rollback si échec
+            return
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -121,6 +123,8 @@ class PortfolioItem(models.Model):
                         self.id = "PRT-0001"
                 else:
                     self.id = "PRT-0001"
+                super().save(*args, **kwargs)  # Dans l'atomic block — rollback si échec
+            return
         super().save(*args, **kwargs)
 
     def __str__(self):

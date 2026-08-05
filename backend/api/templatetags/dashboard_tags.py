@@ -1,6 +1,6 @@
 from django import template
 from django.db.models import Sum
-from api.models import Brief, StoreProduct
+from ..models import Brief, StoreProduct
 
 register = template.Library()
 

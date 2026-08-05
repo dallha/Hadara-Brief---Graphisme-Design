@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import dj_database_url
+from django.core.management.utils import get_random_secret_key
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,10 +27,19 @@ load_dotenv(BASE_DIR / '.env')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-from django.core.management.utils import get_random_secret_key
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', get_random_secret_key())
+# Si SECRET_KEY absent de l'env → on l'alerte en prod et on génère temporairement en dev
+_SECRET_KEY = os.environ.get('SECRET_KEY')
+if not _SECRET_KEY:
+    if os.environ.get('DEBUG', 'False').lower() != 'true':
+        # En production sans SECRET_KEY → erreur explicite
+        raise ImproperlyConfigured(
+            'SECRET_KEY must be set as an environment variable in production. '
+            'Add it to your Render dashboard under Environment Variables.'
+        )
+    # En développement local seulement
+    _SECRET_KEY = get_random_secret_key()
+SECRET_KEY = _SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
@@ -92,12 +104,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'hadara_project.wsgi.application'
 
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-import os
-import dj_database_url
-from django.core.exceptions import ImproperlyConfigured
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if not DATABASE_URL and not DEBUG:

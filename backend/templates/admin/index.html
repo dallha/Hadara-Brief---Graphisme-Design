@@ -87,8 +87,13 @@
                     <table class="table table-hover table-striped mb-0">
                         <thead>
                             <tr>
-                                <th>ID</th><th>Client</th><th>Email</th>
-                                <th>Statut</th><th>Devis</th><th>Date</th><th></th>
+                                <th>ID</th>
+                                <th>Client</th>
+                                <th class="d-none d-md-table-cell">Email</th>
+                                <th>Statut</th>
+                                <th class="d-none d-sm-table-cell">Devis</th>
+                                <th class="d-none d-lg-table-cell">Date</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -96,7 +101,7 @@
                             <tr>
                                 <td><strong>{{ brief.id }}</strong></td>
                                 <td>{{ brief.client_name }}</td>
-                                <td><small>{{ brief.email }}</small></td>
+                                <td class="d-none d-md-table-cell"><small>{{ brief.email }}</small></td>
                                 <td>
                                     {% if brief.status == 'nouveau' or brief.status == 'pending' %}
                                         <span class="badge badge-warning">Nouveau</span>
@@ -110,13 +115,13 @@
                                         <span class="badge badge-secondary">{{ brief.status }}</span>
                                     {% endif %}
                                 </td>
-                                <td>
+                                <td class="d-none d-sm-table-cell">
                                     {% if brief.quoted_price_fcfa %}
                                         <strong>{{ brief.quoted_price_fcfa }} FCFA</strong>
                                     {% else %}<em class="text-muted">À estimer</em>{% endif %}
                                 </td>
-                                <td><small>{{ brief.created_at|date:"d/m/Y" }}</small></td>
-                                <td>
+                                <td class="d-none d-lg-table-cell"><small>{{ brief.created_at|date:"d/m/Y" }}</small></td>
+                                <td class="text-right">
                                     <a href="{% url 'admin:api_brief_change' brief.id %}" class="btn btn-xs btn-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>

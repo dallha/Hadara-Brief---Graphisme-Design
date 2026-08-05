@@ -198,9 +198,12 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Hadara Admin",
     "site_logo": "img/logo.png",
     "login_logo": "img/logo.png",
-    "site_logo_classes": "img-circle",
-    "welcome_sign": "Bienvenue sur l'administration Hadara Studio",
-    "copyright": "Hadara Studio",
+    "login_logo_dark": "img/logo.png",
+    "site_logo_classes": "img-fluid",
+    "login_logo_classes": "img-fluid",  # Jazzmin appliquera ces classes à l'img
+    "custom_css": "css/hadara_admin.css",  # Notre CSS qui limite la taille
+    "welcome_sign": "Bienvenue — Hadara Studio",
+    "copyright": "Hadara Studio © 2026",
     
     "topmenu_links": [
         {"name": "Dashboard",  "url": "admin:index", "permissions": ["auth.view_user"]},

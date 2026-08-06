@@ -48,6 +48,20 @@ class BriefAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'created_at', 'ai_analysis')
     ordering = ('-created_at',)
 
+    actions = ['mark_devis_envoye', 'mark_en_creation', 'mark_termine']
+
+    @admin.action(description='Marquer comme "Devis Envoyé"')
+    def mark_devis_envoye(self, request, queryset):
+        queryset.update(status='devis_envoye')
+
+    @admin.action(description='Marquer comme "En Création"')
+    def mark_en_creation(self, request, queryset):
+        queryset.update(status='en_creation')
+
+    @admin.action(description='Marquer comme "Terminé"')
+    def mark_termine(self, request, queryset):
+        queryset.update(status='termine')
+
     fieldsets = (
         ('Informations Client', {
             'fields': ('id', 'client_name', 'organization', 'email', 'whatsapp', 'city_country')

@@ -7,50 +7,50 @@ class Brief(models.Model):
     status = models.CharField(max_length=50, default='nouveau')
     
     # 1. Client Info
-    client_name = models.CharField(max_length=200)
+    client_name = models.CharField(max_length=200, blank=True, null=True)
     organization = models.CharField(max_length=200, blank=True, null=True)
-    whatsapp = models.CharField(max_length=50)
-    email = models.EmailField()
-    city_country = models.CharField(max_length=200)
+    whatsapp = models.CharField(max_length=50, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    city_country = models.CharField(max_length=200, blank=True, null=True)
     
     # 2. Project Type
-    project_type = models.CharField(max_length=50)
+    project_type = models.CharField(max_length=50, blank=True, null=True)
     project_type_custom = models.CharField(max_length=200, blank=True, null=True)
     
     # 3. Context & Objectives
-    context_description = models.TextField()
-    primary_objective = models.TextField()
+    context_description = models.TextField(blank=True, null=True)
+    primary_objective = models.TextField(blank=True, null=True)
     
     # 4. Target Audience
-    target_audience = models.TextField()
+    target_audience = models.TextField(blank=True, null=True)
     target_audience_chips = models.JSONField(default=list)
     
     # 5. Message & Content
-    main_title = models.CharField(max_length=200)
-    full_text_content = models.TextField()
+    main_title = models.CharField(max_length=200, blank=True, null=True)
+    full_text_content = models.TextField(blank=True, null=True)
     
     # 6. Style & Direction
-    style_preferences = models.JSONField(default=list)
-    preferred_colors = models.CharField(max_length=200)
-    avoid_colors = models.CharField(max_length=200)
+    style_preferences = models.JSONField(default=list, blank=True, null=True)
+    preferred_colors = models.CharField(max_length=200, blank=True, null=True)
+    avoid_colors = models.CharField(max_length=200, blank=True, null=True)
     
     # 7. Technical Format
-    technical_format = models.CharField(max_length=50)
+    technical_format = models.CharField(max_length=50, blank=True, null=True)
     custom_dimensions = models.CharField(max_length=200, blank=True, null=True)
-    usage_type = models.CharField(max_length=20)
+    usage_type = models.CharField(max_length=20, blank=True, null=True)
     
     # 8. Budget & Deadline
-    budget_range = models.CharField(max_length=50)
-    desired_delivery_date = models.CharField(max_length=50) # kept as string since TS uses string date format
+    budget_range = models.CharField(max_length=50, blank=True, null=True)
+    desired_delivery_date = models.CharField(max_length=50, blank=True, null=True) # kept as string since TS uses string date format
     critical_deadline = models.CharField(max_length=50, blank=True, null=True)
     
     # 9. References & Files
     reference_links = models.TextField(blank=True, null=True)
-    attachments = models.JSONField(default=list)
+    attachments = models.JSONField(default=list, blank=True, null=True)
     
     # 10. Conditions Validation
-    accept_process = models.BooleanField(default=False)
-    accept_deadlines = models.BooleanField(default=False)
+    accept_process = models.BooleanField(default=False, blank=True, null=True)
+    accept_deadlines = models.BooleanField(default=False, blank=True, null=True)
     
     # Admin / Designer fields
     designer_notes = models.TextField(blank=True, null=True)

@@ -76,8 +76,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {selected360Brief && (
         <Project360Modal 
           brief={selected360Brief}
+          userRole={userRole}
           onClose={() => setSelected360Brief(null)}
           onUpdateStatus={onUpdateStatus}
+          onUpdateBriefEnriched={async () => {}}
+          onPrintBrief={() => window.print()}
         />
       )}
     </div>

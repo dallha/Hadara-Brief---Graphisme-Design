@@ -160,35 +160,15 @@ export const KanbanTab: React.FC<KanbanTabProps> = ({
                           </span>
                         </div>
 
-                        {/* Action Buttons: Prev Step, Open 360, Next Step */}
-                        <div className="pt-2 flex items-center justify-between gap-1">
-                          {prevStatus ? (
-                            <button
-                              onClick={() => onUpdateStatus(brief.id, prevStatus)}
-                              className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors"
-                              title="Reculer d’une étape"
-                            >
-                              <ArrowLeft className="w-3.5 h-3.5" />
-                            </button>
-                          ) : <div className="w-6" />}
-
+                        {/* Action Buttons: Open 360 */}
+                        <div className="pt-2 flex items-center justify-center gap-1">
                           <button
                             onClick={() => onOpenProject360(brief)}
                             className="px-2.5 py-1 rounded-lg bg-amber-400/10 hover:bg-amber-400/20 text-amber-400 font-bold text-[10px] transition-colors flex items-center space-x-1"
                           >
                             <Eye className="w-3 h-3" />
-                            <span>Fiche 360°</span>
+                            <span>Afficher Fiche 360°</span>
                           </button>
-
-                          {nextStatus ? (
-                            <button
-                              onClick={() => onUpdateStatus(brief.id, nextStatus)}
-                              className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors"
-                              title="Avancer d’une étape"
-                            >
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </button>
-                          ) : <div className="w-6" />}
                         </div>
                       </div>
                     );

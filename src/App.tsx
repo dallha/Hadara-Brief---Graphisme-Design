@@ -654,20 +654,7 @@ export default function App() {
                 ? <ErrorBoundary fallbackLabel="AdminDashboard">
                     <AdminDashboard 
                       briefs={briefs} 
-                      portfolioItems={portfolioItems}
-                      storeProducts={storeProducts}
                       onUpdateStatus={handleUpdateStatus} 
-                      onUpdateBriefEnriched={handleUpdateBriefEnriched}
-                      onAnalyzeWithAI={handleAnalyzeWithAI} 
-                      onDeleteBrief={handleDeleteBrief} 
-                      onPrintBrief={b => setPrintableBrief(b)} 
-                      onAddNewBriefDirectly={handleSubmitBrief} 
-                      onAddPortfolioItem={handleAddPortfolioItem}
-                      onUpdatePortfolioItem={handleUpdatePortfolioItem}
-                      onDeletePortfolioItem={handleDeletePortfolioItem}
-                      onAddStoreProduct={handleAddStoreProduct}
-                      onUpdateStoreProduct={handleUpdateStoreProduct}
-                      onDeleteStoreProduct={handleDeleteStoreProduct}
                       onLogout={handleAdminLogout} 
                     />
                   </ErrorBoundary>

@@ -290,11 +290,10 @@ Merci pour votre confiance !`;
               const StepIcon = step.icon;
 
               return (
-                <button
+                <div
                   key={step.key}
-                  onClick={() => handleStepClick(step.key)}
                   className={`relative z-10 flex flex-col items-center group transition-all ${
-                    isCurrent ? 'scale-105' : 'hover:scale-100'
+                    isCurrent ? 'scale-105' : ''
                   }`}
                 >
                   <div
@@ -308,17 +307,13 @@ Merci pour votre confiance !`;
                   >
                     <StepIcon className="w-4 h-4" />
                   </div>
-
-                  <span
-                    className={`text-[11px] font-bold mt-2 whitespace-nowrap ${
-                      isCurrent ? 'text-amber-400' : isPassed ? 'text-slate-200' : 'text-slate-500'
-                    }`}
-                  >
-                    {step.label}
-                  </span>
-                  <span className="text-[9px] text-slate-500 hidden sm:block">{step.desc}</span>
-                </button>
-              );
+                    <div className={`mt-3 text-center`}>
+                    <p className={`text-[10px] font-bold uppercase tracking-wider ${isCurrent ? 'text-amber-400' : isPassed ? 'text-slate-300' : 'text-slate-500'}`}>
+                      {step.label}
+                    </p>
+                    <p className={`text-[9px] mt-0.5 ${isCurrent ? 'text-slate-300' : 'text-slate-600'}`}>{step.desc}</p>
+                  </div>
+                </div> );
             })}
           </div>
         </div>
@@ -427,15 +422,12 @@ Merci pour votre confiance !`;
                   </h3>
 
                   <div className="space-y-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Montant Devisé (FCFA)</label>
-                      <input
-                        type="number"
-                        value={editPrice}
-                        onChange={(e) => setEditPrice(Number(e.target.value))}
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-sm font-mono font-bold focus:border-amber-400 focus:outline-none"
-                      />
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-slate-500 mb-1">Prix Devisé</p>
+                    <div className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-emerald-400 font-mono font-bold">
+                      {editPrice ? `${editPrice.toLocaleString('fr-FR')} FCFA` : 'Non devisé'}
                     </div>
+                  </div>
 
                     <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-xs space-y-1">
                       <div className="flex justify-between text-slate-400">
@@ -460,16 +452,12 @@ Merci pour votre confiance !`;
 
                 {/* Designer Notes */}
                 <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-                  <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-slate-400">
-                    Notes Interne Graphiste / Admin
-                  </h3>
-                  <textarea
-                    rows={4}
-                    value={editNotes}
-                    onChange={(e) => setEditNotes(e.target.value)}
-                    placeholder="Instructions particulières, détails d'impression..."
-                    className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs focus:border-amber-400 focus:outline-none"
-                  />
+                  <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-amber-400" /> Notes du Designer
+                </h3>
+                <div className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-slate-300 text-xs min-h-[100px]">
+                  {editNotes || <span className="text-slate-600 italic">Aucune note.</span>}
+                </div>
                 </div>
 
               </div>
@@ -480,77 +468,7 @@ Merci pour votre confiance !`;
           {activeTab === 'versions' && (
             <div className="space-y-6">
               
-              {/* Form: Add Deliverable Version */}
-              <form onSubmit={handleAddVersion} className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
-                <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-amber-400" /> Ajouter une nouvelle version (V{versions.length + 1})
-                </h3>
-
-                <div className="space-y-3">
-                  {/* File Upload Selector */}
-                  <div className="relative">
-                    <input
-                      type="file"
-                      id="version-file-input"
-                      accept="image/*,.pdf"
-                      onChange={handleFileVersionUpload}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="version-file-input"
-                      className="cursor-pointer w-full p-4 rounded-xl bg-slate-900 border-2 border-dashed border-amber-400/40 hover:border-amber-400 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs font-bold text-amber-400 transition-colors text-center"
-                    >
-                      <Upload className="w-5 h-5 shrink-0" />
-                      <span>Téléverser une image (.png, .jpg, .jpeg, .webp) ou PDF</span>
-                    </label>
-                  </div>
-
-                  {/* Thumbnail Preview Box */}
-                  {versionFilePreview && versionFilePreview.startsWith('data:image/') && (
-                    <div className="relative p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-3">
-                      <img src={versionFilePreview} alt="Aperçu" className="w-14 h-14 object-cover rounded-lg border border-slate-700" />
-                      <div className="flex-1 text-xs">
-                        <span className="text-emerald-400 font-bold block">Image chargée avec succès !</span>
-                        <span className="text-[10px] text-slate-400">Prête pour publication sur l'Espace Client</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => { setVersionFilePreview(null); setNewVersionUrl(''); }}
-                        className="p-1 text-slate-400 hover:text-slate-200"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      placeholder="Titre de la version (ex: Maquette V1 - Option A)"
-                      value={newVersionTitle}
-                      onChange={(e) => setNewVersionTitle(e.target.value)}
-                      className="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:border-amber-400 focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Ou lien URL externe (Drive, Dropbox, Figma...)"
-                      value={newVersionUrl}
-                      onChange={(e) => setNewVersionUrl(e.target.value)}
-                      className="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:border-amber-400 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-md flex items-center space-x-2 transition-all"
-                  >
-                    <Layers className="w-4 h-4" />
-                    <span>Publier cette version (Client Portal)</span>
-                  </button>
-                </div>
-              </form>
+              {/* Form: Add Deliverable Version (Removed - Django Admin Only) */}
 
               {/* Versions List */}
               <div className="space-y-3">
@@ -583,16 +501,11 @@ Merci pour votre confiance !`;
                           <span>Voir le Fichier</span>
                         </a>
 
-                        <select
-                          value={ver.status}
-                          onChange={(e) => handleUpdateVersionStatus(ver.id, e.target.value as any)}
+                        <span
                           className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-200 focus:outline-none"
                         >
-                          <option value="draft">Brouillon interne</option>
-                          <option value="client_review">En révision client</option>
-                          <option value="approved">Approuvé ✅</option>
-                          <option value="rejected">À corriger ❌</option>
-                        </select>
+                          {ver.status}
+                        </span>
                       </div>
                     </div>
                   ))
@@ -619,22 +532,19 @@ Merci pour votre confiance !`;
 
                 <div className="space-y-2 pt-2">
                   {checklist.map((item) => (
-                    <button
+                    <div
                       key={item.id}
-                      onClick={() => handleToggleChecklist(item.id)}
-                      className={`w-full p-3.5 rounded-xl border text-left flex items-center space-x-3 transition-all ${
-                        item.completed
-                          ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-200'
-                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
-                      }`}
+                      className="flex items-center space-x-3 p-3 rounded-xl bg-slate-900/50 border border-slate-800/80 transition-colors"
                     >
                       <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 border ${
-                        item.completed ? 'bg-emerald-500 border-emerald-400 text-slate-950' : 'border-slate-600'
+                        item.completed ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-950 border-slate-700'
                       }`}>
-                        {item.completed && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        {item.completed && <Check className="w-3.5 h-3.5 text-slate-950 font-bold" />}
                       </div>
-                      <span className="text-xs font-semibold">{item.label}</span>
-                    </button>
+                      <span className={`text-xs ${item.completed ? 'text-slate-300 line-through opacity-70' : 'text-slate-200'}`}>
+                        {item.label}
+                      </span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -647,25 +557,9 @@ Merci pour votre confiance !`;
               
               {/* Left Column: Comments Feed */}
               <div className="space-y-4">
-                <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-4">
                   <MessageSquare className="w-4 h-4 text-amber-400" /> Discussion & Notes de Révision
                 </h3>
-
-                <form onSubmit={handleAddComment} className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Ajouter une remarque ou une instruction..."
-                    value={newCommentText}
-                    onChange={(e) => setNewCommentText(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-amber-400 focus:outline-none"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shrink-0"
-                  >
-                    Envoyer
-                  </button>
-                </form>
 
                 <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
                   {comments.length === 0 ? (
@@ -717,26 +611,15 @@ Merci pour votre confiance !`;
             <Printer className="w-4 h-4 text-amber-400" />
             <span>Imprimer la Fiche PDF</span>
           </button>
-
           <div className="flex items-center space-x-3 w-full sm:w-auto">
             <button
               onClick={onClose}
-              className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-900 text-slate-400 hover:text-slate-200 text-xs font-bold transition-colors"
+              className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-amber-400 text-slate-900 font-bold hover:bg-amber-300 transition-colors"
             >
               Fermer
             </button>
-
-            <button
-              onClick={handleSaveAll}
-              disabled={isSaving}
-              className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-lg transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
-            >
-              {isSaving ? <Clock className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-              <span>{isSaving ? 'Enregistrement...' : 'Enregistrer les Modifications'}</span>
-            </button>
           </div>
         </div>
-
       </div>
     </div>
   );

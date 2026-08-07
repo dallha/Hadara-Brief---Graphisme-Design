@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FolderKanban, Home, PlusCircle, UserCheck, Sun, Moon, Laptop, ChevronDown, Check, Sparkles, User, Rocket, ShoppingBag } from 'lucide-react';
+import { FolderKanban, Home, PlusCircle, UserCheck, Sun, Moon, Laptop, ChevronDown, Check, Sparkles, User, Rocket, ShoppingBag, Wand2 } from 'lucide-react';
 import { HadaraLogo } from './HadaraLogo';
 import { cn } from '../utils/cn';
 
@@ -77,6 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'home', label: 'Accueil', icon: Home },
     { id: 'portfolio', label: 'Prestations', icon: FolderKanban },
     { id: 'store', label: 'Boutique', icon: ShoppingBag },
+    { id: 'tools', label: 'Outils', icon: Wand2 },
     { id: 'cv', label: 'CV', icon: UserCheck },
     { id: 'client', label: 'Suivi', icon: User },
   ];

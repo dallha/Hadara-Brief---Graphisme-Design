@@ -18,6 +18,7 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { SplashEntry } from './components/SplashEntry';
 import { RoadmapView } from './components/RoadmapView';
 import { HadaraStore } from './components/HadaraStore';
+import { BgRemovalTool } from './components/BgRemovalTool';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
 
@@ -80,6 +81,7 @@ function pathToTab(pathname: string): string {
   if (pathname.startsWith('/cv')) return 'cv';
   if (pathname.startsWith('/confirmation')) return 'confirmation';
   if (pathname.startsWith('/espace-client') || pathname.startsWith('/portail-client') || pathname.startsWith('/suivi')) return 'client';
+  if (pathname.startsWith('/outils')) return 'tools';
   if (pathname.startsWith('/studio') || pathname === '/') return 'home';
   return 'home';
 }
@@ -171,7 +173,7 @@ export default function App() {
     const routes: Record<string, string> = {
       home: '/studio', brief: '/brief', portfolio: '/portfolio', store: '/boutique',
       admin: '/admin', cv: '/cv', confirmation: '/confirmation',
-      client: '/espace-client',
+      client: '/espace-client', tools: '/outils/detourage',
     };
     navigate(routes[tab] || '/studio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -637,6 +639,9 @@ export default function App() {
             } />
             <Route path="/store" element={
               <HadaraStore products={storeProducts} />
+            } />
+            <Route path="/outils/detourage" element={
+              <BgRemovalTool onGoToBrief={() => goTo('brief')} />
             } />
             <Route path="/roadmap" element={
               <RoadmapView onGoToBrief={() => goTo('brief')} />

@@ -11,6 +11,7 @@ import {
   Trash2,
   Sparkles
 } from 'lucide-react';
+import { ToolsNav } from './ToolsNav';
 
 interface BgRemovalToolProps {
   onGoToBrief: () => void;
@@ -112,6 +113,7 @@ export const BgRemovalTool: React.FC<BgRemovalToolProps> = ({ onGoToBrief }) => 
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-4 pt-8 sm:pt-16"
       >
+        <ToolsNav />
         <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold">
           <Sparkles className="w-4 h-4" />
           <span>Outils Gratuits Hadara Studio</span>

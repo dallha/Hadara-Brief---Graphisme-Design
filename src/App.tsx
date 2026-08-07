@@ -19,6 +19,7 @@ import { SplashEntry } from './components/SplashEntry';
 import { RoadmapView } from './components/RoadmapView';
 import { HadaraStore } from './components/HadaraStore';
 import { BgRemovalTool } from './components/BgRemovalTool';
+import { QRCodeTool } from './components/QRCodeTool';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
 
@@ -173,7 +174,7 @@ export default function App() {
     const routes: Record<string, string> = {
       home: '/studio', brief: '/brief', portfolio: '/portfolio', store: '/boutique',
       admin: '/admin', cv: '/cv', confirmation: '/confirmation',
-      client: '/espace-client', tools: '/outils/detourage',
+      client: '/espace-client', tools: '/outils',
     };
     navigate(routes[tab] || '/studio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -641,6 +642,13 @@ export default function App() {
               <HadaraStore products={storeProducts} />
             } />
             <Route path="/outils/detourage" element={
+              <BgRemovalTool onGoToBrief={() => goTo('brief')} />
+            } />
+            <Route path="/outils/qr-code" element={
+              <QRCodeTool onGoToBrief={() => goTo('brief')} />
+            } />
+            {/* Redirection /outils par défaut vers detourrage ou une page menu */}
+            <Route path="/outils" element={
               <BgRemovalTool onGoToBrief={() => goTo('brief')} />
             } />
             <Route path="/roadmap" element={

@@ -68,7 +68,10 @@ export const BgRemovalTool: React.FC<BgRemovalToolProps> = ({ onGoToBrief }) => 
     setProgress(10); // Start progress
 
     try {
-      const blob = await removeBackground(sourceImage, {
+      // Redimensionnement automatique pour accélérer l'IA (max 1024px)
+      const resizedSource = await resizeImage(sourceImage, 1024);
+      
+      const blob = await removeBackground(resizedSource, {
         progress: (key, current, total) => {
           // simple progress estimation
           const p = Math.round((current / total) * 100);

@@ -58,7 +58,7 @@ def analyze_brief_with_ai(brief):
     }
 
     payload = {
-        "model": "llama3-8b-8192",  # Modèle gratuit et très rapide chez Groq
+        "model": "llama-3.1-8b-instant",  # Modèle gratuit et très rapide chez Groq
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}

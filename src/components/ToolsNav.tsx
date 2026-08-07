@@ -10,7 +10,7 @@ export const ToolsNav: React.FC = () => {
   const links = [
     { name: "Détourage Image", path: "/outils/detourage", icon: <Wand2 className="w-4 h-4" /> },
     { name: "QR Code", path: "/outils/qr-code", icon: <QrCode className="w-4 h-4" /> },
-    // { name: "Extracteur de texte", path: "/outils/ocr", icon: <FileText className="w-4 h-4" /> },
+    { name: "Extraire Texte", path: "/outils/ocr", icon: <FileText className="w-4 h-4" /> },
   ];
 
   return (

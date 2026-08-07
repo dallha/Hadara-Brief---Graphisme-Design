@@ -28,6 +28,7 @@
     "react-parallax-tilt": "^1.7.337",
     "react-router-dom": "^6.30.4",
     "tailwind-merge": "^3.6.0",
+    "tesseract.js": "^7.0.0",
     "typewriter-effect": "^2.22.0"
   },
   "devDependencies": {

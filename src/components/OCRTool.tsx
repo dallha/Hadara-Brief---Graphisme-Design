@@ -67,7 +67,7 @@ export const OCRTool: React.FC<OCRToolProps> = ({ onGoToBrief }) => {
     try {
       const result = await Tesseract.recognize(
         sourceImage,
-        'fra', // French language by default
+        'fra+eng+ara', // French, English and Arabic support
         {
           logger: m => {
             if (m.status === 'recognizing text') {

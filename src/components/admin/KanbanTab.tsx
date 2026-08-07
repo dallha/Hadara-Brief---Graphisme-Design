@@ -138,7 +138,7 @@ export const KanbanTab: React.FC<KanbanTabProps> = ({
                         {/* Title & Client */}
                         <div>
                           <h4 
-                            onClick={() => onOpenProject360(brief)}
+                            onClick={() => window.open(`https://hadara-backend.onrender.com/admin/api/brief/${brief.id}/change/`, '_blank')}
                             className="text-xs font-bold text-slate-100 group-hover:text-amber-300 transition-colors cursor-pointer line-clamp-2 leading-snug"
                           >
                             "{brief.mainTitle}"
@@ -160,14 +160,14 @@ export const KanbanTab: React.FC<KanbanTabProps> = ({
                           </span>
                         </div>
 
-                        {/* Action Buttons: Open 360 */}
+                        {/* Action Buttons: Django Admin */}
                         <div className="pt-2 flex items-center justify-center gap-1">
                           <button
-                            onClick={() => onOpenProject360(brief)}
-                            className="px-2.5 py-1 rounded-lg bg-amber-400/10 hover:bg-amber-400/20 text-amber-400 font-bold text-[10px] transition-colors flex items-center space-x-1"
+                            onClick={() => window.open(`https://hadara-backend.onrender.com/admin/api/brief/${brief.id}/change/`, '_blank')}
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 font-bold text-[10px] transition-all flex items-center justify-center space-x-1"
                           >
-                            <Eye className="w-3 h-3" />
-                            <span>Afficher Fiche 360°</span>
+                            <ShieldCheck className="w-3 h-3" />
+                            <span>Gérer dans l'Admin</span>
                           </button>
                         </div>
                       </div>

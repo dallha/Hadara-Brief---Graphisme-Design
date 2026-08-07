@@ -10,6 +10,7 @@ export const PROJECT_TYPES: { id: ProjectType; label: string; desc: string; icon
   { id: 'reseaux_sociaux', label: 'Réseaux Sociaux', desc: 'Community management, visibilité', icon: '📱' },
   { id: 'pack_starter', label: 'Pack "Starter"', desc: 'Affiche + Visuel Réseaux Sociaux', icon: '🚀' },
   { id: 'pack_event', label: 'Pack "Event Global"', desc: 'Affiche + Bâche + Flyer + Story IG', icon: '👑' },
+  { id: 'pack_hajj_oumrah', label: 'Pack "Voyage / Pèlerinage"', desc: 'Badges, Écharpes, Sacoches, etc.', icon: '🕋' },
   { id: 'autre', label: 'Autre projet sur mesure', desc: 'Besoin spécifique', icon: '⚙️' },
 ];
 

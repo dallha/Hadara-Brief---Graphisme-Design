@@ -17,6 +17,7 @@ export type ProjectType =
   | 'reseaux_sociaux'
   | 'pack_starter'
   | 'pack_event'
+  | 'pack_hajj_oumrah'
   | 'autre';
 
 export type StylePreference = 

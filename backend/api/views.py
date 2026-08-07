@@ -224,6 +224,20 @@ def chat_api_view(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
+def ocr_correct_api_view(request):
+    try:
+        raw_text = request.data.get('text', '')
+        if not raw_text:
+            return Response({'error': 'Texte manquant'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        from .ai_utils import correct_ocr_text
+        corrected_text = correct_ocr_text(raw_text)
+        
+        return Response({'text': corrected_text})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
 def ai_analyze_brief(request, pk):
     try:
         brief = Brief.objects.get(pk=pk)

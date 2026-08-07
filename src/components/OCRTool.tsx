@@ -10,10 +10,13 @@ import {
   Loader2,
   Trash2,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  RefreshCw
 } from 'lucide-react';
 import { ToolsNav } from './ToolsNav';
 import { cn } from '../utils/cn';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 interface OCRToolProps {
   onGoToBrief: () => void;
@@ -27,6 +30,7 @@ export const OCRTool: React.FC<OCRToolProps> = ({ onGoToBrief }) => {
   const [statusText, setStatusText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isCorrecting, setIsCorrecting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,6 +91,30 @@ export const OCRTool: React.FC<OCRToolProps> = ({ onGoToBrief }) => {
     } finally {
       setIsProcessing(false);
       setStatusText('');
+    }
+  };
+
+  const correctWithAI = async () => {
+    if (!extractedText) return;
+    setIsCorrecting(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_URL}/ocr-correct/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: extractedText })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setExtractedText(data.text);
+      } else {
+        setError("Erreur lors de la correction par l'IA.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Impossible de contacter le serveur d'IA.");
+    } finally {
+      setIsCorrecting(false);
     }
   };
 
@@ -168,18 +196,34 @@ export const OCRTool: React.FC<OCRToolProps> = ({ onGoToBrief }) => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-amber-400 uppercase tracking-wider">Texte Extrait</span>
-                  {extractedText && (
-                    <button 
-                      onClick={copyToClipboard} 
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors",
-                        copied ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-400 text-slate-950 hover:bg-amber-300"
-                      )}
-                    >
-                      {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      {copied ? "Copié !" : "Copier le texte"}
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {extractedText && (
+                      <button 
+                        onClick={correctWithAI} 
+                        disabled={isCorrecting}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors",
+                          isCorrecting ? "bg-slate-700 text-slate-400 cursor-not-allowed" : "bg-purple-500/20 text-purple-400 hover:bg-purple-500/30"
+                        )}
+                        title="Corriger les erreurs avec l'IA"
+                      >
+                        {isCorrecting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+                        {isCorrecting ? "Correction..." : "Correction IA"}
+                      </button>
+                    )}
+                    {extractedText && (
+                      <button 
+                        onClick={copyToClipboard} 
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors",
+                          copied ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-400 text-slate-950 hover:bg-amber-300"
+                        )}
+                      >
+                        {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        {copied ? "Copié !" : "Copier"}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="relative h-full min-h-[250px] sm:aspect-video rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex flex-col">
                   {isProcessing ? (

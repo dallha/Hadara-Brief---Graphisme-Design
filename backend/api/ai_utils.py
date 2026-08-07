@@ -152,3 +152,46 @@ def chat_with_assistant(messages):
     except Exception as e:
         logger.error(f"Erreur lors du chat IA : {e}")
         return "Désolé, je rencontre un petit problème de connexion en ce moment. Vous pouvez utiliser le bouton 'Finaliser sur WhatsApp' pour joindre MrNiass directement !"
+
+def correct_ocr_text(raw_text):
+    """
+    Corrige les imperfections d'OCR (particulièrement pour l'arabe et le français) avec Groq.
+    """
+    if GROQ_API_KEY == "gsk_placeholder_key_remplacez_moi":
+        return raw_text + "\n\n[Correction IA indisponible : Clé API non configurée]"
+
+    system_prompt = (
+        "Tu es un expert en linguistique (Arabe, Français, Anglais). "
+        "Le texte fourni ci-dessous a été extrait d'une image par un logiciel d'OCR (Reconnaissance Optique de Caractères) et contient des erreurs, "
+        "des caractères brouillés ou une mauvaise mise en forme. "
+        "Ta mission est de corriger ces erreurs, de reconstruire les mots de manière logique et fluide, "
+        "et de renvoyer UNIQUEMENT le texte corrigé final, sans aucune explication ni introduction. "
+        "Si le texte contient de l'arabe, assure-toi que les mots sont correctement formés."
+    )
+
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "llama-3.1-8b-instant",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": raw_text}
+        ],
+        "temperature": 0.1
+    }
+
+    try:
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=15
+        )
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+    except Exception as e:
+        logger.error(f"Erreur lors de la correction OCR IA : {e}")
+        return raw_text

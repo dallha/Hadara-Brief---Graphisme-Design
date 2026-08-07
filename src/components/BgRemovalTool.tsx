@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import imglyRemoveBackground from '@imgly/background-removal';
+import { removeBackground } from '@imgly/background-removal';
 import { 
   Upload, 
   Image as ImageIcon, 
@@ -67,7 +67,7 @@ export const BgRemovalTool: React.FC<BgRemovalToolProps> = ({ onGoToBrief }) => 
     setProgress(10); // Start progress
 
     try {
-      const blob = await imglyRemoveBackground(sourceImage, {
+      const blob = await removeBackground(sourceImage, {
         progress: (key, current, total) => {
           // simple progress estimation
           const p = Math.round((current / total) * 100);

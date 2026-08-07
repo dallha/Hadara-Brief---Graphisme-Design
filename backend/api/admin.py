@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.db.models import Sum
 from .models import Brief, PortfolioItem, StoreProduct, Template
+from .ai_utils import analyze_brief_with_ai
+from django.contrib import messages
 
 
 # ─── Injection sécurisée des KPIs via each_context ──────────────────────────
@@ -48,7 +50,7 @@ class BriefAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'created_at', 'ai_analysis')
     ordering = ('-created_at',)
 
-    actions = ['mark_devis_envoye', 'mark_en_creation', 'mark_termine']
+    actions = ['mark_devis_envoye', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
 
     @admin.action(description='Marquer comme "Devis Envoyé"')
     def mark_devis_envoye(self, request, queryset):
@@ -61,6 +63,20 @@ class BriefAdmin(admin.ModelAdmin):
     @admin.action(description='Marquer comme "Terminé"')
     def mark_termine(self, request, queryset):
         queryset.update(status='termine')
+
+    @admin.action(description='Générer l\'Analyse IA du Brief (Gratuit)')
+    def generate_ai_analysis(self, request, queryset):
+        count = 0
+        for brief in queryset:
+            analysis_result = analyze_brief_with_ai(brief)
+            brief.ai_analysis = analysis_result
+            brief.save(update_fields=['ai_analysis'])
+            count += 1
+        self.message_user(
+            request,
+            f"{count} brief(s) analysé(s) avec succès par l'IA.",
+            messages.SUCCESS
+        )
 
     fieldsets = (
         ('Informations Client', {

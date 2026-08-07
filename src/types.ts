@@ -18,6 +18,7 @@ export type ProjectType =
   | 'pack_starter'
   | 'pack_event'
   | 'pack_hajj_oumrah'
+  | 'broderie'
   | 'autre';
 
 export type StylePreference = 

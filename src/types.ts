@@ -13,6 +13,8 @@ export type ProjectType =
   | 'bache'
   | 'flyer'
   | 'identite_visuelle'
+  | 'site_web'
+  | 'reseaux_sociaux'
   | 'pack_starter'
   | 'pack_event'
   | 'autre';

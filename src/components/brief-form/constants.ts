@@ -6,6 +6,8 @@ export const PROJECT_TYPES: { id: ProjectType; label: string; desc: string; icon
   { id: 'bache', label: 'Bâche / Banderole', desc: 'Grand format pour scène ou façade', icon: '🚩' },
   { id: 'flyer', label: 'Flyer (A5 / A6)', desc: 'Programme, horaires, tract impression', icon: '📄' },
   { id: 'identite_visuelle', label: 'Identité Visuelle / Logo', desc: 'Logo Dahira, charte & marque', icon: '✨' },
+  { id: 'site_web', label: 'Site Web Vitrine', desc: 'Présentation de votre entreprise', icon: '🌐' },
+  { id: 'reseaux_sociaux', label: 'Réseaux Sociaux', desc: 'Community management, visibilité', icon: '📱' },
   { id: 'pack_starter', label: 'Pack "Starter"', desc: 'Affiche + Visuel Réseaux Sociaux', icon: '🚀' },
   { id: 'pack_event', label: 'Pack "Event Global"', desc: 'Affiche + Bâche + Flyer + Story IG', icon: '👑' },
   { id: 'autre', label: 'Autre projet sur mesure', desc: 'Besoin spécifique', icon: '⚙️' },

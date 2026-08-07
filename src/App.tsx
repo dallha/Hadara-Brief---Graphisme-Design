@@ -14,7 +14,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { PrintableBrief } from './components/PrintableBrief';
 import { ResumeCV } from './components/ResumeCV';
 import { ClientPortalView } from './components/client/ClientPortalView';
-import { FloatingWhatsApp } from './components/FloatingWhatsApp';
+import { AIChatWidget } from './components/AIChatWidget';
 import { SplashEntry } from './components/SplashEntry';
 import { RoadmapView } from './components/RoadmapView';
 import { HadaraStore } from './components/HadaraStore';
@@ -517,7 +517,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-[#0d131f] text-[#F5F5DC] font-sans">
         <SplashEntry onEnter={handleEnterStudio} />
-        <FloatingWhatsApp />
+        <AIChatWidget />
       </div>
     );
   }
@@ -755,7 +755,7 @@ export default function App() {
       </footer>
 
       <div className="print:hidden">
-        <FloatingWhatsApp />
+        <AIChatWidget />
         <PWAReloadPrompt />
       </div>
     </div>

@@ -210,6 +210,20 @@ class TemplateViewSet(viewsets.ModelViewSet):
     serializer_class = TemplateSerializer
 
 @api_view(['POST'])
+def chat_api_view(request):
+    try:
+        messages = request.data.get('messages', [])
+        if not messages:
+            return Response({'error': 'Messages missing'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        from .ai_utils import chat_with_assistant
+        response_text = chat_with_assistant(messages)
+        
+        return Response({'reply': response_text})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
 def ai_analyze_brief(request, pk):
     try:
         brief = Brief.objects.get(pk=pk)

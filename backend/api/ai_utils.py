@@ -102,3 +102,53 @@ def analyze_brief_with_ai(brief):
             "erreur": "Une erreur inattendue est survenue.",
             "details": str(e)
         }
+
+def chat_with_assistant(messages):
+    """
+    Parle avec l'assistant IA (Groq - Llama 3)
+    `messages` est une liste de dicts [{"role": "user", "content": "..."}]
+    """
+    if GROQ_API_KEY == "gsk_placeholder_key_remplacez_moi":
+        return "Simulation : L'assistant IA n'est pas encore connecté à l'API (clé manquante). Veuillez configurer GROQ_API_KEY sur le serveur."
+
+    system_prompt = (
+        "Tu es l'assistant IA de MrNiass, directeur créatif de 'Hadara Studio'. "
+        "Ton rôle est d'accueillir les visiteurs, répondre à leurs questions sur le design graphique, "
+        "et les encourager à soumettre un 'Brief' via le site ou à contacter MrNiass sur WhatsApp. "
+        "Ne donne pas de prix exacts fixes, mais tu peux donner des fourchettes vagues d'estimations (ex: 'Un logo professionnel commence généralement à partir de 50 000 FCFA'). "
+        "Sois très concis, chaleureux, utilise des émojis. Ne fais pas de longues listes. "
+        "Si le client demande à parler à un humain ou semble prêt à commander, dis-lui de cliquer sur 'Finaliser sur WhatsApp'."
+    )
+
+    # Format check: ensure all messages have 'role' and 'content'
+    safe_messages = [{"role": "system", "content": system_prompt}]
+    for msg in messages[-5:]: # Keep last 5 messages for context to avoid huge payloads
+        if isinstance(msg, dict) and 'role' in msg and 'content' in msg:
+            safe_messages.append({"role": msg['role'], "content": msg['content']})
+
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "llama-3.1-8b-instant",
+        "messages": safe_messages,
+        "temperature": 0.5,
+        "max_tokens": 150
+    }
+
+    try:
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=10
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+
+    except Exception as e:
+        logger.error(f"Erreur lors du chat IA : {e}")
+        return "Désolé, je rencontre un petit problème de connexion en ce moment. Vous pouvez utiliser le bouton 'Finaliser sur WhatsApp' pour joindre MrNiass directement !"

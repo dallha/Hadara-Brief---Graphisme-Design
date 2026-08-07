@@ -50,11 +50,34 @@ class BriefAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'created_at', 'ai_analysis')
     ordering = ('-created_at',)
 
-    actions = ['mark_devis_envoye', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
+    actions = ['send_whatsapp_quote', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
 
-    @admin.action(description='Marquer comme "Devis Envoyé"')
-    def mark_devis_envoye(self, request, queryset):
-        queryset.update(status='devis_envoye')
+    @admin.action(description='Générer & Envoyer Devis via WhatsApp')
+    def send_whatsapp_quote(self, request, queryset):
+        import urllib.parse
+        from django.utils.safestring import mark_safe
+        
+        count = 0
+        links = []
+        for brief in queryset:
+            brief.status = 'devis_envoye'
+            brief.save(update_fields=['status'])
+            
+            phone = str(brief.whatsapp).strip()
+            if phone.startswith('+'):
+                phone = phone[1:]
+                
+            ai_data = brief.ai_analysis or {}
+            message = ai_data.get("brouillon_whatsapp", f"Bonjour {brief.client_name}, nous avons bien reçu votre brief pour {brief.project_type}. Êtes-vous disponible pour en discuter ?")
+            
+            encoded_message = urllib.parse.quote(message)
+            link = f"https://wa.me/{phone}?text={encoded_message}"
+            links.append(f"<a href='{link}' target='_blank' style='background-color:#25D366;color:white;padding:5px 10px;border-radius:4px;font-weight:bold;text-decoration:none;margin-right:10px;'>Ouvrir WhatsApp pour {brief.client_name}</a>")
+            count += 1
+            
+        if links:
+            msg = mark_safe(f"{count} projet(s) mis(s) à jour. " + " ".join(links))
+            self.message_user(request, msg, messages.SUCCESS)
 
     @admin.action(description='Marquer comme "En Création"')
     def mark_en_creation(self, request, queryset):

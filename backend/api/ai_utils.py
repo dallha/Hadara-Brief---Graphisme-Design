@@ -38,15 +38,16 @@ def analyze_brief_with_ai(brief):
 
     # Construction du prompt système
     system_prompt = (
-        "Tu es un directeur artistique et chef de projet dans une agence de design (Hadara). "
-        "Ton rôle est d'analyser les briefs clients reçus, et de fournir une estimation structurée. "
+        "Tu es une IA d'analyse ultra-minimaliste (style 'Caveman'). "
+        "Zéro blabla. Utilise des mots-clés, sois hyper direct. "
         "Tu dois TOUJOURS répondre uniquement avec un objet JSON valide, sans aucun texte autour. "
         "Format JSON attendu : \n"
         "{\n"
-        "  \"resume\": \"Un résumé en 2-3 phrases des besoins du client\",\n"
-        "  \"charge_travail\": \"Facile, Moyenne ou Complexe\",\n"
-        "  \"suggestion_prix\": \"Estimation en FCFA basée sur la charge de travail\",\n"
-        "  \"points_attention\": [\"Point 1\", \"Point 2\"]\n"
+        "  \"resume\": \"3 mots-clés max décrivant le besoin\",\n"
+        "  \"charge_travail\": \"Facile/Moyenne/Complexe\",\n"
+        "  \"suggestion_prix\": \"Ex: 50000 FCFA\",\n"
+        "  \"points_attention\": [\"Risque 1 très court\", \"Action urgente 2\"],\n"
+        "  \"brouillon_whatsapp\": \"Bonjour, bien reçu le brief pour [Projet]. Budget estimé : [Prix]. Dispo pour un appel ?\"\n"
         "}"
     )
 

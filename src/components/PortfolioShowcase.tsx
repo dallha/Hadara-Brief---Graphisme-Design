@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Tilt from 'react-parallax-tilt';
 import { 
   Palette, 
   Sparkles, 
@@ -417,8 +418,15 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
               animate="show"
               exit={{ opacity: 0, scale: 0.9 }}
               key={item.id}
-              className="group rounded-[2rem] bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 transition-all duration-500 overflow-hidden flex flex-col justify-between shadow-2xl hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.2)] hover:-translate-y-2 cursor-pointer"
+              className="h-full"
             >
+              <Tilt
+                tiltMaxAngleX={4}
+                tiltMaxAngleY={4}
+                scale={1.02}
+                transitionSpeed={2500}
+                className="group rounded-[2rem] bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 transition-all duration-500 overflow-hidden flex flex-col justify-between shadow-2xl hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.2)] hover:-translate-y-2 cursor-pointer h-full"
+              >
               {/* Styled Visual Mockup Container */}
               <div className={`h-48 sm:h-64 bg-gradient-to-br ${item.colorBg || 'from-slate-900 to-slate-950'} relative p-4 sm:p-6 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-transform duration-700 ease-out origin-bottom`}>
                 
@@ -511,7 +519,10 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
                 {/* Card Action Buttons */}
                 <div className="pt-4 border-t border-slate-800 flex items-center gap-2">
                   <button
-                    onClick={() => onSelectCategoryForBrief(item.category)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectCategoryForBrief(item.category);
+                    }}
                     className="flex-1 py-3 px-4 rounded-xl font-bold text-slate-950 text-xs bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 transition-all flex items-center justify-center space-x-1.5 shadow-lg shadow-amber-400/20 active:scale-95"
                   >
                     <span>Commander</span>
@@ -519,7 +530,10 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
                   </button>
 
                   <button
-                    onClick={() => setActiveModalItem(item)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveModalItem(item);
+                    }}
                     className="py-3 px-3.5 rounded-xl font-medium text-slate-300 text-xs bg-slate-800/80 hover:bg-slate-800 hover:text-white border border-slate-700 transition-all flex items-center space-x-1"
                     title="Voir les détails complets"
                   >
@@ -528,6 +542,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
                   </button>
                 </div>
               </div>
+              </Tilt>
             </motion.div>
           ))}
         </AnimatePresence>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import Typewriter from 'typewriter-effect';
 import { 
   FileCheck2, 
   Sparkles, 
@@ -74,7 +75,22 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
             <span className="text-slate-100">Des designs qui</span>
             <br />
             <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent">
-              captivent l'attention
+              <Typewriter
+                options={{
+                  strings: [
+                    "captivent l'attention",
+                    "marquent les esprits",
+                    "racontent votre histoire",
+                    "convertissent vos prospects"
+                  ],
+                  autoStart: true,
+                  loop: true,
+                  deleteSpeed: 40,
+                  delay: 80,
+                  wrapperClassName: "inline-block",
+                  cursorClassName: "Typewriter__cursor text-amber-500 font-light"
+                }}
+              />
             </span>
           </motion.h1>
 

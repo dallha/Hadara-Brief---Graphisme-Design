@@ -104,27 +104,24 @@ L'architecture s'articule autour de 4 piliers fonctionnels :
 
 ---
 
-## 5. Espace Administrateur (Django Jazzmin)
+## 5. Espace Administrateur (Double Interface)
 
-L'administration backend (`/api/django-admin/`) a été totalement refondue avec **Django Jazzmin**.
+La gestion des projets est désormais scindée en deux interfaces pour une ergonomie optimale :
 
-### 5.1 Interface & Ergonomie (SaaS Mode)
-*   **Thème Sombre** : Mode *Darkly* avec accents *Ambre/Or*.
-*   **Menu Latéral** : Navigation fluide avec icônes spécifiques.
+### 5.1 Le Tableau de Bord Public (Vue Kanban Lecture Seule)
+Accessible depuis le frontend de la plateforme (`/admin`), ce tableau de bord offre une **vue panoramique rapide** de tous les briefs :
+*   **Kanban** : Les briefs sont classés par statuts ("Nouveau", "Devis Envoyé", "En Création", etc.).
+*   **Fiche 360° (Lecture Seule)** : En cliquant sur "Afficher Fiche 360°", l'administrateur peut consulter toutes les informations du brief d'un seul coup d'œil (Notes, Prix, Checklist). **Aucune modification ne peut être effectuée depuis cette interface.**
+
+### 5.2 Le Backend Django Jazzmin (Gestion Avancée)
+Toutes les actions de gestion se font **exclusivement** sur le panel d'administration backend (`/api/django-admin/`).
+*   **Modification Fluide** : La majorité des champs descriptifs d'un Brief (contexte, audience, couleurs) ont été rendus optionnels côté Admin. Ainsi, le graphiste peut sauvegarder une modification sans être bloqué.
+*   **Actions Rapides (En un clic)** : Depuis la liste des briefs, un menu déroulant "Actions" permet de cocher un ou plusieurs briefs et de changer leur statut instantanément ("Marquer comme Devis Envoyé", "Marquer comme En Création", "Marquer comme Terminé") sans avoir à ouvrir chaque fiche individuellement.
+*   **Analyse IA Intégrée (Hadara AI)** : Intégration de Gemini 2.5 Pro/Flash pour l'analyse de brief et la génération de devis.
+*   **Gestion de la Boutique** : Ajout/Modification/Suppression de produits et gestion des stocks.
 
 ![Interface Jazzmin](/public/images/docs/jazzmin.png)
 *(Aperçu du Backend Django Jazzmin)*
-
-### 5.2 Gestion des Données
-*   **Briefs** : Visualisation, modification des statuts, définition des prix.
-*   **Boutique** : Ajout/Modification/Suppression de produits et gestion des stocks.
-
-### 5.3 Analyse IA Intégrée (Hadara AI)
-*   Intégration de **Gemini 2.5 Pro/Flash** pour l'analyse de brief.
-*   Génération de devis, budget, et 3 concepts créatifs originaux.
-
-![Analyse IA](/public/images/docs/ia.png)
-*(Aperçu du rapport IA)*
 
 ---
 

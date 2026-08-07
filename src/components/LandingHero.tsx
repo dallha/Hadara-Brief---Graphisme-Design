@@ -74,7 +74,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
           <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl lg:text-7xl font-serif font-extrabold tracking-tight leading-[1.15] px-2 sm:px-0">
             <span className="text-slate-100">Des designs qui</span>
             <br />
-            <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent">
+            <span className="text-amber-400">
               <Typewriter
                 options={{
                   strings: [

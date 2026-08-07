@@ -747,7 +747,7 @@ export default function App() {
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-slate-500">
-          <p>© {new Date().getFullYear()} Hadara Brief. Tous droits réservés.</p>
+          <p>© {new Date().getFullYear()} MrNiass. Tous droits réservés.</p>
           <button onClick={() => goTo('admin')} className="p-2 rounded-full hover:bg-slate-800 transition-colors group" title="Espace réservé">
             <Lock className="w-3.5 h-3.5 text-slate-600 group-hover:text-amber-400 transition-colors" />
           </button>

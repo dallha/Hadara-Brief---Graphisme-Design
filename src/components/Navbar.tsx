@@ -239,7 +239,18 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             <span>Nouveau</span>
           </div>
 
-          {/* Right items: Boutique & Suivi Client */}
+          {/* Right items: Outils, Boutique & Suivi Client */}
+          <button
+            onClick={() => handleTabChange('tools')}
+            className={cn(
+              "mobile-bottom-nav__item",
+              activeTab === 'tools' ? "text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200"
+            )}
+          >
+            <Wand2 className={cn("w-5 h-5 mb-0.5 shrink-0 transition-transform", activeTab === 'tools' && "scale-110")} />
+            <span>Outils</span>
+          </button>
+
           <button
             onClick={() => handleTabChange('store')}
             className={cn(

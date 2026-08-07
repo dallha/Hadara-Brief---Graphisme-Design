@@ -284,7 +284,7 @@
 
 .mobile-bottom-nav__inner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 4rem minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 3.5rem minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
   align-items: end;
   width: 100%;
   min-width: 0;

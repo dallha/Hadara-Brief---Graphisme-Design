@@ -12,7 +12,7 @@ type Message = {
 export const AIChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Bonjour ! 👋 Je suis l'assistant IA de MrNiass. Comment puis-je vous aider pour votre projet ?" }
+    { role: 'assistant', content: "Bonjour ! 👋 Je suis Mme Niass Madina, l'assistante IA du Studio Hadara. Comment puis-je vous aider pour votre projet ?" }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -65,7 +65,7 @@ export const AIChatWidget: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-6 sm:bottom-24 right-4 sm:right-6 z-[100] flex flex-col items-end">
+    <div className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 z-[100] flex flex-col items-end">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -82,7 +82,7 @@ export const AIChatWidget: React.FC = () => {
                   <Bot className="w-6 h-6 text-slate-900" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-100">Assistant IA</h3>
+                  <h3 className="font-bold text-slate-100">Mme Niass Madina</h3>
                   <p className="text-xs text-amber-400">En ligne</p>
                 </div>
               </div>

@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ── 4. HADARA IMAGE & FILE UPLOADER (Dual-Mode: Appareil + URL) ───────────
-    const imageFields = document.querySelectorAll('input[name="image_url"], input[name="image"], input[name="previewUrl"], input[name="fileUrl"], textarea[name="image_url"], textarea[name="image"], textarea[name="attachments"], input[name="attachments"], textarea[name="reference_links"], input[name="reference_links"]');
+    const imageFields = document.querySelectorAll('input[name="image_url"], input[name="image"], input[name="previewUrl"], input[name="fileUrl"], textarea[name="image_url"], textarea[name="image"], textarea[name="attachments"], input[name="attachments"]');
     imageFields.forEach(function(field) {
         if (field.dataset.hadaraUploaderInit) return;
         field.dataset.hadaraUploaderInit = "true";
@@ -76,9 +76,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function setFieldValue(url) {
             if (field.name === 'attachments' || field.name === 'deliverable_versions') {
-                field.value = JSON.stringify([url]);
+                field.value = JSON.stringify(url ? [url] : []);
             } else {
-                field.value = url;
+                field.value = url || '';
             }
         }
 
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         deviceBtn.type = 'button';
         deviceBtn.className = 'btn btn-outline-warning btn-sm font-weight-bold px-3 py-2 mr-2 my-1';
         deviceBtn.innerHTML = `<i class="fas fa-camera mr-2"></i> 📱 Choisir depuis l'appareil`;
-        deviceBtn.addEventListener('click', function() { fileInput.click(); });
+        deviceBtn.addEventListener('click', function(e) { e.preventDefault(); fileInput.click(); });
 
         // Mode 2: Saisie Lien URL
         const urlBtn = document.createElement('button');
@@ -134,17 +134,18 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
+        const urlInput = urlInputBox.querySelector('input');
+
         // Mode 3: Supprimer l'image
         const deleteBtn = document.createElement('button');
         deleteBtn.type = 'button';
         deleteBtn.className = 'btn btn-outline-danger btn-sm font-weight-bold px-3 py-2 my-1 mr-2';
         deleteBtn.innerHTML = `<i class="fas fa-trash mr-2"></i> 🗑️ Supprimer l'image`;
-        deleteBtn.addEventListener('click', function() {
-            if (field.name === 'attachments' || field.name === 'deliverable_versions') {
-                field.value = JSON.stringify([]);
-            } else {
-                field.value = '';
-            }
+        deleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            setFieldValue('');
+            fileInput.value = '';
+            urlInput.value = '';
             const imgEl = previewDiv.querySelector('img');
             if (imgEl) imgEl.src = '';
             previewDiv.style.display = "none";

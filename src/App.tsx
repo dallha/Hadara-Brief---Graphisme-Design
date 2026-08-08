@@ -22,6 +22,13 @@ import { BgRemovalTool } from './components/BgRemovalTool';
 import { QRCodeTool } from './components/QRCodeTool';
 import { OCRTool } from './components/OCRTool';
 import { InvoiceTool } from './components/InvoiceTool';
+import { ColorExtractorTool } from './components/ColorExtractorTool';
+import { QuoteCalculatorTool } from './components/QuoteCalculatorTool';
+import { TimerTool } from './components/TimerTool';
+import { WatermarkTool } from './components/WatermarkTool';
+import { ImageCompressorTool } from './components/ImageCompressorTool';
+import { MockupTool } from './components/MockupTool';
+import { ToolsHub } from './components/ToolsHub';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
 
@@ -655,9 +662,26 @@ export default function App() {
             <Route path="/outils/facture" element={
               <InvoiceTool onGoToBrief={() => goTo('brief')} />
             } />
-            {/* Redirection /outils par défaut vers detourrage ou une page menu */}
+            <Route path="/outils/devis" element={
+              <QuoteCalculatorTool onGoToBrief={() => goTo('brief')} onGoToInvoice={() => goTo('outils/facture')} />
+            } />
+            <Route path="/outils/couleurs" element={
+              <ColorExtractorTool onGoToBrief={() => goTo('brief')} />
+            } />
+            <Route path="/outils/mockup" element={
+              <MockupTool onGoToBrief={() => goTo('brief')} />
+            } />
+            <Route path="/outils/filigrane" element={
+              <WatermarkTool onGoToBrief={() => goTo('brief')} />
+            } />
+            <Route path="/outils/compresseur" element={
+              <ImageCompressorTool onGoToBrief={() => goTo('brief')} />
+            } />
+            <Route path="/outils/minuterie" element={
+              <TimerTool onGoToInvoice={() => goTo('outils/facture')} />
+            } />
             <Route path="/outils" element={
-              <BgRemovalTool onGoToBrief={() => goTo('brief')} />
+              <ToolsHub onGoToBrief={() => goTo('brief')} />
             } />
             <Route path="/roadmap" element={
               <RoadmapView onGoToBrief={() => goTo('brief')} />

@@ -47,10 +47,48 @@ class BriefAdmin(admin.ModelAdmin):
     list_display = ('id', 'client_name', 'email', 'whatsapp', 'status', 'created_at', 'quoted_price_fcfa')
     list_filter = ('status', 'created_at')
     search_fields = ('id', 'client_name', 'email', 'whatsapp')
-    readonly_fields = ('id', 'created_at', 'ai_analysis')
+    readonly_fields = ('id', 'created_at', 'ai_analysis', 'status_actions_guided')
     ordering = ('-created_at',)
 
-    actions = ['send_whatsapp_quote', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
+    actions = ['send_whatsapp_quote', 'mark_acompte_recu', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
+
+    @admin.display(description='⚡ Panneau d\'Action Studio (Workflow Guidé)')
+    def status_actions_guided(self, obj):
+        if not obj or not obj.id:
+            return format_html('<span style="color:#A8B0BD;">Enregistrez le brief pour débloquer le panneau d\'action.</span>')
+        
+        status_map = {
+            'nouveau': (
+                '<div style="background: rgba(208,162,28,0.12); border: 1px solid #D0A21C; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
+                '<strong style="color: #D0A21C; font-size: 1.05rem;">📨 Nouveau Brief Reçu !</strong>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Saisissez le devis estimé FCFA ci-dessous puis validez pour transmettre la notification WhatsApp au client.</p>'
+                '</div>'
+            ),
+            'devis_envoye': (
+                '<div style="background: rgba(51,90,121,0.2); border: 1px solid #335A79; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
+                '<strong style="color: #64B5F6; font-size: 1.05rem;">💰 Devis Transmis — En attente validation client</strong>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Dès confirmation de l\'acompte 50%, basculez le statut sur "En Création".</p>'
+                '</div>'
+            ),
+            'acompte_recu': (
+                '<div style="background: rgba(0,201,167,0.15); border: 1px solid #00C9A7; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
+                '<strong style="color: #00C9A7; font-size: 1.05rem;">💳 Acompte 50% Confirmé !</strong>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Le projet est prêt à être créé par l\'équipe créative.</p>'
+                '</div>'
+            ),
+            'en_creation': (
+                '<div style="background: rgba(0,201,167,0.18); border: 1px solid #00C9A7; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
+                '<strong style="color: #00C9A7; font-size: 1.05rem;">🎨 Projet Actuellement en Création Studio</strong>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Publiez vos prévisualisations V1/V2 via l\'uploader mobile ci-dessous. Le client les verra instantanément dans son portail.</p>'
+                '</div>'
+            ),
+            'termine': (
+                '<div style="background: rgba(16,185,129,0.2); border: 1px solid #10B981; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
+                '<strong style="color: #34D399; font-size: 1.05rem;">✅ Projet Officiellement Terminé & Livré</strong>'
+                '</div>'
+            )
+        }
+        return format_html(status_map.get(obj.status, '<span style="color:#A8B0BD;">Projet en cours de traitement.</span>'))
 
     @admin.action(description='Générer & Envoyer Devis via WhatsApp')
     def send_whatsapp_quote(self, request, queryset):
@@ -79,6 +117,10 @@ class BriefAdmin(admin.ModelAdmin):
             msg = mark_safe(f"{count} projet(s) mis(s) à jour. " + " ".join(links))
             self.message_user(request, msg, messages.SUCCESS)
 
+    @admin.action(description='Marquer "Acompte 50% Reçu"')
+    def mark_acompte_recu(self, request, queryset):
+        queryset.update(status='acompte_recu')
+
     @admin.action(description='Marquer comme "En Création"')
     def mark_en_creation(self, request, queryset):
         queryset.update(status='en_creation')
@@ -102,6 +144,9 @@ class BriefAdmin(admin.ModelAdmin):
         )
 
     fieldsets = (
+        ('⚡ Panneau d\'Action Guidé', {
+            'fields': ('status_actions_guided', 'status', 'quoted_price_fcfa')
+        }),
         ('👤 Informations Client (Obligatoires)', {
             'fields': ('client_name', 'whatsapp', 'email', 'organization', 'city_country')
         }),
@@ -122,8 +167,8 @@ class BriefAdmin(admin.ModelAdmin):
             'fields': ('reference_links', 'attachments', 'accept_process', 'accept_deadlines'),
             'classes': ('collapse',),
         }),
-        ('⚡ Traitement Studio & Devis', {
-            'fields': ('status', 'quoted_price_fcfa', 'designer_notes', 'ai_analysis', 'id', 'created_at')
+        ('⚡ Traitement Studio & IA', {
+            'fields': ('designer_notes', 'ai_analysis', 'id', 'created_at')
         }),
     )
 

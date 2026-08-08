@@ -28,9 +28,10 @@ Pour fonctionner correctement en production, les variables d'environnement suiva
 
 ### 2.1 Backend (`backend/.env`)
 *   `GEMINI_API_KEY` : Clé API pour le service Google Gemini (Requis pour l'analyse IA des briefs).
+*   `GROQ_API_KEY` : Clé API pour le service Groq (Requis pour le chat Mme Niass Madina et correction OCR).
 *   `TELEGRAM_BOT_TOKEN` : Jeton d'authentification du Bot Telegram.
 *   `TELEGRAM_CHAT_ID` : L'identifiant du chat administrateur pour recevoir les notifications.
-*   `DATABASE_URL` : URL de connexion à la base de données PostgreSQL de production (ex: `postgresql://user:password@host:port/dbname`). Fournie par Render ou Supabase.
+*   `DATABASE_URL` : URL de connexion SSL à la base de données **Neon PostgreSQL Serverless** (ex: `postgresql://neondb_owner:*****@ep-falling-sunset-axfvhryv-pooler.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require`).
 *   *(Variables d'authentification Admin)* : Les identifiants administrateurs définis dans les paramètres du projet Django.
 
 ### 2.2 Frontend (`.env`)
@@ -60,7 +61,8 @@ Le backend Django nécessite un environnement Python.
 
 ## 4. Stratégie de Base de Données
 *   **Développement Local** : SQLite (`backend/db.sqlite3`).
-*   **Production** : PostgreSQL (configuré via `DATABASE_URL`). Django détecte la présence de la variable et bascule automatiquement sur `dj_database_url`.
+*   **Production** : **Neon PostgreSQL Serverless** (configuré via `DATABASE_URL` avec `sslmode=require`). Django détecte la présence de la variable et bascule automatiquement via `dj_database_url.config` avec pooling de connexions.
+*   **Sécurisation** : Le mot de passe de base de données ne doit jamais être commité sous Git. En cas de rotation du mot de passe dans Neon Console, mettre à jour la variable `DATABASE_URL` sur Render.
 
 ---
 

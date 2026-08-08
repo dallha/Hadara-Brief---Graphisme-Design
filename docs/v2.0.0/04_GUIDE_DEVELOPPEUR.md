@@ -3,7 +3,7 @@
 
 | Attribut | Valeur |
 | :--- | :--- |
-| **Version** | 2.1.0 |
+| **Version** | 2.3.0 |
 | **Date** | Août 2026 |
 
 > [!WARNING]
@@ -25,16 +25,16 @@
 ### 1.2 Backend
 *   **Framework** : Django 5.
 *   **API** : Django Rest Framework (DRF).
-*   **Base de Données** : SQLite (dev local) / PostgreSQL (production Render).
+*   **Base de Données** : SQLite (dev local) / **Neon PostgreSQL Serverless** (production `hadara-suite`).
 *   **Intégration IA Chat** : `groq` SDK — Modèle `llama-3.1-8b-instant`.
 *   **Intégration IA Brief** : `google-genai` SDK — Modèle `gemini-2.5-flash`.
-*   **Administration** : `django-jazzmin`.
+*   **Administration** : `django-jazzmin` avec raccourcis d'outils personnalisés.
 *   **Génération PDF** : `reportlab`.
 
 ### 1.3 Hébergement & CI/CD
 *   **Frontend** : Render Static Site (build Vite, servi en tant que fichiers statiques).
 *   **Backend** : Render Web Service (Gunicorn + Django).
-*   **Base de données** : Render PostgreSQL.
+*   **Base de données** : Neon PostgreSQL Serverless (AWS US-East-2 Pooler).
 *   **CI/CD** : Déploiement automatique à chaque `git push` sur la branche `main`.
 
 ---
@@ -44,9 +44,10 @@
 ### 2.1 Le Frontend (`src/`)
 ```
 src/
-├── App.tsx                  — Routage global, état admin, PWA offline
+├── App.tsx                  — Routage global, état admin, PWA offline, routes 12 outils
 ├── types.ts                 — Types TypeScript (BriefData, StoreProduct, etc.)
 ├── index.css                — Design system Tailwind + @media print
+├── config.ts                — Configuration dynamique API_BASE (dev / prod Neon)
 ├── components/
 │   ├── LandingHero.tsx      — Page d'accueil (Bento Grid, Mobile-First)
 │   ├── PortfolioShowcase.tsx — Portfolio filtrable
@@ -54,13 +55,22 @@ src/
 │   ├── ResumeCV.tsx         — CV interactif + mode ATS imprimable
 │   ├── RoadmapView.tsx      — Feuille de route produit
 │   ├── HadaraStore.tsx      — Boutique e-commerce
-│   ├── AIChatWidget.tsx     — Widget Mme Niass Madina (chat IA)
+│   ├── AIChatWidget.tsx     — Widget Mme Niass Madina (chat IA Groq/Llama)
 │   ├── AdminDashboard.tsx   — Dashboard admin (Kanban swipeable)
-│   ├── ToolsNav.tsx         — Navigation entre les outils (scrollable mobile)
-│   ├── InvoiceTool.tsx      — Générateur de factures (print via new window)
-│   ├── BgRemovalTool.tsx    — Détourage IA (imgly)
+│   ├── ToolsNav.tsx         — Navigation entre les 12 outils (scrollable mobile)
+│   ├── ToolsHub.tsx         — Hub d'accueil des 12 outils gratuits (/outils)
+│   ├── UpscaleTool.tsx      — Agrandisseur & Améliorateur HD 2x/4x (style Upscayl)
+│   ├── WordCloudTool.tsx    — Générateur Nuage de Mots (Spirale Archimède)
+│   ├── ColorExtractorTool.tsx — Extracteur de Couleurs Palette (Canvas API)
+│   ├── MockupTool.tsx       — Générateur de Mockups Device (iPhone/MacBook/Web)
+│   ├── WatermarkTool.tsx    — Ajout de Filigrane
+│   ├── ImageCompressorTool.tsx — Compresseur d'images JPG/PNG/WebP
+│   ├── TimerTool.tsx        — Minuterie de facturation horaire
+│   ├── QuoteCalculatorTool.tsx — Calculateur de devis rapide
+│   ├── InvoiceTool.tsx      — Générateur de factures PDF (window.open print)
+│   ├── BgRemovalTool.tsx    — Détourage IA local (@imgly)
 │   ├── QRCodeTool.tsx       — Générateur QR Code
-│   ├── OCRTool.tsx          — Extracteur de texte (Tesseract.js, ara+fra)
+│   ├── OCRTool.tsx          — Extracteur de texte (Tesseract.js + API IA)
 │   └── client/
 │       └── ClientPortalView.tsx — Portail client (suivi, maquettes HD)
 ```
@@ -94,6 +104,9 @@ backend/
     *   Titre, marque, catégorie, image, prix, statut stock.
 
 4.  **`Template`** — Modèles de briefs prédéfinis.
+
+5.  **`ToolUsageLog`** — Logs d'utilisation des outils gratuits
+    *   `tool_name`, `created_at`, `ip_address`, `details`.
 
 ---
 

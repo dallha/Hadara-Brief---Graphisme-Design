@@ -145,43 +145,63 @@ Toutes les actions de gestion se font **exclusivement** sur `/api/django-admin/`
 
 ---
 
-## 7. Outils Publics Gratuits
+## 7. Outils Publics Gratuits (Hub 12 Outils)
 
-Hadara Studio propose une suite d'outils gratuits accessibles sans inscription sur `/outils`. Leur objectif est d'attirer des visiteurs et de les convertir en clients (stratégie **Lead Magnet**).
+Hadara Studio propose une suite complète de **12 outils gratuits** accessibles sans inscription sur `/outils`. Leur objectif est d'attirer des visiteurs et de les convertir en clients (stratégie **Lead Magnet**).
 
-### 7.1 Navigation entre les Outils
-Une barre de navigation (`ToolsNav`) est présente en haut de chaque outil. Sur mobile, elle défile horizontalement si les boutons ne tiennent pas en largeur.
+### 7.1 Hub & Navigation entre les Outils
+Le Hub (`/outils`) présente la grille complète des 12 outils sous forme de cartes d'action. Une barre de navigation (`ToolsNav`) défilante sur mobile permet d'alterner instantanément d'un outil à un autre.
 
-### 7.2 Détourage d'Image IA (`/outils/detourage`)
-*   Supprime l'arrière-plan d'une image directement dans le navigateur.
-*   **100% privé** : Aucune image n'est envoyée sur un serveur.
-*   Propulsé par le modèle IA `@imgly/background-removal`.
-*   **Téléchargement** : Image résultante en PNG transparent.
+### 7.2 Agrandisseur & Améliorateur HD 2x/4x (`/outils/upscale`)
+- Augmente la résolution de logos, visuels et photos en 2x HD et 4x Ultra HD.
+- Filtre de convolution *Unsharp Mask* pour réhausser la netteté des pixels.
+- **Modes** : Netteté Max (Logos), Équilibré (Photos), Doux (Lissage).
+- **100% privé** et local dans le navigateur.
 
-### 7.3 Générateur de QR Code (`/outils/qr-code`)
-*   Génère un QR code personnalisé à partir de n'importe quelle URL.
-*   Choix de couleurs (Classique, Hadara Or, Bleu Nuit, Émeraude).
-*   Option logo Hadara intégré au centre.
-*   **Téléchargement** : Export en PNG haute qualité.
+### 7.3 Générateur de Nuage de Mots (`/outils/nuage-mots`)
+- Transforme tout texte en nuage artistique selon l'algorithme de la **Spirale d'Archimède**.
+- Filtrage automatique des mots vides (Stop Words) en Français et Anglais.
+- **4 Styles de Fond** : Sombre, Blanc-Couleur, Blanc-Noir, Transparent.
+- Exclusion dynamique de mots par simple clic et export PNG HD.
 
-### 7.4 Extracteur de Texte OCR (`/outils/ocr`)
-*   Extrait le texte d'une image ou d'un document.
-*   Supporte l'**arabe** et le français.
-*   Propulsé par `Tesseract.js` avec les langues `ara` + `fra`.
-*   Fonctionne entièrement dans le navigateur (hors-ligne possible).
+### 7.4 Extracteur de Couleurs Palette (`/outils/couleurs`)
+- Extrait les 6 couleurs dominantes d'une image chargée via l'HTML5 Canvas.
+- Affiche les codes HEX et RGB avec bouton de copie en un clic.
 
-> [!NOTE]
-> L'OCR arabe nécessite une image de bonne qualité (haute résolution, texte net). Des imperfections peuvent apparaître sur les images de mauvaise qualité.
+### 7.5 Générateur de Mockups Device (`/outils/mockup`)
+- Encadre vos captures d'écran dans un iPhone 15 Pro, MacBook Air ou navigateur web.
+- Choix de dégradés de fond (Hadara Or, Bleu Nuit, Émeraude, Violet, Neutre).
 
-### 7.5 Générateur de Factures (`/outils/facture`)
-*   Créez une facture professionnelle directement dans le navigateur.
-*   **Champs disponibles** : Nom/Entreprise, adresse, téléphone, client, lignes d'articles (description, quantité, prix unitaire), devise, TVA.
-*   **Calculs automatiques** : Sous-total, TVA, Total TTC calculés en temps réel.
-*   **Impression/Export PDF** : Ouvre une nouvelle fenêtre contenant uniquement la facture (fond blanc, format A4, une seule page) et lance l'impression automatiquement.
-*   **Mobile** : Le tableau des lignes défile horizontalement sur les petits écrans.
+### 7.6 Compresseur & Convertisseur d'Images (`/outils/compresseur`)
+- Réduit le poids d'images en JPG, PNG ou WebP avec curseur de qualité en direct (5% à 100%).
+- Comparatif visuel et affichage du taux de compression (-X%).
 
-> [!IMPORTANT]
-> L'export PDF s'effectue via une nouvelle fenêtre du navigateur. Si votre navigateur bloque les pop-ups, autorisez-les pour le site Hadara Studio.
+### 7.7 Ajout de Filigrane (`/outils/filigrane`)
+- Applique un filigrane texte ou logo sur vos visuels avant envoi client.
+- Contrôle de la taille, opacité, angle de rotation et grille répétée.
+
+### 7.8 Minuterie de Facturation Horaire (`/outils/minuterie`)
+- Chronomètre de travail en direct calculant le montant selon votre tarif horaire (FCFA/h).
+- Historique des sessions avec bouton d'envoi vers le générateur de factures.
+
+### 7.9 Calculateur de Devis Rapide (`/outils/devis`)
+- Estimation instantanée du budget d'un projet créatif (Logo, Web, Affiche, Vidéo).
+- Facteurs de révisions, délais express et transfert direct vers le formulaire de Brief.
+
+### 7.10 Détourage d'Image IA (`/outils/detourage`)
+- Supprime l'arrière-plan d'une image 100% localement dans le navigateur.
+- Moteur IA `@imgly/background-removal`. Export en PNG transparent.
+
+### 7.11 Générateur de QR Code (`/outils/qr-code`)
+- Génère des QR codes personnalisés avec logo Hadara au centre.
+
+### 7.12 Extracteur de Texte OCR (`/outils/ocr`)
+- Extrait le texte d'une image en **arabe** et en français via `Tesseract.js`.
+- Bouton **"Correction IA"** connecté à l'API backend Groq/Llama.
+
+### 7.13 Générateur de Factures (`/outils/facture`)
+- Création de factures PDF avec sous-total, TVA, Total TTC.
+- Impression automatique via une nouvelle fenêtre dédiée (fond blanc garanti, format A4).
 
 ---
 
@@ -287,7 +307,9 @@ Dans une démarche de transparence totale :
 *   **Kanban** : Méthode visuelle de gestion de projet avec colonnes de statuts.
 *   **Groq** : Service d'inférence IA ultra-rapide hébergeant le modèle Llama.
 *   **Llama** : Modèle de langage open-source de Meta utilisé par Mme Niass Madina.
+*   **Neon** : Service PostgreSQL Serverless utilisé comme source de vérité unique pour les données.
 *   **OCR** : Optical Character Recognition — extraction de texte depuis une image.
+*   **Upscale** : Agrandissement et rehaussement de résolution d'images par interpolation et filtres de netteté.
 *   **Lead Magnet** : Outil gratuit offert pour attirer des clients potentiels.
 *   **Mobile-First** : Approche de design qui priorise l'expérience sur smartphone.
 *   **Livrable HD** : Fichier graphique finalisé en Haute Définition.

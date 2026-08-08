@@ -131,13 +131,13 @@ class BriefAdmin(admin.ModelAdmin):
             'acompte_recu': (
                 '<div style="background: rgba(0,201,167,0.15); border: 1px solid #00C9A7; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
                 '<strong style="color: #00C9A7; font-size: 1.05rem;">💳 Acompte 50% Confirmé !</strong>'
-                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Le projet est prêt à être créé par l\'équipe créative.</p>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Le projet est prêt à être créé. Pour publier votre première conception V1, basculez le statut sur "En Création" ou utilisez l\'action <strong>"🎨 Publier Nouvelle Maquette"</strong> dans la liste des briefs.</p>'
                 '</div>'
             ),
             'en_creation': (
                 '<div style="background: rgba(0,201,167,0.18); border: 1px solid #00C9A7; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
                 '<strong style="color: #00C9A7; font-size: 1.05rem;">🎨 Projet Actuellement en Création Studio</strong>'
-                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Publiez vos prévisualisations V1/V2 via l\'uploader mobile ci-dessous. Le client les verra instantanément dans son portail.</p>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Ajoutez les visuels/pièces jointes dans la section "Pièces Jointes" puis utilisez l\'action <strong>"🎨 Publier Nouvelle Maquette V1-V2-V3"</strong> pour transmettre la version au Portail Client.</p>'
                 '</div>'
             ),
             'termine': (

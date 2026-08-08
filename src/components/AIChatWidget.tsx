@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Bot, User, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+import API_BASE from '../config';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -39,7 +38,7 @@ export const AIChatWidget: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/chat/`, {
+      const response = await fetch(`${API_BASE}/api/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

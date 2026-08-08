@@ -202,6 +202,7 @@ JAZZMIN_SETTINGS = {
     "site_logo_classes": "img-fluid",
     "login_logo_classes": "img-fluid",  # Jazzmin appliquera ces classes à l'img
     "custom_css": "css/hadara_admin.css",  # Notre CSS qui limite la taille
+    "custom_js": "js/hadara_admin.js",    # Interactivité sélection au clic de carte mobile
     "welcome_sign": "Bienvenue — Hadara Studio",
     "copyright": "Hadara Studio © 2026",
     

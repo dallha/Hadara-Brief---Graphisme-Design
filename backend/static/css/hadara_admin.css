@@ -281,7 +281,7 @@ body, .content-wrapper {
         display: none !important;
     }
 
-    /* Style de la carte (Chaque ligne devient une carte) */
+    /* Style de la carte (Chaque ligne devient une carte interactive) */
     .table tbody tr {
         background: var(--hadara-slate-800) !important;
         border: 1px solid rgba(245,158,11,0.2) !important;
@@ -289,6 +289,14 @@ body, .content-wrapper {
         margin-bottom: 1rem !important;
         padding: 0.5rem !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .table tbody tr:active,
+    .table tbody tr.selected-card {
+        border-color: var(--hadara-gold) !important;
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.3) !important;
     }
 
     /* Afficher la case à cocher (checkbox) de sélection sur mobile de manière tactile */

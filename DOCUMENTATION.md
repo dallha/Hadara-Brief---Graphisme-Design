@@ -1,9 +1,11 @@
 # 📘 Documentation Technique & Fonctionnelle Complète (SaaS ERP / CRM / AI)
 **Produit** : Hadara Suite (Studio, Manager, AI Pro, Cloud)
-**Version** : 2.0.0 (SaaS Industrial Edition)
-**Dernière mise à jour** : Juillet 2026
+**Version** : 2.3.0 (SaaS Industrial & Operational Edition)
+**Dernière mise à jour** : Août 2026
 
-Cette documentation décrit l'ensemble de l'architecture, du fonctionnement, des 4 espaces produits et des processus de déploiement de **Hadara Suite**.
+Dossier complet disponible sous [`docs/v2.3.0/`](file:///Users/mac/Documents/Mes%20Docs/code/Hadara%20Brief%20-%20Graphisme%20&%20Design/docs/v2.3.0/00_INDEX.md).
+
+Cette documentation décrit l'ensemble de l'architecture, du fonctionnement, des 4 espaces produits et des processus de déploiement de **Hadara Suite v2.3.0**.
 
 ---
 

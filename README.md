@@ -1,7 +1,7 @@
-🎨 Hadara Suite v2.0.0 — Plateforme SaaS ERP, CRM & AI pour Studios Graphiques
+🎨 Hadara Suite v2.3.0 — Plateforme SaaS ERP, CRM & AI pour Studios Graphiques
 
-**Hadara Suite** est une suite logicielle SaaS professionnelle (Web & PWA) développée pour **Le Graphiste de la Hadara** (Dakar, Sénégal).  
-Elle réunit en une seule plateforme : la vitrine studio, le formulaire de brief intelligent, l'ERP de production (Kanban, Fiche 360°), la gestion financière (Devis & Factures PDF), le copilote **Hadara AI Studio** et l'administration multi-tenant **Hadara Cloud**.
+**Hadara Suite** est une suite logicielle SaaS professionnelle (Web & PWA) développée pour **Hadara Studio** (Dakar, Sénégal).  
+Elle réunit en une seule plateforme : la vitrine studio, le formulaire de brief intelligent, l'ERP de production, la boutique Hadara Store, le copilote **Hadara AI Studio** et le cockpit **Hadara Manager**.
 
 ---
 
@@ -10,35 +10,33 @@ Elle réunit en une seule plateforme : la vitrine studio, le formulaire de brief
 1. **Hadara Studio** (Vitrine & Conversion) :
    - Formulaire de brief intelligent en 5 étapes avec validation en temps réel.
    - Portfolio Bento Grid des créations (affiches, bâches grand format, diplômes, identités visuelles).
-   - **CV Interactif Professionnel** : Notation 5 Étoiles, badges de maîtrise (Expert, Maîtrise avancée, Bonne maîtrise, Notions) et usages réels par logiciel Adobe (Photoshop, Illustrator, InDesign, Premiere Pro, Lightroom, Acrobat Pro, After Effects).
+   - **Portail Client** : Authentification par numéro WhatsApp, suivi du workflow 6 étapes, prévisualisation maquette WebP fluidifiée (`previewUrl`), Lightbox plein écran (`ZoomIn`) et versionnage des livrables (V1, V2, V3).
 
-2. **Hadara Manager** (ERP & CRM Opérationnel) :
-   - **Kanban Production 6 Étapes** (`nouveau` ➔ `devis_envoye` ➔ `acompte_recu` ➔ `en_creation` ➔ `validation` ➔ `termine`).
-   - **Fiche Projet 360°** : Timeline visuelle, versionnage des livrables (V1, V2, HD), checklist qualité 5 points, journal d'activité et commentaires.
-   - **Finance & Facturation** : Génération de devis et factures PDF, acomptes 50%, soldes 50% et canaux locaux (Wave Sénégal, Orange Money, Free Money, Espèces).
-   - **Recherche Globale (`Cmd + K`)** : Recherche universelle dans les clients, briefs, devis et fichiers.
-   - **Corbeille Soft-Delete** : Restauration instantanée sans perte de données.
-   - **Signature Électronique** : Validation numérique des devis par le client.
+2. **Hadara Manager** (ERP & Cockpit d'Administration Unifié `/api/django-admin/`) :
+   - **Hadara Design System** : Design Tokens unifiés (`#070B18`, `#D0A21C`, `#335A79`) et grammaire d'interaction partagée avec le site public.
+   - **Formulaires Ultra-Épurés (3-4 Champs Obligatoires Max)** : Briefs, Portfolio, Store, Modèles.
+   - **Génération Automatique des Identifiants** : `HAD-XXXX`, `PRD-XXXX`, `PRT-XXXX`, `TPL-XXXX`.
+   - **Hadara Mobile Image Uploader & Compression WebP** : Upload direct depuis Photos/Caméra sur iPhone/Android avec compression automatique canvas et aperçu instantané `✓ Image optimisée`.
+   - **Hadara Chips & Color Picker Widgets** : Manipulation des tags/livrables et des palettes de couleurs sans aucune syntaxe JSON `[]` brute.
 
 3. **Hadara AI Pro** (Copilote & Directeur Artistique IA) :
    - Prompts structurés pour Midjourney v6, Adobe Firefly, DALL-E 3 et Stable Diffusion.
    - Copywriter automatique pour réseaux sociaux.
    - Audit de densité de texte pour affiches & bâches.
-   - Score Qualité /100.
 
 4. **Hadara Cloud** (Administration SaaS Multi-Studios) :
    - Tableau de bord éditeur : Suivi des métriques **MRR, ARR, Churn Rate**.
-   - Gestion multi-tenant des studios abonnés.
    - Licences White-Label & Support.
 
 ---
 
 🛠️ 2. Architecture Technique
 
-- **Frontend** : React 18, TypeScript, Tailwind CSS (v4), Vite PWA.
-- **Backend API** : Python 3.10+ / Django REST Framework.
-- **Base de Données** : Supabase (PostgreSQL Cloud).
-- **Hébergement** : Render (Frontend SPA + Backend Django) + CDN Cloudflare (SSL Full Mode).
+- **Frontend** : React 19, TypeScript, Tailwind CSS (v4), Vite PWA.
+- **Backend API** : Python 3.10+ / Django 5.x REST Framework + Django Jazzmin.
+- **Base de Données** : **Neon PostgreSQL Serverless** (Source de vérité structurée permanente).
+- **Hébergement** : Render Cloud (Frontend Static App + Backend Web Service Django).
+- **Documentation Complete** : Dossier [`/docs/v2.3.0/`](file:///Users/mac/Documents/Mes%20Docs/code/Hadara%20Brief%20-%20Graphisme%20&%20Design/docs/v2.3.0/00_INDEX.md).
 
 ---
 

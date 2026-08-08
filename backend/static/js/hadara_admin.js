@@ -74,11 +74,29 @@ document.addEventListener('DOMContentLoaded', function() {
         container.className = "hadara-uploader-wrapper my-2";
         container.style.cssText = "background: #111827; border: 2px dashed rgba(208, 162, 28, 0.4); border-radius: 14px; padding: 1.25rem; text-align: center;";
 
+        function setFieldValue(url) {
+            if (field.name === 'attachments' || field.name === 'deliverable_versions') {
+                field.value = JSON.stringify([url]);
+            } else {
+                field.value = url;
+            }
+        }
+
+        let initialSrc = field.value || '';
+        if (field.name === 'attachments' || field.name === 'deliverable_versions') {
+            try {
+                let parsed = JSON.parse(field.value || '[]');
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    initialSrc = typeof parsed[0] === 'string' ? parsed[0] : (parsed[0].previewUrl || parsed[0].fileUrl || '');
+                }
+            } catch(e) {}
+        }
+
         const previewDiv = document.createElement('div');
         previewDiv.className = "mb-3";
-        previewDiv.style.display = field.value ? "block" : "none";
+        previewDiv.style.display = initialSrc ? "block" : "none";
         previewDiv.innerHTML = `
-            <img src="${field.value || ''}" style="max-width: 100%; max-height: 200px; object-fit: contain; border-radius: 10px; border: 1px solid rgba(208,162,28,0.3); margin-bottom: 0.5rem;" />
+            <img src="${initialSrc}" style="max-width: 100%; max-height: 200px; object-fit: contain; border-radius: 10px; border: 1px solid rgba(208,162,28,0.3); margin-bottom: 0.5rem;" />
             <div>
                 <span class="badge" style="background: rgba(0,201,167,0.2); color: #00C9A7; border: 1px solid #00C9A7;">✓ Image prête & optimisée</span>
             </div>
@@ -109,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
         urlInputBox.style.cssText = "display: none; margin-top: 0.75rem; background: #070B18; padding: 0.75rem; border-radius: 10px; border: 1px solid #335A79;";
         urlInputBox.innerHTML = `
             <div class="input-group input-group-sm">
-                <input type="text" class="form-control" placeholder="https://exemple.com/image.jpg" value="${field.value && field.value.startsWith('http') ? field.value : ''}" style="background:#111827; color:#F4F1EA; border-color:#335A79;">
+                <input type="text" class="form-control" placeholder="https://exemple.com/image.jpg" value="${initialSrc && initialSrc.startsWith('http') ? initialSrc : ''}" style="background:#111827; color:#F4F1EA; border-color:#335A79;">
                 <div class="input-group-append">
                     <button class="btn btn-primary font-weight-bold" type="button" style="background:#D0A21C; border-color:#D0A21C; color:#070B18;">✓ Valider Lien</button>
                 </div>
@@ -126,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         urlConfirmBtn.addEventListener('click', function() {
             const val = urlInput.value.trim();
             if (val) {
-                field.value = val;
+                setFieldValue(val);
                 const imgEl = previewDiv.querySelector('img');
                 imgEl.src = val;
                 previewDiv.style.display = "block";
@@ -165,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ctx.drawImage(img, 0, 0, width, height);
 
                     const webpDataUrl = canvas.toDataURL('image/webp', 0.82);
-                    field.value = webpDataUrl;
+                    setFieldValue(webpDataUrl);
 
                     const imgEl = previewDiv.querySelector('img');
                     imgEl.src = webpDataUrl;

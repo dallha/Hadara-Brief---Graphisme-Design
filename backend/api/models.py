@@ -22,7 +22,7 @@ class Brief(models.Model):
     
     # 4. Target Audience
     target_audience = models.TextField(blank=True, null=True, verbose_name="Cible Visée")
-    target_audience_chips = models.JSONField(default=list, verbose_name="Tags Cible")
+    target_audience_chips = models.JSONField(default=list, blank=True, null=True, verbose_name="Tags Cible")
     
     # 5. Message & Content
     main_title = models.CharField(max_length=200, blank=True, null=True, verbose_name="Titre Principal")

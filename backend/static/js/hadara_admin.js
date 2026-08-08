@@ -62,15 +62,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 3. Forcer l'ouverture externe des liens du site public
+    // 3. Forcer l'ouverture externe du lien unique "Site Public" dans la navbar supérieure
     function fixExternalLinks() {
-        const links = document.querySelectorAll('a[href*="/outils"], a[href*="hadara-design.com"], .nav-sidebar a[href^="http"]');
-        links.forEach(function(link) {
-            link.setAttribute('target', '_blank');
-            link.setAttribute('rel', 'noopener noreferrer');
-        });
+        const publicSiteLink = document.querySelector('.navbar-nav a[href*="hadara-design.com"]');
+        if (publicSiteLink) {
+            publicSiteLink.setAttribute('target', '_blank');
+            publicSiteLink.setAttribute('rel', 'noopener noreferrer');
+        }
     }
 
     fixExternalLinks();
-    setTimeout(fixExternalLinks, 500);
 });

@@ -207,9 +207,8 @@ JAZZMIN_SETTINGS = {
     "copyright": "Hadara Studio © 2026",
     
     "topmenu_links": [
-        {"name": "Dashboard",  "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Portail Client", "url": "https://hadara-design.com/espace-client", "new_window": True},
-        {"name": "Site Public", "url": "https://hadara-design.com/", "new_window": True},
+        {"name": "Dashboard Cockpit", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "🌐 Voir le Site Public (Vitrine Client)", "url": "https://hadara-design.com/", "new_window": True},
     ],
     
     "show_sidebar": True,

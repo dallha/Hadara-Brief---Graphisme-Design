@@ -47,10 +47,64 @@ class BriefAdmin(admin.ModelAdmin):
     list_display = ('id', 'client_name', 'email', 'whatsapp', 'status', 'created_at', 'quoted_price_fcfa')
     list_filter = ('status', 'created_at')
     search_fields = ('id', 'client_name', 'email', 'whatsapp')
-    readonly_fields = ('id', 'created_at', 'ai_analysis', 'status_actions_guided')
+    readonly_fields = ('id', 'created_at', 'ai_analysis', 'status_actions_guided', 'display_deliverable_versions')
     ordering = ('-created_at',)
 
-    actions = ['send_whatsapp_quote', 'mark_acompte_recu', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
+    actions = ['send_whatsapp_quote', 'publish_new_version', 'mark_acompte_recu', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
+
+    @admin.display(description='🎨 Versions & Maquettes Publiées (V1, V2, V3)')
+    def display_deliverable_versions(self, obj):
+        from django.utils.safestring import mark_safe
+        if not obj or not obj.deliverable_versions:
+            return mark_safe('<div style="color:#A8B0BD; padding:0.5rem 0;">Aucune maquette publiée pour le moment. Utilisez l\'action "🎨 Publier Nouvelle Maquette" pour créer V1.</div>')
+        
+        versions = obj.deliverable_versions if isinstance(obj.deliverable_versions, list) else []
+        cards_html = []
+        for v in versions:
+            v_num = v.get('versionNumber', 1)
+            title = v.get('title', f'Maquette V{v_num}')
+            file_url = v.get('previewUrl') or v.get('fileUrl') or ''
+            date_str = v.get('createdAt', '')
+            status_str = '✅ Approuvé' if v.get('status') == 'approved' else '🔵 En Révision Client'
+            
+            card = f'''
+            <div style="background:#111827; border:1px solid rgba(208,162,28,0.3); border-radius:10px; padding:0.75rem 1rem; margin-bottom:0.6rem; display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                    <strong style="color:#D0A21C; font-size:0.95rem;">Version {v_num} : {title}</strong>
+                    <span style="display:block; color:#A8B0BD; font-size:0.8rem;">Publié le {date_str}</span>
+                </div>
+                <div style="text-align:right;">
+                    <span style="background:rgba(0,201,167,0.15); color:#00C9A7; border:1px solid #00C9A7; border-radius:12px; padding:2px 8px; font-size:0.75rem; font-weight:bold;">{status_str}</span>
+                    {f'<a href="{file_url}" target="_blank" style="margin-left:8px; color:#D0A21C; text-decoration:underline; font-size:0.8rem;">🖼️ Aperçu</a>' if file_url else ''}
+                </div>
+            </div>
+            '''
+            cards_html.append(card)
+        return mark_safe(''.join(cards_html))
+
+    @admin.action(description='🎨 Publier Nouvelle Maquette / Version V1-V2-V3')
+    def publish_new_version(self, request, queryset):
+        import datetime
+        count = 0
+        for brief in queryset:
+            versions = brief.deliverable_versions if isinstance(brief.deliverable_versions, list) else []
+            v_num = len(versions) + 1
+            now_str = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+            new_v = {
+                'id': f"ver-{v_num}-{int(datetime.datetime.now().timestamp())}",
+                'versionNumber': v_num,
+                'title': f"Maquette V{v_num}",
+                'fileUrl': '/assets/logo-or--hmgXa1H.png',
+                'previewUrl': '/assets/logo-or--hmgXa1H.png',
+                'createdAt': now_str,
+                'status': 'client_review'
+            }
+            versions.append(new_v)
+            brief.deliverable_versions = versions
+            brief.status = 'validation'
+            brief.save(update_fields=['deliverable_versions', 'status'])
+            count += 1
+        self.message_user(request, f"{count} nouvelle(s) version(s) V{v_num} publiée(s) avec succès pour le Portail Client !", messages.SUCCESS)
 
     @admin.display(description='⚡ Panneau d\'Action Studio (Workflow Guidé)')
     def status_actions_guided(self, obj):
@@ -167,6 +221,9 @@ class BriefAdmin(admin.ModelAdmin):
         ('📎 Références & Fichiers (Optionnels)', {
             'fields': ('reference_links', 'attachments', 'accept_process', 'accept_deadlines'),
             'classes': ('collapse',),
+        }),
+        ('🎨 Versions & Maquettes Publiées (V1, V2, V3)', {
+            'fields': ('display_deliverable_versions',)
         }),
         ('⚡ Traitement Studio & IA', {
             'fields': ('designer_notes', 'ai_analysis', 'id', 'created_at')

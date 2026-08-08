@@ -46,6 +46,7 @@ class Brief(models.Model):
     # 9. References & Files
     reference_links = models.TextField(blank=True, null=True, verbose_name="Liens de Référence")
     attachments = models.JSONField(default=list, blank=True, null=True, verbose_name="Pièces Jointes")
+    deliverable_versions = models.JSONField(default=list, blank=True, null=True, verbose_name="Versions de Livrables (V1, V2, V3)")
     
     # 10. Conditions Validation
     accept_process = models.BooleanField(default=False, blank=True, null=True, verbose_name="Processus Validé")

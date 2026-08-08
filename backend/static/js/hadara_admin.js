@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ── 6. HADARA CHIPS WIDGET (Élimination des [] JSON bruts) ───────
-    const jsonFields = document.querySelectorAll('textarea[name="features"], textarea[name="style_preferences"], textarea[name="target_audience_chips"]');
+    const jsonFields = document.querySelectorAll('textarea[name="features"], textarea[name="style_preferences"], textarea[name="target_audience_chips"], textarea[name="attachments"], input[name="attachments"]');
     jsonFields.forEach(function(textarea) {
         if (textarea.dataset.hadaraChipsInit) return;
         textarea.dataset.hadaraChipsInit = "true";

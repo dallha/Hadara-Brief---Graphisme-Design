@@ -21,6 +21,7 @@ import { HadaraStore } from './components/HadaraStore';
 import { BgRemovalTool } from './components/BgRemovalTool';
 import { QRCodeTool } from './components/QRCodeTool';
 import { OCRTool } from './components/OCRTool';
+import { InvoiceTool } from './components/InvoiceTool';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
 
@@ -650,6 +651,9 @@ export default function App() {
             } />
             <Route path="/outils/ocr" element={
               <OCRTool onGoToBrief={() => goTo('brief')} />
+            } />
+            <Route path="/outils/facture" element={
+              <InvoiceTool onGoToBrief={() => goTo('brief')} />
             } />
             {/* Redirection /outils par défaut vers detourrage ou une page menu */}
             <Route path="/outils" element={

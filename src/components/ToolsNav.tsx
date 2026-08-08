@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Wand2, QrCode, FileText } from 'lucide-react';
+import { Wand2, QrCode, FileText, Receipt } from 'lucide-react';
 import { cn } from '../utils/cn';
 
 export const ToolsNav: React.FC = () => {
@@ -11,6 +11,7 @@ export const ToolsNav: React.FC = () => {
     { name: "Détourage Image", path: "/outils/detourage", icon: <Wand2 className="w-4 h-4" /> },
     { name: "QR Code", path: "/outils/qr-code", icon: <QrCode className="w-4 h-4" /> },
     { name: "Extraire Texte", path: "/outils/ocr", icon: <FileText className="w-4 h-4" /> },
+    { name: "Facture", path: "/outils/facture", icon: <Receipt className="w-4 h-4" /> },
   ];
 
   return (

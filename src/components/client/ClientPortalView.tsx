@@ -464,7 +464,8 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         <div key={ver.id} className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4 shadow-md">
                           <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
-                              <span className="font-bold text-slate-100 text-sm block">Version {ver.versionNumber} : {ver.title}</span>
+                              <span className="font-bold text-amber-400 text-sm block">🎨 Maquette V{ver.versionNumber} — Prévisualisation</span>
+                              <span className="text-xs font-semibold text-slate-200 block">{ver.title}</span>
                               <span className="text-[10px] text-slate-500 font-mono">Publié le {ver.createdAt}</span>
                             </div>
 
@@ -473,7 +474,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                                 : 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
                             }`}>
-                              {ver.status === 'approved' ? 'Approuvé ✅' : 'En révision client'}
+                              {ver.status === 'approved' ? '🟢 Version Validée' : '🟡 En attente validation client'}
                             </span>
                           </div>
 
@@ -491,18 +492,20 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                                   className="px-4 py-2 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-lg"
                                 >
                                   <ZoomIn className="w-4 h-4" />
-                                  <span>Aperçu HD Plein Écran</span>
+                                  <span>🔍 Agrandir l'Aperçu</span>
                                 </button>
-                                <a
-                                  href={ver.originalFileUrl || ver.fileUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  download
-                                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-100 font-bold text-xs flex items-center space-x-1.5 shadow-lg"
-                                >
-                                  <Download className="w-4 h-4 text-emerald-400" />
-                                  <span>Télécharger Fichier Source</span>
-                                </a>
+                                {ver.status === 'approved' && (
+                                  <a
+                                    href={ver.originalFileUrl || ver.fileUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    download
+                                    className="px-4 py-2 rounded-xl bg-emerald-600 text-slate-950 font-extrabold text-xs flex items-center space-x-1.5 shadow-lg"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                    <span>📥 Télécharger HD</span>
+                                  </a>
+                                )}
                               </div>
                             </div>
                           )}
@@ -513,28 +516,22 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                                 onClick={() => setPreviewImage({ url: ver.fileUrl, title: ver.title })}
                                 className="px-4 py-2.5 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-300 hover:bg-amber-400/20 text-xs font-bold flex items-center space-x-1.5"
                               >
-                                <ImageIcon className="w-4 h-4" />
-                                <span>Agrandir l'image HD</span>
+                                <ZoomIn className="w-4 h-4" />
+                                <span>🔍 Agrandir / Aperçu</span>
                               </button>
                             )}
 
-                            <a
-                              href={ver.fileUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center space-x-1.5"
-                            >
-                              <ExternalLink className="w-4 h-4 text-amber-400" />
-                              <span>Ouvrir le fichier ({ver.title})</span>
-                            </a>
-
-                            {ver.status !== 'approved' && (
+                            {ver.status !== 'approved' ? (
                               <button
                                 onClick={() => handleApproveVersion(ver.id)}
                                 className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg transition-all"
                               >
-                                Approuver cette version ✅
+                                ✓ Valider cette version
                               </button>
+                            ) : (
+                              <div className="px-4 py-2 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-400 text-xs font-bold flex items-center gap-2">
+                                <Check className="w-4 h-4" /> 📦 Livraison HD Débloquée
+                              </div>
                             )}
                           </div>
 

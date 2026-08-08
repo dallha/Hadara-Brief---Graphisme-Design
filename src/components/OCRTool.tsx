@@ -16,7 +16,7 @@ import {
 import { ToolsNav } from './ToolsNav';
 import { cn } from '../utils/cn';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+import API_BASE from '../config';
 
 interface OCRToolProps {
   onGoToBrief: () => void;
@@ -99,7 +99,7 @@ export const OCRTool: React.FC<OCRToolProps> = ({ onGoToBrief }) => {
     setIsCorrecting(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/ocr-correct/`, {
+      const response = await fetch(`${API_BASE}/api/ocr-correct/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: extractedText })

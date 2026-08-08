@@ -102,28 +102,28 @@ class BriefAdmin(admin.ModelAdmin):
         )
 
     fieldsets = (
-        ('Informations Client', {
-            'fields': ('id', 'client_name', 'organization', 'email', 'whatsapp', 'city_country')
+        ('👤 Informations Client (Obligatoires)', {
+            'fields': ('client_name', 'whatsapp', 'email', 'organization', 'city_country')
         }),
-        ('Détails du Projet', {
+        ('🎯 Détails du Projet', {
             'fields': ('project_type', 'project_type_custom', 'context_description',
-                       'primary_objective', 'target_audience', 'main_title', 'full_text_content')
+                       'primary_objective', 'main_title', 'full_text_content')
         }),
-        ('Style & Direction', {
-            'fields': ('style_preferences', 'preferred_colors', 'avoid_colors')
+        ('🎨 Style & Direction (Optionnels)', {
+            'fields': ('target_audience', 'style_preferences', 'preferred_colors', 'avoid_colors'),
+            'classes': ('collapse',),
         }),
-        ('Spécifications Techniques', {
+        ('📐 Spécifications Techniques & Budget (Optionnels)', {
             'fields': ('technical_format', 'custom_dimensions', 'usage_type',
-                       'budget_range', 'desired_delivery_date', 'critical_deadline')
+                       'budget_range', 'desired_delivery_date', 'critical_deadline'),
+            'classes': ('collapse',),
         }),
-        ('Références', {
-            'fields': ('reference_links', 'attachments', 'accept_process', 'accept_deadlines')
+        ('📎 Références & Fichiers (Optionnels)', {
+            'fields': ('reference_links', 'attachments', 'accept_process', 'accept_deadlines'),
+            'classes': ('collapse',),
         }),
-        ('Administration & IA', {
-            'fields': ('status', 'quoted_price_fcfa', 'designer_notes', 'ai_analysis')
-        }),
-        ('Dates', {
-            'fields': ('created_at',)
+        ('⚡ Traitement Studio & Devis', {
+            'fields': ('status', 'quoted_price_fcfa', 'designer_notes', 'ai_analysis', 'id', 'created_at')
         }),
     )
 

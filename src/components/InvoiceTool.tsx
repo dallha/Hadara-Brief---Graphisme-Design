@@ -112,7 +112,7 @@ export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief
 
       {/* The Printable Invoice Paper */}
       <div className="bg-white text-slate-900 shadow-2xl rounded-sm max-w-4xl mx-auto print:shadow-none print:m-0 print:p-0">
-        <div className="p-8 sm:p-12 space-y-8 min-h-[1056px]">
+        <div className="p-8 sm:p-12 space-y-8 min-h-[1056px] print:min-h-0 print:h-auto">
           
           {/* Invoice Header */}
           <div className="flex justify-between items-start border-b-2 border-slate-200 pb-8">

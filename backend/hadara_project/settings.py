@@ -235,34 +235,7 @@ JAZZMIN_SETTINGS = {
         "auth.Group",
     ],
     
-    "custom_links": {
-        "api": [{
-            "name": "🧰 Hub des 12 Outils Gratuits",
-            "url": "https://hadara-design.com/outils",
-            "icon": "fas fa-tools",
-            "new_window": True,
-        }, {
-            "name": "🔍 Agrandisseur HD (Upscale)",
-            "url": "https://hadara-design.com/outils/upscale",
-            "icon": "fas fa-search-plus",
-            "new_window": True,
-        }, {
-            "name": "☁️ Nuage de Mots",
-            "url": "https://hadara-design.com/outils/nuage-mots",
-            "icon": "fas fa-cloud",
-            "new_window": True,
-        }, {
-            "name": "🧮 Calculateur Devis",
-            "url": "https://hadara-design.com/outils/devis",
-            "icon": "fas fa-calculator",
-            "new_window": True,
-        }, {
-            "name": "🧾 Générateur Factures",
-            "url": "https://hadara-design.com/outils/facture",
-            "icon": "fas fa-file-invoice",
-            "new_window": True,
-        }]
-    },
+    "custom_links": {},
 
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",

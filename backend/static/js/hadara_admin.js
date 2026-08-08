@@ -3,21 +3,26 @@
    ================================================================ */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // ── 1. Interactivité des cartes/lignes sur mobile ───────────────
+    // ── 1. Interactivité des cartes/lignes sur mobile & desktop ───────
     document.addEventListener('click', function(e) {
         const tr = e.target.closest('.table tbody tr');
         if (!tr) return;
 
-        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('a') || e.target.closest('button')) {
+        // Ignore clicks on links, buttons, or text inputs
+        if (e.target.closest('a') || e.target.closest('button') || (e.target.tagName === 'INPUT' && e.target.type !== 'checkbox')) {
             return;
         }
 
         const checkbox = tr.querySelector('.action-select, input[type="checkbox"]');
-        if (checkbox) {
+        if (!checkbox) return;
+
+        // If clicking on row body (not on checkbox directly), toggle checkbox
+        if (e.target !== checkbox && !e.target.closest('.action-select')) {
             checkbox.checked = !checkbox.checked;
             checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-            updateRowHighlight(tr, checkbox.checked);
         }
+
+        updateRowHighlight(tr, checkbox.checked);
     });
 
     document.addEventListener('change', function(e) {

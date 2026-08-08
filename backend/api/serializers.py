@@ -33,6 +33,7 @@ class BriefSerializer(serializers.ModelSerializer):
     designerNotes = serializers.CharField(source='designer_notes', required=False, allow_null=True, allow_blank=True)
     quotedPriceFCFA = serializers.IntegerField(source='quoted_price_fcfa', required=False, allow_null=True)
     aiAnalysis = serializers.JSONField(source='ai_analysis', required=False, allow_null=True)
+    deliverableVersions = serializers.JSONField(source='deliverable_versions', required=False, allow_null=True)
 
     class Meta:
         model = Brief
@@ -42,7 +43,7 @@ class BriefSerializer(serializers.ModelSerializer):
             'targetAudienceChips', 'mainTitle', 'fullTextContent', 'stylePreferences', 'preferredColors',
             'avoidColors', 'technicalFormat', 'customDimensions', 'usageType', 'budgetRange', 'desiredDeliveryDate',
             'criticalDeadline', 'referenceLinks', 'attachments', 'acceptProcess', 'acceptDeadlines',
-            'designerNotes', 'quotedPriceFCFA', 'aiAnalysis'
+            'designerNotes', 'quotedPriceFCFA', 'aiAnalysis', 'deliverableVersions'
         ]
 
 class TemplateSerializer(serializers.ModelSerializer):

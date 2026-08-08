@@ -29,6 +29,7 @@ import { WatermarkTool } from './components/WatermarkTool';
 import { ImageCompressorTool } from './components/ImageCompressorTool';
 import { MockupTool } from './components/MockupTool';
 import { WordCloudTool } from './components/WordCloudTool';
+import { UpscaleTool } from './components/UpscaleTool';
 import { ToolsHub } from './components/ToolsHub';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
@@ -683,6 +684,9 @@ export default function App() {
             } />
             <Route path="/outils/nuage-mots" element={
               <WordCloudTool onGoToBrief={() => goTo('brief')} />
+            } />
+            <Route path="/outils/upscale" element={
+              <UpscaleTool onGoToBrief={() => goTo('brief')} />
             } />
             <Route path="/outils" element={
               <ToolsHub onGoToBrief={() => goTo('brief')} />

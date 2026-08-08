@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Wand2, QrCode, FileText, Receipt, Palette, Smartphone, Stamp, FileImage, Timer, Calculator, Cloud } from 'lucide-react';
+import { Wand2, QrCode, FileText, Receipt, Palette, Smartphone, Stamp, FileImage, Timer, Calculator, Cloud, Maximize2 } from 'lucide-react';
 import { cn } from '../utils/cn';
 
 export const ToolsNav: React.FC = () => {
@@ -8,6 +8,7 @@ export const ToolsNav: React.FC = () => {
   const currentPath = location.pathname;
 
   const links = [
+    { name: "Agrandisseur HD", path: "/outils/upscale", icon: <Maximize2 className="w-4 h-4" /> },
     { name: "Nuage Mots", path: "/outils/nuage-mots", icon: <Cloud className="w-4 h-4" /> },
     { name: "Devis", path: "/outils/devis", icon: <Calculator className="w-4 h-4" /> },
     { name: "Facture", path: "/outils/facture", icon: <Receipt className="w-4 h-4" /> },

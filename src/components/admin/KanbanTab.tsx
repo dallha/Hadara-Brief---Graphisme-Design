@@ -90,13 +90,13 @@ export const KanbanTab: React.FC<KanbanTabProps> = ({
       </div>
 
       {/* 6 Kanban Columns Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto pb-6">
+      <div className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-6 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 md:snap-none">
         {KANBAN_COLUMNS.map((col) => {
           const colBriefs = filteredBriefs.filter((b) => b.status === col.id);
           const ColIcon = col.icon;
 
           return (
-            <div key={col.id} className="flex flex-col rounded-2xl bg-slate-950/80 border border-slate-800/80 p-3 min-w-[260px] min-h-[500px]">
+            <div key={col.id} className="snap-center flex flex-col rounded-2xl bg-slate-950/80 border border-slate-800/80 p-3 min-w-[280px] w-[85vw] md:w-auto min-h-[500px]">
               
               {/* Column Header */}
               <div className={`p-3 rounded-xl border ${col.bg} ${col.border} flex items-center justify-between mb-3`}>

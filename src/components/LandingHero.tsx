@@ -194,7 +194,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
           {/* Card 1: Identité Visuelle (Span 8) */}
             <motion.div 
             variants={fadeUp}
-            className="md:col-span-8 p-5 sm:p-8 rounded-3xl bg-slate-900/90 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.2)] transition-all duration-300 flex flex-col justify-between min-h-[260px] sm:min-h-[340px] group shadow-xl relative overflow-hidden"
+            className="md:col-span-8 p-5 sm:p-8 rounded-3xl bg-slate-900/90 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.2)] transition-all duration-300 flex flex-col justify-between min-h-0 sm:min-h-[340px] group shadow-xl relative overflow-hidden"
           >
             <div className="flex justify-between items-start mb-6">
               <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500 transition-colors">
@@ -223,7 +223,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
 
           {/* Card 2: Communication Visuelle (Span 4) */}
           <motion.div whileHover={{ y: -4 }}
-            className="md:col-span-4 p-5 sm:p-8 rounded-3xl bg-gradient-to-br from-[#335A79] to-[#184260] text-slate-100 flex flex-col justify-between min-h-[220px] sm:min-h-[340px] shadow-xl relative overflow-hidden"
+            className="md:col-span-4 p-5 sm:p-8 rounded-3xl bg-gradient-to-br from-[#335A79] to-[#184260] text-slate-100 flex flex-col justify-between min-h-0 sm:min-h-[340px] shadow-xl relative overflow-hidden"
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-amber-400/20 flex items-center justify-center">
@@ -245,7 +245,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
 
           {/* Card 3: Packages Booster (Span 4) */}
           <motion.div whileHover={{ y: -4 }}
-            className="md:col-span-4 p-5 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between min-h-[220px] sm:min-h-[300px] group shadow-xl"
+            className="md:col-span-4 p-5 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between min-h-0 sm:min-h-[300px] group shadow-xl"
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500 transition-colors">
@@ -305,7 +305,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="relative p-8 sm:p-16 rounded-[3rem] bg-slate-900/90 border border-slate-800 overflow-hidden shadow-2xl"
+        className="relative p-6 sm:p-16 rounded-2xl sm:rounded-[3rem] bg-slate-900/90 border border-slate-800 overflow-hidden shadow-2xl"
         id="process"
       >
         <div className="text-center space-y-4 mb-16 relative z-10">
@@ -351,12 +351,12 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        className="max-w-4xl mx-auto text-center p-8 sm:p-16 rounded-[3rem] bg-gradient-to-br from-amber-500/20 to-slate-900 border border-amber-500/30"
+        className="max-w-4xl mx-auto text-center p-6 sm:p-16 rounded-2xl sm:rounded-[3rem] bg-gradient-to-br from-amber-500/20 to-slate-900 border border-amber-500/30"
       >
         <div className="space-y-6">
           <Send className="w-12 h-12 text-amber-400 mx-auto" />
           <h2 className="text-3xl sm:text-5xl font-serif font-bold text-slate-100">Prêt à sublimer votre image ?</h2>
-          <p className="text-slate-300 text-lg">
+          <p className="text-slate-300 text-base sm:text-lg">
             Remplissez un brief rapide et obtenez un devis personnalisé sous 24h.
           </p>
           <button

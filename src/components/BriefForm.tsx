@@ -145,7 +145,7 @@ export const BriefForm: React.FC<BriefFormProps> = ({
         </div>
 
         {/* 5-Step Interactive Navigation Pills */}
-        <div className="grid grid-cols-5 gap-2 relative z-10">
+        <div className="flex sm:grid sm:grid-cols-5 gap-2 relative z-10 overflow-x-auto pb-2 scrollbar-hide">
           {STEP_DEFINITIONS.map((s) => {
             const IconComp = s.icon;
             const isDone = s.step < currentSection;
@@ -168,7 +168,7 @@ export const BriefForm: React.FC<BriefFormProps> = ({
                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 to-transparent pointer-events-none" />
                 )}
                 <IconComp className="w-4 h-4 shrink-0" />
-                <span className="text-[10px] sm:text-xs truncate">{s.short}</span>
+                <span className="text-[10px] sm:text-xs truncate max-w-[60px] sm:max-w-none">{s.short}</span>
               </button>
             );
           })}
@@ -191,7 +191,7 @@ export const BriefForm: React.FC<BriefFormProps> = ({
       </AnimatePresence>
 
       {/* Form Container */}
-      <div className="p-6 sm:p-10 rounded-[2rem] bg-slate-900/60 border border-slate-800/80 backdrop-blur-md shadow-2xl relative">
+      <div className="p-4 sm:p-10 rounded-[2rem] bg-slate-900/60 border border-slate-800/80 backdrop-blur-md shadow-2xl relative">
         <form onSubmit={handleSubmit} className="relative min-h-[400px]">
           <AnimatePresence mode="wait" custom={direction}>
             {currentSection === 1 && <Step1Contact formData={formData} setFormData={setFormDataWrapper} direction={direction} stepVariants={stepVariants} />}

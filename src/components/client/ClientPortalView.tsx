@@ -213,7 +213,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <a
             href={`https://wa.me/221776232741?text=Bonjour%20Hadara%20Studio,%20je%20suis%20connect%C3%A9%20sur%20mon%20espace%20client%20pour%20le%20projet%20${activeBrief?.id || ''}`}
             target="_blank"

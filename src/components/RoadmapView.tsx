@@ -136,7 +136,7 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ onGoToBrief }) => {
           </div>
           <button
             onClick={onGoToBrief}
-            className="px-8 py-4 rounded-2xl font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:brightness-110 shadow-xl shadow-amber-400/20 active:scale-95 transition-all inline-flex items-center space-x-2 text-sm"
+            className="w-full sm:w-auto justify-center px-8 py-4 rounded-2xl font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:brightness-110 shadow-xl shadow-amber-400/20 active:scale-95 transition-all inline-flex items-center space-x-2 text-sm"
           >
             <span>Créer votre Brief Intelligent</span>
             <ArrowRight className="w-4 h-4 text-slate-950" />

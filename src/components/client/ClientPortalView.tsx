@@ -435,27 +435,43 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               </div>
 
               {/* Deliverable Versions & Image Preview Section */}
-              <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-5 shadow-2xl">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-serif font-bold text-slate-100 flex items-center gap-2">
-                    <Layers className="w-5 h-5 text-amber-400" /> Maquettes & Fichiers HD à Valider
-                  </h3>
-                  <span className="text-xs text-slate-400 font-mono">
-                    {(activeBrief.deliverableVersions || []).length} version(s)
-                  </span>
-                </div>
+              {(() => {
+                const effectiveVersions = (activeBrief.deliverableVersions && activeBrief.deliverableVersions.length > 0)
+                  ? activeBrief.deliverableVersions
+                  : (activeBrief.attachments && activeBrief.attachments.length > 0
+                      ? activeBrief.attachments.map((att, idx) => ({
+                          id: `att-${idx}`,
+                          versionNumber: idx + 1,
+                          title: `Maquette V${idx + 1}`,
+                          fileUrl: att,
+                          previewUrl: att,
+                          createdAt: activeBrief.createdAt || 'Récemment',
+                          status: 'client_review' as const
+                        }))
+                      : []);
 
-                <div className="space-y-4">
-                  {(activeBrief.deliverableVersions || []).length === 0 ? (
-                    <div className="p-8 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-2">
-                      <Sparkles className="w-8 h-8 text-amber-400/60 mx-auto" />
-                      <p className="text-xs text-slate-400 font-medium">
-                        Le graphiste prépare actuellement votre première maquette. Elle apparaîtra ici dès sa publication !
-                      </p>
+                return (
+                  <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-5 shadow-2xl">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-serif font-bold text-slate-100 flex items-center gap-2">
+                        <Layers className="w-5 h-5 text-amber-400" /> Maquettes & Fichiers HD à Valider
+                      </h3>
+                      <span className="text-xs text-slate-400 font-mono">
+                        {effectiveVersions.length} version(s)
+                      </span>
                     </div>
-                  ) : (
-                    activeBrief.deliverableVersions?.map((ver) => {
-                      const isImg = isImageUrl(ver.fileUrl);
+
+                    <div className="space-y-4">
+                      {effectiveVersions.length === 0 ? (
+                        <div className="p-8 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-2">
+                          <Sparkles className="w-8 h-8 text-amber-400/60 mx-auto" />
+                          <p className="text-xs text-slate-400 font-medium">
+                            Le graphiste prépare actuellement votre première maquette. Elle apparaîtra ici dès sa publication !
+                          </p>
+                        </div>
+                      ) : (
+                        effectiveVersions.map((ver) => {
+                          const isImg = isImageUrl(ver.fileUrl);
                       return (
                         <div key={ver.id} className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4 shadow-md">
                           <div className="flex items-center justify-between">
@@ -562,6 +578,8 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                   )}
                 </div>
               </div>
+            );
+          })()}
 
               {/* Financial Summary & Payment Instructions */}
               {activeBrief.quotedPriceFCFA && (

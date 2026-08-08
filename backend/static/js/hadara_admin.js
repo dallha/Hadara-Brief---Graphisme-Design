@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ── 4. HADARA IMAGE UPLOADER & COMPRESSOR (Dual-Mode: Appareil + URL) ─
-    const imageFields = document.querySelectorAll('input[name="image_url"], input[name="image"], input[name="previewUrl"], input[name="fileUrl"], textarea[name="image_url"], textarea[name="image"]');
+    // ── 4. HADARA IMAGE & FILE UPLOADER (Dual-Mode: Appareil + URL) ───────────
+    const imageFields = document.querySelectorAll('input[name="image_url"], input[name="image"], input[name="previewUrl"], input[name="fileUrl"], textarea[name="image_url"], textarea[name="image"], textarea[name="attachments"], input[name="attachments"], textarea[name="reference_links"], input[name="reference_links"]');
     imageFields.forEach(function(field) {
         if (field.dataset.hadaraUploaderInit) return;
         field.dataset.hadaraUploaderInit = "true";
@@ -210,8 +210,8 @@ document.addEventListener('DOMContentLoaded', function() {
         wrapper.appendChild(field);
     });
 
-    // ── 6. HADARA CHIPS WIDGET (Élimination des [] JSON bruts) ───────
-    const jsonFields = document.querySelectorAll('textarea[name="features"], textarea[name="style_preferences"], textarea[name="target_audience_chips"], textarea[name="attachments"], input[name="attachments"]');
+    // ── 6. HADARA CHIPS WIDGET (Livrables & Tags sous forme de Badges) ──
+    const jsonFields = document.querySelectorAll('textarea[name="features"], textarea[name="style_preferences"], textarea[name="target_audience_chips"]');
     jsonFields.forEach(function(textarea) {
         if (textarea.dataset.hadaraChipsInit) return;
         textarea.dataset.hadaraChipsInit = "true";
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputRow = document.createElement('div');
         inputRow.className = "input-group input-group-sm mt-2";
         inputRow.innerHTML = `
-            <input type="text" class="form-control" placeholder="+ Ajouter un tag / livrable..." style="background:#070B18; color:#F4F1EA; border-color:rgba(208,162,28,0.3); border-radius:8px 0 0 8px;" />
+            <input type="text" class="form-control" placeholder="+ Ajouter un livrable / tag..." style="background:#070B18; color:#F4F1EA; border-color:rgba(208,162,28,0.3); border-radius:8px 0 0 8px;" />
             <div class="input-group-append">
                 <button type="button" class="btn btn-warning font-weight-bold" style="background:#D0A21C; color:#070B18; border-radius:0 8px 8px 0;">+ Ajouter</button>
             </div>

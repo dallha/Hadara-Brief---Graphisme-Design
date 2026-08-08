@@ -83,21 +83,40 @@ class Brief(models.Model):
         return f"{self.id} - {self.client_name}"
 
 class Template(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
+    id = models.CharField(max_length=50, primary_key=True, blank=True)
     title = models.CharField(max_length=200, verbose_name="Titre du modèle")
     category = models.CharField(max_length=100, verbose_name="Catégorie")
-    description = models.TextField(verbose_name="Description")
     project_type = models.CharField(max_length=50, verbose_name="Type de projet")
     technical_format = models.CharField(max_length=50, verbose_name="Format technique")
+    description = models.TextField(blank=True, null=True, verbose_name="Description")
+    
+    # Facultatifs
     custom_dimensions = models.CharField(max_length=200, blank=True, null=True, verbose_name="Dimensions")
-    default_main_title = models.CharField(max_length=200, verbose_name="Titre par défaut")
-    default_full_text_content = models.TextField(verbose_name="Contenu texte par défaut")
-    style_preferences = models.JSONField(default=list, verbose_name="Préférences de style")
-    preferred_colors = models.CharField(max_length=200, verbose_name="Couleurs souhaitées")
-    avoid_colors = models.CharField(max_length=200, verbose_name="Couleurs à éviter")
-    default_budget_range = models.CharField(max_length=50, verbose_name="Fourchette de budget")
-    suggested_price_fcfa = models.IntegerField(verbose_name="Prix Indicatif (FCFA)")
+    default_main_title = models.CharField(max_length=200, blank=True, null=True, verbose_name="Titre par défaut")
+    default_full_text_content = models.TextField(blank=True, null=True, verbose_name="Contenu texte par défaut")
+    style_preferences = models.JSONField(default=list, blank=True, null=True, verbose_name="Préférences de style")
+    preferred_colors = models.CharField(max_length=200, blank=True, null=True, verbose_name="Couleurs souhaitées")
+    avoid_colors = models.CharField(max_length=200, blank=True, null=True, verbose_name="Couleurs à éviter")
+    default_budget_range = models.CharField(max_length=50, blank=True, null=True, verbose_name="Fourchette de budget")
+    suggested_price_fcfa = models.IntegerField(blank=True, null=True, verbose_name="Prix Indicatif (FCFA)")
     usage_count = models.IntegerField(default=0, verbose_name="Nombre d'utilisations")
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            from django.db import transaction
+            with transaction.atomic():
+                last_tpl = Template.objects.select_for_update().order_by('-id').first()
+                if last_tpl and last_tpl.id.startswith('TPL-'):
+                    try:
+                        last_num = int(last_tpl.id.split('-')[1])
+                        self.id = f"TPL-{(last_num + 1):04d}"
+                    except (ValueError, IndexError):
+                        self.id = "TPL-0001"
+                else:
+                    self.id = "TPL-0001"
+                super().save(*args, **kwargs)
+            return
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Modèle de Brief"

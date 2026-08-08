@@ -159,9 +159,24 @@ class StoreProductAdmin(admin.ModelAdmin):
 
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'suggested_price_fcfa')
+    list_display = ('title', 'category', 'project_type', 'suggested_price_fcfa')
     list_filter = ('category',)
     search_fields = ('title',)
+    readonly_fields = ('id', 'usage_count')
+
+    fieldsets = (
+        ('📋 Informations Principales (Obligatoires)', {
+            'fields': ('title', 'category', 'project_type', 'technical_format', 'description')
+        }),
+        ('🎨 Préférences & Presets (Optionnels)', {
+            'fields': ('custom_dimensions', 'default_main_title', 'default_full_text_content',
+                       'style_preferences', 'preferred_colors', 'avoid_colors'),
+            'classes': ('collapse',),
+        }),
+        ('💰 Tarification & Identifiant Automatique', {
+            'fields': ('default_budget_range', 'suggested_price_fcfa', 'id', 'usage_count')
+        }),
+    )
 
 @admin.register(ToolUsageLog)
 class ToolUsageLogAdmin(admin.ModelAdmin):

@@ -141,6 +141,26 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
     }
   };
 
+  const handleAcceptQuote = async () => {
+    if (!activeBrief) return;
+    const updatedBrief: BriefData = {
+      ...activeBrief,
+      status: 'acompte_recu',
+      activityLog: [
+        {
+          id: `log-${Date.now()}`,
+          timestamp: new Date().toLocaleString('fr-FR'),
+          user: activeBrief.clientName,
+          userRole: 'client',
+          action: 'Devis officiel accepté par le client ! Acompte en cours. 💳'
+        },
+        ...(activeBrief.activityLog || [])
+      ]
+    };
+    await onUpdateBriefEnriched(updatedBrief);
+    alert('Merci ! Devis officiel accepté avec succès. Le studio démarre votre création.');
+  };
+
   const getStepIndex = (status: string) => {
     const idx = WORKFLOW_STEPS.findIndex(s => s.key === status);
     return idx >= 0 ? idx : 0;
@@ -346,6 +366,43 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                     })}
                   </div>
                 </div>
+
+                {/* Quote Decision Banner when status is devis_envoye */}
+                {activeBrief.status === 'devis_envoye' && (
+                  <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-500/20 via-slate-900 to-slate-950 border-2 border-amber-400/60 shadow-2xl space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold uppercase tracking-wider border border-amber-400/30">
+                          💰 Devis Officiel Disponible
+                        </span>
+                        <h3 className="text-lg font-serif font-bold text-slate-100">Votre devis pour {activeBrief.projectType} est prêt !</h3>
+                      </div>
+                      <div className="text-right font-mono">
+                        <span className="text-2xl font-black text-amber-300">{activeBrief.quotedPriceFCFA ? activeBrief.quotedPriceFCFA.toLocaleString('fr-FR') : '50 000'} FCFA</span>
+                        <span className="text-[10px] text-slate-400 block font-sans">Acompte 50% : {activeBrief.quotedPriceFCFA ? Math.round(activeBrief.quotedPriceFCFA * 0.5).toLocaleString('fr-FR') : '25 000'} FCFA</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 pt-2">
+                      <button
+                        onClick={handleAcceptQuote}
+                        className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-400/20 flex items-center space-x-2 transition-all"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>✓ Valider & Accepter le Devis</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const note = prompt("Détaillez votre remarque sur le devis :");
+                          if (note) setRevisionNote(note);
+                        }}
+                        className="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center space-x-2"
+                      >
+                        <span>✕ Demander un Ajustement Devis</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Specifications Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs">

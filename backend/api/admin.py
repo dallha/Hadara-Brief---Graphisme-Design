@@ -90,12 +90,15 @@ class BriefAdmin(admin.ModelAdmin):
             versions = brief.deliverable_versions if isinstance(brief.deliverable_versions, list) else []
             v_num = len(versions) + 1
             now_str = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+            file_url = '/assets/logo-or--hmgXa1H.png'
+            if isinstance(brief.attachments, list) and len(brief.attachments) > 0 and isinstance(brief.attachments[0], str) and brief.attachments[0].strip():
+                file_url = brief.attachments[0]
             new_v = {
                 'id': f"ver-{v_num}-{int(datetime.datetime.now().timestamp())}",
                 'versionNumber': v_num,
                 'title': f"Maquette V{v_num}",
-                'fileUrl': '/assets/logo-or--hmgXa1H.png',
-                'previewUrl': '/assets/logo-or--hmgXa1H.png',
+                'fileUrl': file_url,
+                'previewUrl': file_url,
                 'createdAt': now_str,
                 'status': 'client_review'
             }

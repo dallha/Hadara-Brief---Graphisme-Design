@@ -58,24 +58,6 @@ class Brief(models.Model):
     ai_analysis = models.JSONField(blank=True, null=True, verbose_name="Analyse IA Hadara")
 
     def save(self, *args, **kwargs):
-        import datetime
-        # Auto-create V1 deliverable version if attachments exist but deliverable_versions is empty
-        if self.attachments and isinstance(self.attachments, list) and len(self.attachments) > 0 and not self.deliverable_versions:
-            first_url = self.attachments[0]
-            if isinstance(first_url, str) and first_url.strip():
-                now_str = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
-                self.deliverable_versions = [{
-                    'id': f"ver-1-{int(datetime.datetime.now().timestamp())}",
-                    'versionNumber': 1,
-                    'title': 'Maquette V1',
-                    'fileUrl': first_url,
-                    'previewUrl': first_url,
-                    'createdAt': now_str,
-                    'status': 'client_review'
-                }]
-                if self.status in ['nouveau', 'devis_envoye', 'acompte_recu', 'en_creation']:
-                    self.status = 'validation'
-
         if not self.id:
             from django.db import transaction
             with transaction.atomic():

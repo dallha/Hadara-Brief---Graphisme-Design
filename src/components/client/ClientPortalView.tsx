@@ -436,19 +436,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
               {/* Deliverable Versions & Image Preview Section */}
               {(() => {
-                const effectiveVersions = (activeBrief.deliverableVersions && activeBrief.deliverableVersions.length > 0)
-                  ? activeBrief.deliverableVersions
-                  : (activeBrief.attachments && activeBrief.attachments.length > 0
-                      ? activeBrief.attachments.map((att, idx) => ({
-                          id: `att-${idx}`,
-                          versionNumber: idx + 1,
-                          title: `Maquette V${idx + 1}`,
-                          fileUrl: att,
-                          previewUrl: att,
-                          createdAt: activeBrief.createdAt || 'Récemment',
-                          status: 'client_review' as const
-                        }))
-                      : []);
+                const versions = activeBrief.deliverableVersions || [];
 
                 return (
                   <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-5 shadow-2xl">
@@ -457,12 +445,12 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         <Layers className="w-5 h-5 text-amber-400" /> Maquettes & Fichiers HD à Valider
                       </h3>
                       <span className="text-xs text-slate-400 font-mono">
-                        {effectiveVersions.length} version(s)
+                        {versions.length} version(s)
                       </span>
                     </div>
 
                     <div className="space-y-4">
-                      {effectiveVersions.length === 0 ? (
+                      {versions.length === 0 ? (
                         <div className="p-8 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-2">
                           <Sparkles className="w-8 h-8 text-amber-400/60 mx-auto" />
                           <p className="text-xs text-slate-400 font-medium">
@@ -470,7 +458,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                           </p>
                         </div>
                       ) : (
-                        effectiveVersions.map((ver) => {
+                        versions.map((ver) => {
                           const isImg = isImageUrl(ver.fileUrl);
                       return (
                         <div key={ver.id} className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4 shadow-md">

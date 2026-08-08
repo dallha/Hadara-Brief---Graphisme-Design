@@ -152,9 +152,14 @@ class PortfolioItemAdmin(admin.ModelAdmin):
 
     @admin.display(description='Aperçu Visuel')
     def apercu_visuel(self, obj):
-        if obj.image_url:
-            return format_html('<img src="{}" style="width: 55px; height: 38px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(245,158,11,0.3);" />', obj.image_url)
-        return format_html('<span style="color:#94a3b8; font-size:11px;">Sans aperçu</span>')
+        img_src = obj.image_url or ''
+        if img_src:
+            return format_html(
+                '<img src="{}" style="width: 50px; height: 36px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(245,158,11,0.3);" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'inline-block\';" />'
+                '<span style="display:none; color:#94a3b8; font-size:11px;">🖼️ Sans image</span>',
+                img_src
+            )
+        return format_html('<span style="color:#94a3b8; font-size:11px;">🖼️ Sans image</span>')
 
 
 @admin.register(StoreProduct)
@@ -163,12 +168,31 @@ class StoreProductAdmin(admin.ModelAdmin):
     list_filter = ('status', 'category', 'visible', 'featured')
     search_fields = ('name', 'brand', 'id')
     list_editable = ('status',)
+    readonly_fields = ('id', 'created_at', 'updated_at')
+
+    fieldsets = (
+        ('🛍️ Informations Essentielles (Obligatoires)', {
+            'fields': ('name', 'category', 'status')
+        }),
+        ('📦 Présentation & Tarification (Optionnelles)', {
+            'fields': ('brand', 'description', 'image', 'price'),
+            'classes': ('collapse',),
+        }),
+        ('⚙️ Options Boutique & Identifiant Automatique', {
+            'fields': ('visible', 'featured', 'id', 'created_at')
+        }),
+    )
 
     @admin.display(description='Aperçu')
     def apercu_visuel(self, obj):
-        if obj.image:
-            return format_html('<img src="{}" style="width: 45px; height: 35px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(245,158,11,0.3);" />', obj.image)
-        return format_html('<span style="color:#94a3b8; font-size:11px;">Sans image</span>')
+        img_src = obj.image or ''
+        if img_src:
+            return format_html(
+                '<img src="{}" style="width: 45px; height: 35px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(245,158,11,0.3);" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'inline-block\';" />'
+                '<span style="display:none; color:#94a3b8; font-size:11px;">🖼️ Sans image</span>',
+                img_src
+            )
+        return format_html('<span style="color:#94a3b8; font-size:11px;">🖼️ Sans image</span>')
 
 
 @admin.register(Template)

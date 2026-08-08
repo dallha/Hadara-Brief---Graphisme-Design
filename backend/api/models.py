@@ -175,12 +175,12 @@ class StoreProduct(models.Model):
         (STATUS_UNAVAILABLE, 'Indisponible'),
     ]
 
-    id = models.CharField(max_length=50, primary_key=True)
+    id = models.CharField(max_length=50, primary_key=True, blank=True)
     name = models.CharField(max_length=200, verbose_name="Nom du produit")
     brand = models.CharField(max_length=120, blank=True, null=True, verbose_name="Marque")
     category = models.CharField(max_length=100, verbose_name="Catégorie")
-    description = models.TextField(verbose_name="Description")
-    image = models.TextField(blank=True, null=True, verbose_name="Image")
+    description = models.TextField(blank=True, null=True, verbose_name="Description")
+    image = models.TextField(blank=True, null=True, verbose_name="Image (URL ou Fichier)")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_ON_ORDER, verbose_name="Statut Stock")
     featured = models.BooleanField(default=False, verbose_name="En Vedette")
     visible = models.BooleanField(default=True, verbose_name="Visible en Boutique")

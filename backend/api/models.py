@@ -1,61 +1,60 @@
 from django.db import models
 
 class Brief(models.Model):
-    # UUIDs or String IDs can be used, but since frontend uses "HADARA-YYYY-XXX", we use CharField as primary key or just an ID field.
     id = models.CharField(max_length=50, primary_key=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=50, default='nouveau')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de Création")
+    status = models.CharField(max_length=50, default='nouveau', verbose_name="Statut du Projet")
     
     # 1. Client Info
-    client_name = models.CharField(max_length=200, blank=True, null=True)
-    organization = models.CharField(max_length=200, blank=True, null=True)
-    whatsapp = models.CharField(max_length=50, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
-    city_country = models.CharField(max_length=200, blank=True, null=True)
+    client_name = models.CharField(max_length=200, blank=True, null=True, verbose_name="Client")
+    organization = models.CharField(max_length=200, blank=True, null=True, verbose_name="Organisation / Marque")
+    whatsapp = models.CharField(max_length=50, blank=True, null=True, verbose_name="WhatsApp")
+    email = models.EmailField(blank=True, null=True, verbose_name="Adresse Email")
+    city_country = models.CharField(max_length=200, blank=True, null=True, verbose_name="Ville / Pays")
     
     # 2. Project Type
-    project_type = models.CharField(max_length=50, blank=True, null=True)
-    project_type_custom = models.CharField(max_length=200, blank=True, null=True)
+    project_type = models.CharField(max_length=50, blank=True, null=True, verbose_name="Type de Projet")
+    project_type_custom = models.CharField(max_length=200, blank=True, null=True, verbose_name="Type de Projet Personnalisé")
     
     # 3. Context & Objectives
-    context_description = models.TextField(blank=True, null=True)
-    primary_objective = models.TextField(blank=True, null=True)
+    context_description = models.TextField(blank=True, null=True, verbose_name="Contexte & Description")
+    primary_objective = models.TextField(blank=True, null=True, verbose_name="Objectif Principal")
     
     # 4. Target Audience
-    target_audience = models.TextField(blank=True, null=True)
-    target_audience_chips = models.JSONField(default=list)
+    target_audience = models.TextField(blank=True, null=True, verbose_name="Cible Visée")
+    target_audience_chips = models.JSONField(default=list, verbose_name="Tags Cible")
     
     # 5. Message & Content
-    main_title = models.CharField(max_length=200, blank=True, null=True)
-    full_text_content = models.TextField(blank=True, null=True)
+    main_title = models.CharField(max_length=200, blank=True, null=True, verbose_name="Titre Principal")
+    full_text_content = models.TextField(blank=True, null=True, verbose_name="Textes Inclus")
     
     # 6. Style & Direction
-    style_preferences = models.JSONField(default=list, blank=True, null=True)
-    preferred_colors = models.CharField(max_length=200, blank=True, null=True)
-    avoid_colors = models.CharField(max_length=200, blank=True, null=True)
+    style_preferences = models.JSONField(default=list, blank=True, null=True, verbose_name="Styles Souhaités")
+    preferred_colors = models.CharField(max_length=200, blank=True, null=True, verbose_name="Couleurs Préférées")
+    avoid_colors = models.CharField(max_length=200, blank=True, null=True, verbose_name="Couleurs à Éviter")
     
     # 7. Technical Format
-    technical_format = models.CharField(max_length=50, blank=True, null=True)
-    custom_dimensions = models.CharField(max_length=200, blank=True, null=True)
-    usage_type = models.CharField(max_length=20, blank=True, null=True)
+    technical_format = models.CharField(max_length=50, blank=True, null=True, verbose_name="Format Technique")
+    custom_dimensions = models.CharField(max_length=200, blank=True, null=True, verbose_name="Dimensions Spécifiques")
+    usage_type = models.CharField(max_length=20, blank=True, null=True, verbose_name="Type d'Usage")
     
     # 8. Budget & Deadline
-    budget_range = models.CharField(max_length=50, blank=True, null=True)
-    desired_delivery_date = models.CharField(max_length=50, blank=True, null=True) # kept as string since TS uses string date format
-    critical_deadline = models.CharField(max_length=50, blank=True, null=True)
+    budget_range = models.CharField(max_length=50, blank=True, null=True, verbose_name="Fourchette de Budget")
+    desired_delivery_date = models.CharField(max_length=50, blank=True, null=True, verbose_name="Date de Livraison Souhaitée")
+    critical_deadline = models.CharField(max_length=50, blank=True, null=True, verbose_name="Délai Critique")
     
     # 9. References & Files
-    reference_links = models.TextField(blank=True, null=True)
-    attachments = models.JSONField(default=list, blank=True, null=True)
+    reference_links = models.TextField(blank=True, null=True, verbose_name="Liens de Référence")
+    attachments = models.JSONField(default=list, blank=True, null=True, verbose_name="Pièces Jointes")
     
     # 10. Conditions Validation
-    accept_process = models.BooleanField(default=False, blank=True, null=True)
-    accept_deadlines = models.BooleanField(default=False, blank=True, null=True)
+    accept_process = models.BooleanField(default=False, blank=True, null=True, verbose_name="Processus Validé")
+    accept_deadlines = models.BooleanField(default=False, blank=True, null=True, verbose_name="Délais Validés")
     
     # Admin / Designer fields
-    designer_notes = models.TextField(blank=True, null=True)
-    quoted_price_fcfa = models.IntegerField(blank=True, null=True)
-    ai_analysis = models.JSONField(blank=True, null=True)
+    designer_notes = models.TextField(blank=True, null=True, verbose_name="Notes du Designer")
+    quoted_price_fcfa = models.IntegerField(blank=True, null=True, verbose_name="Devis Estimé (FCFA)")
+    ai_analysis = models.JSONField(blank=True, null=True, verbose_name="Analyse IA Hadara")
 
     def save(self, *args, **kwargs):
         if not self.id:

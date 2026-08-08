@@ -1,32 +1,25 @@
 /* ================================================================
-   HADARA ADMIN — Interactive Card Selection JS
+   HADARA ADMIN — Interactive Card Selection & UX Polish JS
    ================================================================ */
 
 document.addEventListener('DOMContentLoaded', function() {
     // Écouter les clics sur les cartes/lignes du tableau
     document.addEventListener('click', function(e) {
-        // Trouver la ligne de tableau (tr) ou la carte
         const tr = e.target.closest('.table tbody tr');
         if (!tr) return;
 
-        // Si l'utilisateur clique sur un lien <a> ou un bouton <button> ou directement sur le checkbox, ne pas interférer
         if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('a') || e.target.closest('button')) {
             return;
         }
 
-        // Trouver la checkbox dans la ligne
         const checkbox = tr.querySelector('.action-select, input[type="checkbox"]');
         if (checkbox) {
             checkbox.checked = !checkbox.checked;
-            // Déclencher l'événement change pour que Jazzmin / Django mette à jour le compteur d'actions
             checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-            
-            // Appliquer l'effet visuel de sélection
             updateRowHighlight(tr, checkbox.checked);
         }
     });
 
-    // Écouter les changements sur toutes les checkboxes
     document.addEventListener('change', function(e) {
         if (e.target.matches('.action-select, input[type="checkbox"]')) {
             const tr = e.target.closest('.table tbody tr');
@@ -46,8 +39,30 @@ document.addEventListener('DOMContentLoaded', function() {
             tr.style.border = '';
             tr.style.background = '';
         }
-    // Forcer tous les liens des Outils et du site public à s'ouvrir dans un NOUVEL ONGLET (_blank)
-    // afin de ne JAMAIS quitter la session de l'Admin Django
+    }
+
+    // 1. Placeholder explicite pour la barre de recherche
+    const searchInput = document.querySelector('#toolbar input[name="q"], #changelist-search input[name="q"], .search-container input');
+    if (searchInput) {
+        searchInput.placeholder = "🔎 Rechercher un projet, client, produit ou modèle...";
+    }
+
+    // 2. Custom Empty State quand 0 élément présent
+    const emptyRows = document.querySelectorAll('.table tbody tr');
+    if (emptyRows.length === 1) {
+        const firstTd = emptyRows[0].querySelector('td');
+        if (firstTd && (firstTd.textContent.includes('0 ') || firstTd.textContent.includes('Aucun') || firstTd.textContent.includes('No ') || firstTd.getAttribute('colspan'))) {
+            firstTd.innerHTML = `
+                <div style="padding: 2.5rem 1rem; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.85;">📂</div>
+                    <h4 style="color: #f59e0b; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem;">Aucun élément pour le moment</h4>
+                    <p style="color: #94a3b8; font-size: 0.88rem; margin: 0;">Les nouvelles entrées enregistrées apparaîtront automatiquement dans Hadara Manager.</p>
+                </div>
+            `;
+        }
+    }
+
+    // 3. Forcer l'ouverture externe des liens du site public
     function fixExternalLinks() {
         const links = document.querySelectorAll('a[href*="/outils"], a[href*="hadara-design.com"], .nav-sidebar a[href^="http"]');
         links.forEach(function(link) {
@@ -57,6 +72,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     fixExternalLinks();
-    // Exécuter également si le DOM change dynamiquement
     setTimeout(fixExternalLinks, 500);
 });

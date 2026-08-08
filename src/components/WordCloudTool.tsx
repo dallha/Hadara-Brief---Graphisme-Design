@@ -14,7 +14,9 @@ import {
   Check,
   Eye,
   Trash2,
-  Plus
+  Plus,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { ToolsNav } from './ToolsNav';
 
@@ -31,6 +33,8 @@ interface WordFreq {
   y?: number;
   rotated?: boolean;
 }
+
+type BgMode = 'dark' | 'white-color' | 'white-black' | 'transparent';
 
 // French & English Common Stop Words
 const DEFAULT_STOPWORDS = new Set([
@@ -61,17 +65,11 @@ const PRESET_TEXTS = [
 ];
 
 const COLOR_PALETTES = [
-  { name: 'Hadara Or', colors: ['#fbbf24', '#f59e0b', '#d97706', '#b45309', '#fef3c7'] },
-  { name: 'Nuit Profonde', colors: ['#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8', '#93c5fd'] },
-  { name: 'Émeraude', colors: ['#34d399', '#10b981', '#059669', '#047857', '#a7f3d0'] },
-  { name: 'Vibrant Multi', colors: ['#fbbf24', '#38bdf8', '#f43f5e', '#a855f7', '#34d399'] },
-  { name: 'Monochrome Blanc', colors: ['#ffffff', '#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b'] },
-];
-
-const MASK_SHAPES = [
-  { id: 'circle', label: 'Cercle ⭕' },
-  { id: 'rectangle', label: 'Rectangle 🔲' },
-  { id: 'heart', label: 'Cœur ❤️' },
+  { name: 'Hadara Or', colorsDark: ['#fbbf24', '#f59e0b', '#d97706', '#b45309', '#fef3c7'], colorsLight: ['#b45309', '#d97706', '#816c07', '#92400e', '#78350f'] },
+  { name: 'Nuit Profonde', colorsDark: ['#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8', '#93c5fd'], colorsLight: ['#1d4ed8', '#1e40af', '#2563eb', '#1e3a8a', '#3b82f6'] },
+  { name: 'Émeraude', colorsDark: ['#34d399', '#10b981', '#059669', '#047857', '#a7f3d0'], colorsLight: ['#047857', '#065f46', '#059669', '#064e3b', '#10b981'] },
+  { name: 'Vibrant Multi', colorsDark: ['#fbbf24', '#38bdf8', '#f43f5e', '#a855f7', '#34d399'], colorsLight: ['#d97706', '#0284c7', '#e11d48', '#7e22ce', '#059669'] },
+  { name: 'Noir & Blanc', colorsDark: ['#ffffff', '#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b'], colorsLight: ['#0f172a', '#1e293b', '#334155', '#475569', '#000000'] },
 ];
 
 export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => {
@@ -80,7 +78,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
   const [minFontSize, setMinFontSize] = useState<number>(14);
   const [maxFontSize, setMaxFontSize] = useState<number>(54);
   const [selectedPalette, setSelectedPalette] = useState<number>(0);
-  const [selectedShape, setSelectedShape] = useState<string>('circle');
+  const [bgMode, setBgMode] = useState<BgMode>('dark');
   const [allowVertical, setAllowVertical] = useState<boolean>(true);
   const [fontFamily, setFontFamily] = useState<string>('Plus Jakarta Sans, sans-serif');
   const [excludedWords, setExcludedWords] = useState<Set<string>>(new Set());
@@ -114,7 +112,15 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
       counts[w] = (counts[w] || 0) + 1;
     });
 
-    const palette = COLOR_PALETTES[selectedPalette].colors;
+    let paletteColors: string[] = [];
+    if (bgMode === 'white-black') {
+      paletteColors = ['#0f172a', '#1e293b', '#334155', '#475569', '#000000'];
+    } else if (bgMode === 'white-color') {
+      paletteColors = COLOR_PALETTES[selectedPalette].colorsLight;
+    } else {
+      paletteColors = COLOR_PALETTES[selectedPalette].colorsDark;
+    }
+
     const sorted = Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, maxWords);
@@ -128,17 +134,16 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
     const minCount = sorted[sorted.length - 1][1];
 
     const wordList: WordFreq[] = sorted.map(([w, count], i) => {
-      // Calculate font size relative to frequency
       const ratio = maxCount === minCount ? 1 : (count - minCount) / (maxCount - minCount);
       const size = Math.round(minFontSize + ratio * (maxFontSize - minFontSize));
-      const color = palette[i % palette.length];
+      const color = paletteColors[i % paletteColors.length];
       const rotated = allowVertical && i % 4 === 1;
 
       return { text: w, count, size, color, rotated };
     });
 
     setExtractedWords(wordList);
-  }, [textInput, maxWords, minFontSize, maxFontSize, selectedPalette, allowVertical, excludedWords]);
+  }, [textInput, maxWords, minFontSize, maxFontSize, selectedPalette, bgMode, allowVertical, excludedWords]);
 
   useEffect(() => {
     parseText();
@@ -154,10 +159,19 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
     const width = canvas.width;
     const height = canvas.height;
 
+    // Clear & Fill Background
     ctx.clearRect(0, 0, width, height);
 
+    if (bgMode === 'white-color' || bgMode === 'white-black') {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+    } else if (bgMode === 'dark') {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, width, height);
+    }
+
     if (extractedWords.length === 0) {
-      ctx.fillStyle = '#64748b';
+      ctx.fillStyle = bgMode === 'dark' ? '#64748b' : '#94a3b8';
       ctx.font = '14px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('Saisissez du texte pour générer le nuage de mots.', width / 2, height / 2);
@@ -168,7 +182,6 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
     const centerY = height / 2;
     const placedBoxes: { x: number; y: number; w: number; h: number }[] = [];
 
-    // Simple Bounding Box Collision Check
     const checkCollision = (box: { x: number; y: number; w: number; h: number }) => {
       for (const p of placedBoxes) {
         if (
@@ -180,15 +193,6 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
           return true;
         }
       }
-
-      // Check Shape Boundaries
-      if (selectedShape === 'circle') {
-        const dx = box.x + box.w / 2 - centerX;
-        const dy = box.y + box.h / 2 - centerY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > width * 0.44) return true;
-      }
-
       return false;
     };
 
@@ -202,7 +206,6 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
       let angle = 0;
       let radius = 0;
 
-      // Archimedean Spiral search
       for (let i = 0; i < 350; i++) {
         angle += 0.35;
         radius += 1.8;
@@ -220,24 +223,22 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
           ctx.textAlign = 'left';
           ctx.textBaseline = 'top';
 
-          // Text shadow glow
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-          ctx.shadowBlur = 4;
-          ctx.shadowOffsetX = 1;
-          ctx.shadowOffsetY = 2;
+          if (bgMode === 'dark') {
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 3;
+          } else {
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+          }
 
           ctx.fillText(word.text, x, y);
-
-          // Reset shadow
           ctx.shadowColor = 'transparent';
           ctx.shadowBlur = 0;
-
           placed = true;
           break;
         }
       }
 
-      // Fallback if spiral space is full
       if (!placed) {
         const x = Math.max(10, Math.min(width - w - 10, centerX + (Math.random() - 0.5) * (width * 0.5)));
         const y = Math.max(10, Math.min(height - h - 10, centerY + (Math.random() - 0.5) * (height * 0.5)));
@@ -245,7 +246,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
         ctx.fillText(word.text, x, y);
       }
     });
-  }, [extractedWords, fontFamily, selectedShape]);
+  }, [extractedWords, fontFamily, bgMode]);
 
   useEffect(() => {
     renderCanvas();
@@ -256,7 +257,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
     if (!canvas) return;
     const a = document.createElement('a');
     a.href = canvas.toDataURL('image/png');
-    a.download = 'hadara-nuage-mots.png';
+    a.download = `hadara-nuage-mots-${bgMode}.png`;
     a.click();
   };
 
@@ -282,7 +283,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
           Générateur de <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">Nuage de Mots</span>
         </h1>
         <p className="text-slate-400 text-sm max-w-2xl mx-auto">
-          Transformez vos idées, articles et briefs en nuages de mots-clés artistiques personnalisables et téléchargeables en HD.
+          Transformez vos textes et briefs en nuages de mots-clés artistiques personnalisables sur fond sombre, blanc ou transparent.
         </p>
       </motion.div>
 
@@ -325,12 +326,58 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-400 uppercase">Votre texte</label>
             <textarea
-              rows={5}
+              rows={4}
               value={textInput}
               onChange={e => setTextInput(e.target.value)}
               placeholder="Collez ici votre texte, article ou liste de mots..."
               className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-400 font-sans leading-relaxed resize-none"
             />
+          </div>
+
+          {/* Background & Style Mode (NOUVEAU) */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 uppercase block">Style de Fond & Couleurs</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setBgMode('dark')}
+                className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                  bgMode === 'dark' ? 'bg-slate-950 border-amber-400 text-amber-400 shadow-md' : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Moon className="w-3.5 h-3.5" />
+                <span>Couleurs sur Fond Sombre</span>
+              </button>
+
+              <button
+                onClick={() => setBgMode('white-color')}
+                className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                  bgMode === 'white-color' ? 'bg-white border-amber-500 text-slate-950 shadow-md' : 'bg-slate-800 border-slate-700 text-slate-300'
+                }`}
+              >
+                <Sun className="w-3.5 h-3.5 text-amber-600" />
+                <span>Couleurs sur Fond Blanc</span>
+              </button>
+
+              <button
+                onClick={() => setBgMode('white-black')}
+                className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                  bgMode === 'white-black' ? 'bg-white border-slate-900 text-slate-950 shadow-md' : 'bg-slate-800 border-slate-700 text-slate-300'
+                }`}
+              >
+                <span className="w-3 h-3 rounded-full bg-slate-950 border border-slate-300 inline-block" />
+                <span>Noir sur Fond Blanc</span>
+              </button>
+
+              <button
+                onClick={() => setBgMode('transparent')}
+                className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                  bgMode === 'transparent' ? 'bg-slate-950 border-emerald-400 text-emerald-400 shadow-md' : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <span className="w-3 h-3 rounded-full border border-dashed border-emerald-400 inline-block" />
+                <span>Fond Transparent</span>
+              </button>
+            </div>
           </div>
 
           {/* Controls */}
@@ -360,28 +407,30 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
             </div>
           </div>
 
-          {/* Palette Picker */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase">Palette de couleurs</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {COLOR_PALETTES.map((p, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedPalette(idx)}
-                  className={`p-2 rounded-xl border text-left transition-all space-y-1 ${
-                    selectedPalette === idx ? 'bg-amber-400/10 border-amber-400' : 'bg-slate-950 border-slate-800'
-                  }`}
-                >
-                  <span className="text-[10px] font-bold text-slate-300 block">{p.name}</span>
-                  <div className="flex gap-1">
-                    {p.colors.map((c, cIdx) => (
-                      <div key={cIdx} className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: c }} />
-                    ))}
-                  </div>
-                </button>
-              ))}
+          {/* Palette Picker (disabled in white-black mode) */}
+          {bgMode !== 'white-black' && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase">Palette de couleurs</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {COLOR_PALETTES.map((p, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedPalette(idx)}
+                    className={`p-2 rounded-xl border text-left transition-all space-y-1 ${
+                      selectedPalette === idx ? 'bg-amber-400/10 border-amber-400' : 'bg-slate-950 border-slate-800'
+                    }`}
+                  >
+                    <span className="text-[10px] font-bold text-slate-300 block">{p.name}</span>
+                    <div className="flex gap-1">
+                      {(bgMode === 'white-color' ? p.colorsLight : p.colorsDark).map((c, cIdx) => (
+                        <div key={cIdx} className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: c }} />
+                      ))}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Typography */}
           <div className="space-y-1.5">
@@ -403,7 +452,9 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
         <div className="lg:col-span-7 space-y-4">
           <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center">
             {/* Canvas */}
-            <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner w-full flex items-center justify-center">
+            <div className={`relative rounded-2xl overflow-hidden shadow-inner w-full flex items-center justify-center border ${
+              bgMode === 'white-color' || bgMode === 'white-black' ? 'bg-white border-slate-300' : 'bg-slate-950 border-slate-800'
+            }`}>
               <canvas
                 ref={canvasRef}
                 width={650}
@@ -415,7 +466,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
             {/* Canvas Action Bar */}
             <div className="w-full pt-4 flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs text-slate-400 font-mono">
-                {extractedWords.length} mots placés
+                {extractedWords.length} mots placés • Mode: {bgMode}
               </span>
               <button
                 onClick={handleDownloadPNG}

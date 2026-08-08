@@ -411,27 +411,27 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                           {isImg && (
                             <div className="relative rounded-2xl overflow-hidden border border-slate-800 group bg-slate-900 max-h-72 flex items-center justify-center">
                               <img
-                                src={ver.fileUrl}
+                                src={ver.previewUrl || ver.fileUrl}
                                 alt={ver.title}
                                 className="w-full h-full object-contain max-h-72 transition-transform duration-300 group-hover:scale-105"
                               />
                               <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                                 <button
-                                  onClick={() => setPreviewImage({ url: ver.fileUrl, title: ver.title })}
+                                  onClick={() => setPreviewImage({ url: ver.previewUrl || ver.fileUrl, title: ver.title })}
                                   className="px-4 py-2 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-lg"
                                 >
                                   <ZoomIn className="w-4 h-4" />
                                   <span>Aperçu HD Plein Écran</span>
                                 </button>
                                 <a
-                                  href={ver.fileUrl}
+                                  href={ver.originalFileUrl || ver.fileUrl}
                                   target="_blank"
                                   rel="noreferrer"
                                   download
                                   className="px-4 py-2 rounded-xl bg-slate-800 text-slate-100 font-bold text-xs flex items-center space-x-1.5 shadow-lg"
                                 >
                                   <Download className="w-4 h-4 text-emerald-400" />
-                                  <span>Télécharger</span>
+                                  <span>Télécharger Fichier Source</span>
                                 </a>
                               </div>
                             </div>

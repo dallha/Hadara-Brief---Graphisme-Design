@@ -107,6 +107,8 @@ export interface DeliverableVersion {
   versionNumber: number;
   title: string;
   fileUrl: string;
+  previewUrl?: string;
+  originalFileUrl?: string;
   notes?: string;
   createdAt: string;
   status: 'draft' | 'client_review' | 'approved' | 'rejected';

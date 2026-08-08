@@ -54,8 +54,9 @@ class BriefAdmin(admin.ModelAdmin):
 
     @admin.display(description='⚡ Panneau d\'Action Studio (Workflow Guidé)')
     def status_actions_guided(self, obj):
+        from django.utils.safestring import mark_safe
         if not obj or not obj.id:
-            return format_html('<span style="color:#A8B0BD;">Enregistrez le brief pour débloquer le panneau d\'action.</span>')
+            return mark_safe('<span style="color:#A8B0BD;">Enregistrez le brief pour débloquer le panneau d\'action.</span>')
         
         status_map = {
             'nouveau': (
@@ -88,7 +89,7 @@ class BriefAdmin(admin.ModelAdmin):
                 '</div>'
             )
         }
-        return format_html(status_map.get(obj.status, '<span style="color:#A8B0BD;">Projet en cours de traitement.</span>'))
+        return mark_safe(status_map.get(obj.status, '<span style="color:#A8B0BD;">Projet en cours de traitement.</span>'))
 
     @admin.action(description='Générer & Envoyer Devis via WhatsApp')
     def send_whatsapp_quote(self, request, queryset):
@@ -117,7 +118,7 @@ class BriefAdmin(admin.ModelAdmin):
             msg = mark_safe(f"{count} projet(s) mis(s) à jour. " + " ".join(links))
             self.message_user(request, msg, messages.SUCCESS)
 
-    @admin.action(description='Marquer "Acompte 50% Reçu"')
+    @admin.action(description='Marquer "Acompte 50%% Reçu"')
     def mark_acompte_recu(self, request, queryset):
         queryset.update(status='acompte_recu')
 

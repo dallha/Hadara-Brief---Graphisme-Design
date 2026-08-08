@@ -329,7 +329,92 @@ document.addEventListener('DOMContentLoaded', function() {
         renderChips();
     });
 
-    // ── 7. Lien Externe Navbar ───────────────────────────────────────
+    // ── 7. HADARA LINK LIST WIDGET (Liens de Référence Clean) ───────────
+    const referenceFields = document.querySelectorAll('textarea[name="reference_links"], input[name="reference_links"]');
+    referenceFields.forEach(function(field) {
+        if (field.dataset.hadaraLinksInit) return;
+        field.dataset.hadaraLinksInit = "true";
+
+        field.style.cssText = "display: none !important;";
+
+        let links = [];
+        try {
+            const parsed = JSON.parse(field.value);
+            if (Array.isArray(parsed)) links = parsed;
+        } catch(err) {
+            links = field.value ? field.value.split('\n').map(s => s.trim()).filter(Boolean) : [];
+        }
+
+        const container = document.createElement('div');
+        container.className = "hadara-links-wrapper p-3 rounded my-2";
+        container.style.cssText = "background: #111827; border: 1px solid rgba(100, 181, 246, 0.3); border-radius: 12px;";
+
+        const linksList = document.createElement('div');
+        linksList.className = "mb-2 space-y-2";
+
+        function renderLinks() {
+            linksList.innerHTML = '';
+            if (links.length === 0) {
+                linksList.innerHTML = '<span style="color:#A8B0BD; font-size:0.85rem; display:block; padding:0.25rem 0;">Aucun lien de référence pour le moment.</span>';
+            } else {
+                links.forEach(function(url, idx) {
+                    const item = document.createElement('div');
+                    item.style.cssText = "background:#070B18; border:1px solid #335A79; border-radius:8px; padding:0.5rem 0.75rem; margin-bottom:0.4rem; display:flex; align-items:center; justify-content:space-between;";
+                    item.innerHTML = `
+                        <a href="${url}" target="_blank" rel="noreferrer" style="color:#64B5F6; font-size:0.85rem; font-weight:600; text-decoration:underline; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:80%;">🔗 ${url}</a>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-index="${idx}" style="padding:2px 8px; font-size:0.75rem;">× Supprimer</button>
+                    `;
+                    linksList.appendChild(item);
+                });
+            }
+            field.value = links.join('\n');
+        }
+
+        linksList.addEventListener('click', function(e) {
+            if (e.target.matches('button[data-index]')) {
+                e.preventDefault();
+                const idx = parseInt(e.target.dataset.index);
+                links.splice(idx, 1);
+                renderLinks();
+            }
+        });
+
+        const inputGroup = document.createElement('div');
+        inputGroup.className = "input-group input-group-sm mt-2";
+        inputGroup.innerHTML = `
+            <input type="text" class="form-control" placeholder="https://pinterest.com/pin/... ou https://instagram.com/..." style="background:#070B18; color:#F4F1EA; border-color:#335A79; border-radius:8px 0 0 8px;" />
+            <div class="input-group-append">
+                <button type="button" class="btn btn-info font-weight-bold" style="background:#335A79; border-color:#335A79; color:#F4F1EA; border-radius:0 8px 8px 0;">+ Ajouter Lien</button>
+            </div>
+        `;
+
+        const addBtn = inputGroup.querySelector('button');
+        const linkInput = inputGroup.querySelector('input');
+
+        function addLink() {
+            const val = linkInput.value.trim();
+            if (val && !links.includes(val)) {
+                links.push(val);
+                linkInput.value = '';
+                renderLinks();
+            }
+        }
+
+        addBtn.addEventListener('click', function(e) { e.preventDefault(); addLink(); });
+        linkInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addLink();
+            }
+        });
+
+        container.appendChild(linksList);
+        container.appendChild(inputGroup);
+        field.parentNode.insertBefore(container, field.nextSibling);
+        renderLinks();
+    });
+
+    // ── 8. Lien Externe Navbar ───────────────────────────────────────
     function fixExternalLinks() {
         const publicSiteLink = document.querySelector('.navbar-nav a[href*="hadara-design.com"]');
         if (publicSiteLink) {

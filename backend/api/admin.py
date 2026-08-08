@@ -221,8 +221,12 @@ class BriefAdmin(admin.ModelAdmin):
                        'budget_range', 'desired_delivery_date', 'critical_deadline'),
             'classes': ('collapse',),
         }),
-        ('📎 Références & Fichiers (Optionnels)', {
-            'fields': ('reference_links', 'attachments', 'accept_process', 'accept_deadlines'),
+        ('📋 Engagements Client (Validation Initial Brief)', {
+            'fields': ('accept_process', 'accept_deadlines'),
+            'classes': ('collapse',),
+        }),
+        ('📎 Références & Fichiers Client (Optionnels)', {
+            'fields': ('reference_links', 'attachments'),
             'classes': ('collapse',),
         }),
         ('🎨 Versions & Maquettes Publiées (V1, V2, V3)', {

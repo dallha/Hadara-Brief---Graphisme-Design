@@ -126,16 +126,16 @@ class Template(models.Model):
         return self.title
 
 class PortfolioItem(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
+    id = models.CharField(max_length=50, primary_key=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de création")
     title = models.CharField(max_length=200, verbose_name="Titre du projet")
     category = models.CharField(max_length=100, verbose_name="Catégorie")
-    description = models.TextField(verbose_name="Description")
-    image_url = models.TextField(blank=True, null=True, verbose_name="Image (URL / Fichier)")
+    image_url = models.TextField(blank=True, null=True, verbose_name="Image du projet (URL ou Upload)")
+    description = models.TextField(blank=True, null=True, verbose_name="Description")
     badge = models.CharField(max_length=100, blank=True, null=True, verbose_name="Badge Visuel")
     price_estimate = models.CharField(max_length=100, blank=True, null=True, verbose_name="Tarif Indicatif")
-    accent_hex = models.CharField(max_length=50, default='#816C07')
-    features = models.JSONField(default=list)
+    accent_hex = models.CharField(max_length=50, default='#816C07', blank=True, verbose_name="Couleur d'Accent Visuel")
+    features = models.JSONField(default=list, blank=True, verbose_name="Livrables Inclus")
 
     def save(self, *args, **kwargs):
         if not self.id:

@@ -135,6 +135,20 @@ class PortfolioItemAdmin(admin.ModelAdmin):
     list_display = ('apercu_visuel', 'title', 'category', 'price_estimate', 'badge')
     list_filter = ('category',)
     search_fields = ('title', 'id')
+    readonly_fields = ('id', 'created_at')
+
+    fieldsets = (
+        ('🖼️ Informations Essentielles (Obligatoires)', {
+            'fields': ('title', 'category', 'image_url')
+        }),
+        ('🎨 Présentation & Contenu (Optionnels)', {
+            'fields': ('description', 'badge', 'features'),
+            'classes': ('collapse',),
+        }),
+        ('💰 Tarification & Style Automatique', {
+            'fields': ('price_estimate', 'accent_hex', 'id', 'created_at')
+        }),
+    )
 
     @admin.display(description='Aperçu Visuel')
     def apercu_visuel(self, obj):

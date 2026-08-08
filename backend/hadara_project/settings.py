@@ -222,8 +222,33 @@ JAZZMIN_SETTINGS = {
         "api.PortfolioItem": "fas fa-image",
         "api.StoreProduct": "fas fa-shopping-cart",
         "api.Template": "fas fa-layer-group",
+        "api.ToolUsageLog": "fas fa-tools",
     },
     
+    "custom_links": {
+        "api": [{
+            "name": "🧰 Hub des 11 Outils",
+            "url": "https://hadara-design.com/outils",
+            "icon": "fas fa-tools",
+            "new_window": True,
+        }, {
+            "name": "☁️ Nuage de Mots",
+            "url": "https://hadara-design.com/outils/nuage-mots",
+            "icon": "fas fa-cloud",
+            "new_window": True,
+        }, {
+            "name": "🧮 Calculateur Devis",
+            "url": "https://hadara-design.com/outils/devis",
+            "icon": "fas fa-calculator",
+            "new_window": True,
+        }, {
+            "name": "🧾 Générateur Factures",
+            "url": "https://hadara-design.com/outils/facture",
+            "icon": "fas fa-file-invoice",
+            "new_window": True,
+        }]
+    },
+
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
 }

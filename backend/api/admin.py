@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db.models import Sum
-from .models import Brief, PortfolioItem, StoreProduct, Template
+from .models import Brief, PortfolioItem, StoreProduct, Template, ToolUsageLog
 from .ai_utils import analyze_brief_with_ai
 from django.contrib import messages
 
@@ -148,3 +148,11 @@ class TemplateAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'category', 'suggested_price_fcfa')
     list_filter = ('category',)
     search_fields = ('title',)
+
+@admin.register(ToolUsageLog)
+class ToolUsageLogAdmin(admin.ModelAdmin):
+    list_display = ('tool_name', 'created_at', 'ip_address')
+    list_filter = ('tool_name', 'created_at')
+    search_fields = ('tool_name', 'ip_address')
+    readonly_fields = ('created_at',)
+

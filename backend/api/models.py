@@ -175,3 +175,18 @@ class StoreProduct(models.Model):
 
     def __str__(self):
         return f"{self.id} - {self.name}"
+
+class ToolUsageLog(models.Model):
+    tool_name = models.CharField(max_length=100, verbose_name="Nom de l'outil")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date d'utilisation")
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    details = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        verbose_name = "Utilisation d'outil"
+        verbose_name_plural = "Statistiques Outils"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.tool_name} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"
+

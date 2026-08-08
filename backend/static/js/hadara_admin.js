@@ -134,6 +134,22 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
+        // Mode 3: Supprimer l'image
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'btn btn-outline-danger btn-sm font-weight-bold px-3 py-2 my-1 mr-2';
+        deleteBtn.innerHTML = `<i class="fas fa-trash mr-2"></i> 🗑️ Supprimer l'image`;
+        deleteBtn.addEventListener('click', function() {
+            if (field.name === 'attachments' || field.name === 'deliverable_versions') {
+                field.value = JSON.stringify([]);
+            } else {
+                field.value = '';
+            }
+            const imgEl = previewDiv.querySelector('img');
+            if (imgEl) imgEl.src = '';
+            previewDiv.style.display = "none";
+        });
+
         urlBtn.addEventListener('click', function() {
             urlInputBox.style.display = urlInputBox.style.display === 'none' ? 'block' : 'none';
         });
@@ -197,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         btnGroup.appendChild(deviceBtn);
         btnGroup.appendChild(urlBtn);
+        btnGroup.appendChild(deleteBtn);
 
         container.appendChild(previewDiv);
         container.appendChild(btnGroup);

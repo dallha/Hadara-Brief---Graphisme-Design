@@ -50,7 +50,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   onClosePortal,
 }) => {
   const [clientPhoneInput, setClientPhoneInput] = useState('');
-  const [authenticatedPhone, setAuthenticatedPhone] = useState<string | null>(null);
+  const [authenticatedPhone, setAuthenticatedPhone] = useState<string | null>(() => {
+    return localStorage.getItem('hadara_client_phone') || null;
+  });
   const [selectedBriefId, setSelectedBriefId] = useState<string | null>(null);
   const [revisionNote, setRevisionNote] = useState('');
   const [isSubmittingRevision, setIsSubmittingRevision] = useState(false);
@@ -67,10 +69,17 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
     e.preventDefault();
     if (!clientPhoneInput.trim()) return;
     setAuthenticatedPhone(clientPhoneInput);
+    localStorage.setItem('hadara_client_phone', clientPhoneInput);
     const matched = (briefs || []).filter(b => (b.whatsapp || '').replace(/\D/g, '').includes(clientPhoneInput.replace(/\D/g, '')));
     if (matched.length > 0) {
       setSelectedBriefId(matched[0].id);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('hadara_client_phone');
+    setAuthenticatedPhone(null);
+    setSelectedBriefId(null);
   };
 
   const handleApproveVersion = async (versionId: string) => {
@@ -245,7 +254,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           </a>
 
           <button
-            onClick={() => setAuthenticatedPhone(null)}
+            onClick={handleLogout}
             className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all"
           >
             Déconnexion ({authenticatedPhone})

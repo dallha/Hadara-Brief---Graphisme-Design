@@ -108,23 +108,23 @@ export const BgRemovalTool: React.FC<BgRemovalToolProps> = ({ onGoToBrief }) => 
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12 pb-16 px-4">
+    <div className="max-w-5xl mx-auto space-y-8 pb-24 px-3 sm:px-4">
       
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4 pt-8 sm:pt-16"
+        className="text-center space-y-4 pt-6 sm:pt-16"
       >
         <ToolsNav />
         <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold">
           <Sparkles className="w-4 h-4" />
           <span>Outils Gratuits Hadara Studio</span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-serif font-extrabold text-slate-100">
+        <h1 className="text-2xl sm:text-5xl font-serif font-extrabold text-slate-100">
           Détourage d'Image <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">IA Gratuit</span>
         </h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
+        <p className="text-slate-400 text-sm max-w-2xl mx-auto">
           Supprimez l'arrière-plan de n'importe quelle image instantanément et directement dans votre navigateur. 
           100% privé, aucune image n'est envoyée sur nos serveurs.
         </p>
@@ -243,7 +243,7 @@ export const BgRemovalTool: React.FC<BgRemovalToolProps> = ({ onGoToBrief }) => 
         </p>
         <button
           onClick={onGoToBrief}
-          className="px-8 py-4 bg-amber-400 text-slate-950 font-bold rounded-xl flex items-center gap-2 hover:bg-amber-300 transition-all mx-auto shadow-xl"
+          className="w-full sm:w-auto px-8 py-4 bg-amber-400 text-slate-950 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-amber-300 transition-all mx-auto shadow-xl active:scale-95"
         >
           <span>Démarrer un Brief Intelligent</span>
           <ArrowRight className="w-5 h-5" />

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Printer, Plus, Trash2, FileText, Sparkles, Building2, Download } from 'lucide-react';
+import { Printer, Plus, Trash2, Sparkles, Building2 } from 'lucide-react';
 import { ToolsNav } from './ToolsNav';
 
 interface InvoiceItem {
@@ -11,28 +11,30 @@ interface InvoiceItem {
 }
 
 export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief }) => {
+  const invoiceRef = useRef<HTMLDivElement>(null);
+
   const [invoiceNumber, setInvoiceNumber] = useState('FAC-2026-001');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  
+
   // My Business Info
   const [myCompany, setMyCompany] = useState('');
   const [myAddress, setMyAddress] = useState('');
   const [myPhone, setMyPhone] = useState('');
-  
+
   // Client Info
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
-  
+
   // Items
   const [items, setItems] = useState<InvoiceItem[]>([
     { id: '1', name: 'Service de création', price: 15000, quantity: 1 }
   ]);
-  
+
   // Settings
   const [currency, setCurrency] = useState('FCFA');
-  const [taxRate, setTaxRate] = useState(0); // e.g. 18 for 18%
+  const [taxRate, setTaxRate] = useState(0);
 
-  // Calculations (Inspiré du TP)
+  // Calculations
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const taxAmount = (subtotal * taxRate) / 100;
   const total = subtotal + taxAmount;
@@ -51,17 +53,75 @@ export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief
     }
   };
 
+  /**
+   * Prints ONLY the invoice element by:
+   * 1. Injecting a <style> tag that hides everything and shows only the invoice.
+   * 2. Calling window.print().
+   * 3. Removing the injected style tag after printing.
+   */
   const handlePrint = () => {
+    const styleEl = document.createElement('style');
+    styleEl.id = 'invoice-print-style';
+    styleEl.innerHTML = `
+      @media print {
+        @page {
+          size: A4;
+          margin: 10mm;
+        }
+        html, body {
+          background: white !important;
+          color: black !important;
+          font-size: 12pt;
+        }
+        body > * {
+          display: none !important;
+        }
+        #root > * {
+          display: none !important;
+        }
+        #invoice-print-zone {
+          display: block !important;
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          background: white !important;
+          color: black !important;
+          z-index: 99999 !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        .invoice-no-print {
+          display: none !important;
+        }
+        input, textarea {
+          border: none !important;
+          outline: none !important;
+          background: transparent !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+      }
+    `;
+    document.head.appendChild(styleEl);
+
     window.print();
+
+    // Remove the injected style after print dialog closes
+    setTimeout(() => {
+      const existing = document.getElementById('invoice-print-style');
+      if (existing) existing.remove();
+    }, 1000);
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-12 pb-16 px-4">
+
       {/* Header (Hidden in Print) */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4 pt-8 sm:pt-16 print:hidden"
+        className="text-center space-y-4 pt-8 sm:pt-16 invoice-no-print"
       >
         <ToolsNav />
         <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold">
@@ -77,31 +137,31 @@ export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief
       </motion.div>
 
       {/* Control Panel (Hidden in Print) */}
-      <div className="print:hidden flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+      <div className="invoice-no-print flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
         <div className="flex gap-4 items-center w-full sm:w-auto">
           <div className="space-y-1">
             <label className="text-xs text-slate-400 uppercase font-bold">Devise</label>
-            <input 
-              type="text" 
-              value={currency} 
-              onChange={e => setCurrency(e.target.value)} 
+            <input
+              type="text"
+              value={currency}
+              onChange={e => setCurrency(e.target.value)}
               className="w-24 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200"
             />
           </div>
           <div className="space-y-1">
             <label className="text-xs text-slate-400 uppercase font-bold">TVA (%)</label>
-            <input 
-              type="number" 
-              value={taxRate} 
-              onChange={e => setTaxRate(Number(e.target.value))} 
+            <input
+              type="number"
+              value={taxRate}
+              onChange={e => setTaxRate(Number(e.target.value))}
               className="w-24 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200"
               min="0"
               max="100"
             />
           </div>
         </div>
-        
-        <button 
+
+        <button
           onClick={handlePrint}
           className="w-full sm:w-auto px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors"
         >
@@ -110,132 +170,139 @@ export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief
         </button>
       </div>
 
-      {/* The Printable Invoice Paper */}
-      <div className="bg-white text-slate-900 shadow-2xl rounded-sm max-w-4xl mx-auto print:shadow-none print:m-0 print:p-0">
-        <div className="p-8 sm:p-12 space-y-8 min-h-[1056px] print:min-h-0 print:h-auto">
-          
+      {/* ============================================================
+          THE PRINTABLE INVOICE — id="invoice-print-zone" is critical
+          ============================================================ */}
+      <div
+        id="invoice-print-zone"
+        ref={invoiceRef}
+        className="bg-white text-slate-900 shadow-2xl rounded-sm max-w-4xl mx-auto"
+        style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
+      >
+        <div className="p-8 sm:p-12 space-y-8">
+
           {/* Invoice Header */}
-          <div className="flex justify-between items-start border-b-2 border-slate-200 pb-8 gap-4">
-            <div className="space-y-2 flex-1 max-w-[300px]">
-              <div className="flex items-center gap-2 text-amber-600 mb-4 print:hidden">
-                <Building2 className="w-6 h-6" />
+          <div className="flex justify-between items-start border-b-2 border-slate-200 pb-8 gap-6">
+            {/* Left: Emitter Info */}
+            <div className="space-y-1 flex-1">
+              <div className="flex items-center gap-2 text-amber-600 mb-3 invoice-no-print">
+                <Building2 className="w-5 h-5" />
                 <span className="font-bold text-sm">Vos Informations</span>
               </div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Votre Nom ou Entreprise"
                 value={myCompany}
                 onChange={e => setMyCompany(e.target.value)}
-                className="w-full text-2xl font-black bg-transparent border-none p-0 focus:ring-0 placeholder:text-slate-300"
+                className="w-full text-2xl font-black bg-transparent border-b border-slate-200 focus:border-amber-400 focus:outline-none pb-1 placeholder:text-slate-300 text-slate-900"
               />
-              <textarea 
+              <textarea
                 placeholder="Votre Adresse (Optionnel)"
                 value={myAddress}
                 onChange={e => setMyAddress(e.target.value)}
-                className="w-full text-sm text-slate-600 bg-transparent border-none p-0 focus:ring-0 resize-none placeholder:text-slate-300"
+                className="w-full text-sm text-slate-600 bg-transparent border-none focus:outline-none resize-none placeholder:text-slate-300"
                 rows={2}
               />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Numéro de téléphone"
                 value={myPhone}
                 onChange={e => setMyPhone(e.target.value)}
-                className="w-full text-sm text-slate-600 bg-transparent border-none p-0 focus:ring-0 placeholder:text-slate-300"
+                className="w-full text-sm text-slate-600 bg-transparent border-none focus:outline-none placeholder:text-slate-300"
               />
             </div>
 
+            {/* Right: FACTURE title + Meta */}
             <div className="text-right space-y-2 flex-shrink-0">
-              <h2 className="text-4xl font-black text-slate-200 uppercase tracking-widest mb-4 print:text-slate-300">Facture</h2>
-              <div className="flex items-center justify-end gap-2 text-sm font-medium">
-                <span className="text-slate-400">N° :</span>
-                <input 
-                  type="text" 
+              <h2 className="text-5xl font-black text-slate-800 uppercase tracking-widest mb-4">FACTURE</h2>
+              <div className="flex items-center justify-end gap-2 text-sm font-medium text-slate-700">
+                <span>N° :</span>
+                <input
+                  type="text"
                   value={invoiceNumber}
                   onChange={e => setInvoiceNumber(e.target.value)}
-                  className="w-32 text-right bg-slate-100 hover:bg-slate-200 rounded px-2 py-1 focus:outline-none print:bg-transparent print:p-0"
+                  className="w-36 text-right bg-slate-100 hover:bg-slate-200 rounded px-2 py-1 focus:outline-none text-slate-900"
                 />
               </div>
-              <div className="flex items-center justify-end gap-2 text-sm font-medium">
-                <span className="text-slate-400">Date :</span>
-                <input 
-                  type="date" 
+              <div className="flex items-center justify-end gap-2 text-sm font-medium text-slate-700">
+                <span>Date :</span>
+                <input
+                  type="date"
                   value={date}
                   onChange={e => setDate(e.target.value)}
-                  className="w-36 text-right bg-slate-100 hover:bg-slate-200 rounded px-2 py-1 focus:outline-none print:bg-transparent print:p-0"
+                  className="w-40 text-right bg-slate-100 hover:bg-slate-200 rounded px-2 py-1 focus:outline-none text-slate-900"
                 />
               </div>
             </div>
           </div>
 
           {/* Client Info */}
-          <div className="grid grid-cols-2 gap-8">
-            <div className="space-y-2 bg-slate-50 p-6 rounded-xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Facturé à :</p>
-              <input 
-                type="text" 
-                placeholder="Nom du Client"
-                value={clientName}
-                onChange={e => setClientName(e.target.value)}
-                className="w-full text-lg font-bold bg-transparent border-none p-0 focus:ring-0 placeholder:text-slate-300"
-              />
-              <textarea 
-                placeholder="Adresse du Client"
-                value={clientAddress}
-                onChange={e => setClientAddress(e.target.value)}
-                className="w-full text-sm text-slate-600 bg-transparent border-none p-0 focus:ring-0 resize-none placeholder:text-slate-300"
-                rows={3}
-              />
-            </div>
+          <div className="bg-slate-50 p-6 rounded-xl border border-slate-100">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Facturé à :</p>
+            <input
+              type="text"
+              placeholder="Nom du Client"
+              value={clientName}
+              onChange={e => setClientName(e.target.value)}
+              className="w-full text-lg font-bold bg-transparent border-none focus:outline-none placeholder:text-slate-300 text-slate-900"
+            />
+            <textarea
+              placeholder="Adresse du Client"
+              value={clientAddress}
+              onChange={e => setClientAddress(e.target.value)}
+              className="w-full text-sm text-slate-600 bg-transparent border-none focus:outline-none resize-none placeholder:text-slate-300"
+              rows={2}
+            />
           </div>
 
           {/* Items Table */}
-          <div className="space-y-4 pt-8">
-            <div className="grid grid-cols-12 gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b-2 border-slate-800 pb-2">
-              <div className="col-span-6 sm:col-span-7">Désignation</div>
+          <div className="space-y-2">
+            {/* Table Header */}
+            <div className="grid grid-cols-12 gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest border-b-2 border-slate-800 pb-2">
+              <div className="col-span-6">Désignation</div>
               <div className="col-span-2 text-center">Qté</div>
               <div className="col-span-2 text-right">Prix Unitaire</div>
               <div className="col-span-2 text-right">Total</div>
-              <div className="hidden sm:block absolute right-0 print:hidden w-8"></div>
             </div>
 
-            {items.map((item, index) => (
-              <div key={item.id} className="grid grid-cols-12 gap-4 items-center group relative border-b border-slate-100 pb-2">
-                <div className="col-span-6 sm:col-span-7">
-                  <input 
-                    type="text" 
+            {items.map((item) => (
+              <div key={item.id} className="grid grid-cols-12 gap-2 items-center group border-b border-slate-100 py-2 relative">
+                <div className="col-span-6">
+                  <input
+                    type="text"
                     placeholder="Description de l'article..."
                     value={item.name}
                     onChange={e => updateItem(item.id, 'name', e.target.value)}
-                    className="w-full font-medium text-slate-800 bg-transparent border-none p-0 focus:ring-0 placeholder:text-slate-200"
+                    className="w-full font-medium text-slate-800 bg-transparent border-none focus:outline-none placeholder:text-slate-300"
                   />
                 </div>
                 <div className="col-span-2">
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     min="1"
                     value={item.quantity}
                     onChange={e => updateItem(item.id, 'quantity', Number(e.target.value))}
-                    className="w-full text-center font-mono text-slate-600 bg-transparent border-none p-0 focus:ring-0"
+                    className="w-full text-center font-mono text-slate-600 bg-transparent border-none focus:outline-none"
                   />
                 </div>
                 <div className="col-span-2">
-                  <input 
+                  <input
                     type="number"
                     min="0"
                     value={item.price || ''}
                     onChange={e => updateItem(item.id, 'price', Number(e.target.value))}
-                    className="w-full text-right font-mono text-slate-600 bg-transparent border-none p-0 focus:ring-0"
+                    className="w-full text-right font-mono text-slate-600 bg-transparent border-none focus:outline-none"
                   />
                 </div>
                 <div className="col-span-2 text-right font-mono font-bold text-slate-800">
-                  {((item.price || 0) * (item.quantity || 1)).toLocaleString()} {currency}
+                  {((item.price || 0) * (item.quantity || 1)).toLocaleString('fr-FR')} {currency}
                 </div>
-                
-                {/* Delete Button (Hidden in Print) */}
+
+                {/* Delete Button */}
                 {items.length > 1 && (
-                  <button 
+                  <button
                     onClick={() => removeItem(item.id)}
-                    className="absolute -right-8 top-1/2 -translate-y-1/2 p-2 text-rose-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity print:hidden"
+                    className="invoice-no-print absolute -right-8 top-1/2 -translate-y-1/2 p-2 text-rose-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Supprimer la ligne"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -244,40 +311,38 @@ export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief
               </div>
             ))}
 
-            {/* Add Line Button (Hidden in Print) */}
-            <button 
+            {/* Add Line Button */}
+            <button
               onClick={addItem}
-              className="flex items-center gap-2 text-sm font-bold text-amber-500 hover:text-amber-600 transition-colors py-4 print:hidden"
+              className="invoice-no-print flex items-center gap-2 text-sm font-bold text-amber-500 hover:text-amber-600 transition-colors py-3"
             >
               <Plus className="w-4 h-4" />
               Ajouter une ligne
             </button>
           </div>
 
-          {/* Totals Section */}
-          <div className="flex justify-end pt-8">
-            <div className="w-64 space-y-3">
-              <div className="flex justify-between text-sm font-medium text-slate-500">
+          {/* Totals */}
+          <div className="flex justify-end pt-4">
+            <div className="w-64 space-y-2">
+              <div className="flex justify-between text-sm text-slate-500">
                 <span>Sous-total</span>
-                <span className="font-mono">{subtotal.toLocaleString()} {currency}</span>
+                <span className="font-mono">{subtotal.toLocaleString('fr-FR')} {currency}</span>
               </div>
-              
               {taxRate > 0 && (
-                <div className="flex justify-between text-sm font-medium text-slate-500">
+                <div className="flex justify-between text-sm text-slate-500">
                   <span>TVA ({taxRate}%)</span>
-                  <span className="font-mono">{taxAmount.toLocaleString()} {currency}</span>
+                  <span className="font-mono">{taxAmount.toLocaleString('fr-FR')} {currency}</span>
                 </div>
               )}
-              
-              <div className="flex justify-between text-lg font-black text-slate-900 border-t-2 border-slate-900 pt-3">
+              <div className="flex justify-between text-xl font-black text-slate-900 border-t-2 border-slate-900 pt-3">
                 <span>TOTAL TTC</span>
-                <span className="font-mono text-amber-600">{total.toLocaleString()} {currency}</span>
+                <span className="font-mono text-amber-600">{total.toLocaleString('fr-FR')} {currency}</span>
               </div>
             </div>
           </div>
-          
-          {/* Footer Notice */}
-          <div className="mt-12 pt-4 pb-8 text-center text-xs font-medium text-slate-400">
+
+          {/* Footer */}
+          <div className="pt-8 border-t border-slate-100 text-center text-xs text-slate-400">
             <p>Merci pour votre confiance.</p>
           </div>
 
@@ -285,11 +350,11 @@ export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief
       </div>
 
       {/* Cross-sell (Hidden in Print) */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="max-w-3xl mx-auto text-center p-8 sm:p-12 rounded-[2rem] bg-gradient-to-br from-[#335A79] to-[#184260] border border-blue-400/20 shadow-2xl mt-12 print:hidden"
+        className="invoice-no-print max-w-3xl mx-auto text-center p-8 sm:p-12 rounded-[2rem] bg-gradient-to-br from-[#335A79] to-[#184260] border border-blue-400/20 shadow-2xl mt-12"
       >
         <h3 className="text-2xl font-serif font-bold text-white mb-4">
           Votre facture manque de style ?

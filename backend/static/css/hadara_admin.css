@@ -1,69 +1,76 @@
 /* ================================================================
-   HADARA STUDIO MANAGER — Custom Theme CSS
-   Palette Premium : Dark Slate #0B1120 · Surface #151F2E · Or #f59e0b / #816C07 · Bleu #335A79
+   HADARA DESIGN SYSTEM — Official Design Tokens & UI Grammar
+   ADN Visuel Unifié : Site Public (Conversion) & Manager (Productivité)
    ================================================================ */
 
-/* ─── Variables de couleurs Hadara Studio ─────────────────────── */
 :root {
-    --hadara-bg:          #0B1120;
-    --hadara-surface:     #151F2E;
-    --hadara-surface-2:   #1B2636;
-    --hadara-gold:        #f59e0b;
-    --hadara-gold-dark:   #816C07;
+    --hadara-bg:          #070B18;
+    --hadara-surface:     #111827;
+    --hadara-surface-2:   #172033;
+    --hadara-gold:        #D0A21C;
+    --hadara-gold-light:  #E7BE35;
     --hadara-blue:        #335A79;
-    --hadara-text:        #F5F5F5;
-    --hadara-text-sub:    #94A3B8;
+    --hadara-accent:      #00C9A7;
+    --hadara-text:        #F4F1EA;
+    --hadara-muted:       #A8B0BD;
+    --hadara-border:      rgba(208, 162, 28, 0.25);
+
+    --hadara-radius-sm:   8px;
+    --hadara-radius-md:   12px;
+    --hadara-radius-lg:   20px;
 }
 
-/* ─── Global Background & Body ─────────────────────────────────── */
+/* ─── Global Background & Typography ───────────────────────────── */
 body, .content-wrapper, .main-footer {
     background-color: var(--hadara-bg) !important;
     color: var(--hadara-text) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
 }
 
 /* ─── Page de connexion ─────────────────────────────────────────── */
 body.login-page {
     background: var(--hadara-bg) !important;
-    background-image: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.08) 0%, transparent 70%) !important;
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(208,162,28,0.12) 0%, transparent 75%) !important;
 }
 
 .login-box {
-    width: 380px !important;
+    width: 390px !important;
     max-width: 95vw;
 }
 
 .login-logo img {
     max-width: 110px !important;
     max-height: 75px !important;
-    filter: drop-shadow(0 0 12px rgba(245,158,11,0.3));
+    filter: drop-shadow(0 0 15px rgba(208,162,28,0.35));
 }
 
 .login-card-body,
 .card.login-card-body {
     background: var(--hadara-surface) !important;
-    border: 1px solid rgba(245,158,11,0.2) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.6) !important;
+    border: 1px solid var(--hadara-border) !important;
+    border-radius: var(--hadara-radius-lg) !important;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.7) !important;
 }
 
 .login-card-body .form-control {
     background: var(--hadara-bg) !important;
     border-color: var(--hadara-surface-2) !important;
     color: var(--hadara-text) !important;
-    border-radius: 8px !important;
+    border-radius: var(--hadara-radius-sm) !important;
 }
 
 .login-card-body .btn-primary {
-    background: linear-gradient(135deg, var(--hadara-gold) 0%, var(--hadara-gold-dark) 100%) !important;
-    border-color: var(--hadara-gold-dark) !important;
-    color: #0f172a !important;
+    background: linear-gradient(135deg, var(--hadara-gold) 0%, #a17c13 100%) !important;
+    border-color: var(--hadara-gold) !important;
+    color: #070B18 !important;
     font-weight: 700 !important;
+    border-radius: var(--hadara-radius-md) !important;
 }
 
-/* ─── Navbar ────────────────────────────────────────────────────── */
+/* ─── Header & Navbar ───────────────────────────────────────────── */
 .main-header.navbar {
     background: var(--hadara-surface) !important;
-    border-bottom: 1px solid rgba(245,158,11,0.15) !important;
+    border-bottom: 1px solid var(--hadara-border) !important;
 }
 
 .main-header.navbar .nav-link {
@@ -75,19 +82,20 @@ body.login-page {
 
 .brand-link {
     background: var(--hadara-bg) !important;
-    border-bottom: 1px solid rgba(245,158,11,0.15) !important;
+    border-bottom: 1px solid var(--hadara-border) !important;
 }
 
 /* ─── Sidebar Navigation ────────────────────────────────────────── */
 .main-sidebar {
     background: var(--hadara-bg) !important;
-    border-right: 1px solid rgba(255,255,255,0.05) !important;
+    border-right: 1px solid rgba(255,255,255,0.06) !important;
 }
 
 .nav-sidebar .nav-link {
-    color: var(--hadara-text-sub) !important;
-    border-radius: 8px !important;
+    color: var(--hadara-muted) !important;
+    border-radius: var(--hadara-radius-sm) !important;
     margin: 2px 8px !important;
+    font-size: 0.92rem;
 }
 
 .nav-sidebar .nav-link.active,
@@ -99,19 +107,19 @@ body.login-page {
 
 /* ─── KPI Cards ─────────────────────────────────────────────────── */
 .small-box {
-    border-radius: 12px !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+    border-radius: var(--hadara-radius-md) !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important;
     overflow: hidden;
 }
 
 .small-box.bg-warning {
-    background: linear-gradient(135deg, #92400e 0%, var(--hadara-gold-dark) 100%) !important;
+    background: linear-gradient(135deg, #78580b 0%, #4a3605 100%) !important;
     color: #fff !important;
 }
 
 .small-box.bg-success {
     background: linear-gradient(135deg, var(--hadara-surface) 0%, var(--hadara-surface-2) 100%) !important;
-    border: 1px solid rgba(245,158,11,0.3) !important;
+    border: 1px solid var(--hadara-border) !important;
     color: #fff !important;
 }
 .small-box.bg-success .inner h3,
@@ -120,39 +128,39 @@ body.login-page {
 }
 
 .small-box.bg-info {
-    background: linear-gradient(135deg, #1e3a5f 0%, var(--hadara-blue) 100%) !important;
+    background: linear-gradient(135deg, #162a3d 0%, var(--hadara-blue) 100%) !important;
     color: #fff !important;
 }
 
 .small-box.bg-danger {
     background: linear-gradient(135deg, var(--hadara-surface) 0%, #1e293b 100%) !important;
-    border: 1px solid rgba(148,163,184,0.2) !important;
+    border: 1px solid rgba(168,176,189,0.2) !important;
     color: #fff !important;
 }
 
 /* ─── Cards & Containers ────────────────────────────────────────── */
 .card {
     background: var(--hadara-surface) !important;
-    border: 1px solid rgba(245,158,11,0.15) !important;
-    border-radius: 14px !important;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+    border: 1px solid var(--hadara-border) !important;
+    border-radius: var(--hadara-radius-md) !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
 }
 
 .card-header {
     background: var(--hadara-surface-2) !important;
-    border-bottom: 1px solid rgba(245,158,11,0.15) !important;
+    border-bottom: 1px solid var(--hadara-border) !important;
     color: var(--hadara-gold) !important;
-    border-radius: 14px 14px 0 0 !important;
+    border-radius: var(--hadara-radius-md) var(--hadara-radius-md) 0 0 !important;
 }
 
-/* ─── Tableaux ─────────────────────────────────────────────────── */
+/* ─── Tableaux & Cartes Mobile ──────────────────────────────────── */
 .table {
     color: var(--hadara-text) !important;
 }
 
 .table thead th {
     background: var(--hadara-surface-2) !important;
-    border-color: rgba(245,158,11,0.1) !important;
+    border-color: rgba(208,162,28,0.12) !important;
     color: var(--hadara-gold) !important;
     font-size: 0.75rem !important;
     text-transform: uppercase !important;
@@ -165,28 +173,32 @@ body.login-page {
 }
 
 .table-hover tbody tr:hover {
-    background: rgba(245,158,11,0.05) !important;
+    background: rgba(208,162,28,0.06) !important;
 }
 
-/* Badges statuts */
-.badge-warning { background-color: var(--hadara-gold-dark) !important; color: #fff !important; }
+/* Badges statuts métier */
+.badge-warning { background-color: #816C07 !important; color: #fff !important; }
 .badge-info    { background-color: var(--hadara-blue) !important; }
-.badge-success { background-color: #059669 !important; }
+.badge-success { background-color: var(--hadara-accent) !important; color: #070B18 !important; font-weight: 600; }
 .badge-danger  { background-color: #dc2626 !important; }
 
-/* ─── Boutons ───────────────────────────────────────────────────── */
+/* ─── Boutons Boutons Signature ─────────────────────────────────── */
 .btn-primary {
     background: var(--hadara-gold) !important;
-    border-color: var(--hadara-gold-dark) !important;
-    color: #0f172a !important;
-    font-weight: 600 !important;
+    border-color: var(--hadara-gold-light) !important;
+    color: #070B18 !important;
+    font-weight: 700 !important;
+    border-radius: var(--hadara-radius-md) !important;
+    box-shadow: 0 4px 12px rgba(208,162,28,0.25) !important;
+    transition: all 0.2s ease !important;
 }
 .btn-primary:hover {
-    background: #fbbf24 !important;
-    color: #0f172a !important;
+    background: var(--hadara-gold-light) !important;
+    color: #070B18 !important;
+    box-shadow: 0 6px 18px rgba(208,162,28,0.4) !important;
 }
 
-/* ─── OPTIMISATION MOBILE : CARTES PARFAITES ET COMPACTES ───────── */
+/* ─── OPTIMISATION MOBILE : CARTES COMPACTES ─────────────────────── */
 @media (max-width: 768px) {
     .table, .table tbody, .table tr, .table td {
         display: block !important;
@@ -197,14 +209,13 @@ body.login-page {
         display: none !important;
     }
 
-    /* Chaque ligne de tableau devient une carte compacte interactive */
     .table tbody tr {
         background: var(--hadara-surface-2) !important;
-        border: 1px solid rgba(245,158,11,0.2) !important;
-        border-radius: 12px !important;
+        border: 1px solid var(--hadara-border) !important;
+        border-radius: var(--hadara-radius-md) !important;
         margin-bottom: 0.85rem !important;
         padding: 0.75rem 0.85rem !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35) !important;
         cursor: pointer !important;
         transition: all 0.2s ease !important;
     }
@@ -212,11 +223,10 @@ body.login-page {
     .table tbody tr:active,
     .table tbody tr.selected-card {
         border-color: var(--hadara-gold) !important;
-        box-shadow: 0 0 15px rgba(245, 158, 11, 0.35) !important;
-        background: rgba(245, 158, 11, 0.1) !important;
+        box-shadow: 0 0 15px rgba(208, 162, 28, 0.35) !important;
+        background: rgba(208, 162, 28, 0.1) !important;
     }
 
-    /* Checkbox de sélection tactile */
     .table tbody td.action-checkbox,
     .table thead th.action-checkbox-column {
         display: inline-block !important;
@@ -240,12 +250,11 @@ body.login-page {
         padding-top: 0.6rem !important;
     }
 
-    /* Première cellule d'identification (Nom/ID) mise en valeur */
     .table tbody td:nth-child(2) {
         font-size: 1.05rem !important;
         font-weight: 700 !important;
         color: var(--hadara-gold) !important;
-        border-bottom: 1px dashed rgba(245,158,11,0.25) !important;
+        border-bottom: 1px dashed rgba(208,162,28,0.25) !important;
         padding-bottom: 0.4rem !important;
         margin-bottom: 0.3rem !important;
     }

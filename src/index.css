@@ -548,5 +548,10 @@
   outline-offset: 2px !important;
 }
 
-
-
+@media print {
+  html, body, #root {
+    background-color: white !important;
+    background: white !important;
+    color: black !important;
+  }
+}

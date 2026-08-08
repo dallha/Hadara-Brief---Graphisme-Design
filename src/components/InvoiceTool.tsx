@@ -115,8 +115,8 @@ export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief
         <div className="p-8 sm:p-12 space-y-8 min-h-[1056px] print:min-h-0 print:h-auto">
           
           {/* Invoice Header */}
-          <div className="flex justify-between items-start border-b-2 border-slate-200 pb-8">
-            <div className="space-y-2 max-w-[250px]">
+          <div className="flex justify-between items-start border-b-2 border-slate-200 pb-8 gap-4">
+            <div className="space-y-2 flex-1 max-w-[300px]">
               <div className="flex items-center gap-2 text-amber-600 mb-4 print:hidden">
                 <Building2 className="w-6 h-6" />
                 <span className="font-bold text-sm">Vos Informations</span>
@@ -144,7 +144,7 @@ export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief
               />
             </div>
 
-            <div className="text-right space-y-2">
+            <div className="text-right space-y-2 flex-shrink-0">
               <h2 className="text-4xl font-black text-slate-200 uppercase tracking-widest mb-4 print:text-slate-300">Facture</h2>
               <div className="flex items-center justify-end gap-2 text-sm font-medium">
                 <span className="text-slate-400">N° :</span>
@@ -277,7 +277,7 @@ export const InvoiceTool: React.FC<{ onGoToBrief: () => void }> = ({ onGoToBrief
           </div>
           
           {/* Footer Notice */}
-          <div className="pt-24 pb-8 text-center text-xs font-medium text-slate-400">
+          <div className="mt-12 pt-4 pb-8 text-center text-xs font-medium text-slate-400">
             <p>Merci pour votre confiance.</p>
           </div>
 

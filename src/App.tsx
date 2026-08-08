@@ -28,6 +28,7 @@ import { TimerTool } from './components/TimerTool';
 import { WatermarkTool } from './components/WatermarkTool';
 import { ImageCompressorTool } from './components/ImageCompressorTool';
 import { MockupTool } from './components/MockupTool';
+import { WordCloudTool } from './components/WordCloudTool';
 import { ToolsHub } from './components/ToolsHub';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
@@ -679,6 +680,9 @@ export default function App() {
             } />
             <Route path="/outils/minuterie" element={
               <TimerTool onGoToInvoice={() => goTo('outils/facture')} />
+            } />
+            <Route path="/outils/nuage-mots" element={
+              <WordCloudTool onGoToBrief={() => goTo('brief')} />
             } />
             <Route path="/outils" element={
               <ToolsHub onGoToBrief={() => goTo('brief')} />

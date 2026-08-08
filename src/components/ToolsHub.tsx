@@ -12,6 +12,7 @@ import {
   FileImage,
   Timer,
   Calculator,
+  Cloud,
   Sparkles,
   ArrowRight
 } from 'lucide-react';
@@ -22,6 +23,14 @@ interface ToolsHubProps {
 
 export const ToolsHub: React.FC<ToolsHubProps> = ({ onGoToBrief }) => {
   const tools = [
+    {
+      name: 'Nuage de Mots',
+      path: '/outils/nuage-mots',
+      icon: Cloud,
+      color: 'from-amber-500/20 to-amber-600/10 border-amber-500/30 text-amber-400',
+      description: 'Transformez vos textes et briefs en nuages de mots-clés artistiques personnalisés.',
+      badge: 'Nouveau',
+    },
     {
       name: 'Calculateur de Devis',
       path: '/outils/devis',
@@ -112,11 +121,11 @@ export const ToolsHub: React.FC<ToolsHubProps> = ({ onGoToBrief }) => {
           Les Outils <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">Gratuits du Studio</span>
         </h1>
         <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
-          10 outils puissants et gratuits pour accélérer vos créations graphiques et la gestion de vos projets.
+          11 outils puissants et gratuits pour accélérer vos créations graphiques et la gestion de vos projets.
         </p>
       </motion.div>
 
-      {/* Grid of 10 tools */}
+      {/* Grid of 11 tools */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {tools.map((t, idx) => {
           const IconComp = t.icon;

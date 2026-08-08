@@ -128,19 +128,33 @@ class BriefAdmin(admin.ModelAdmin):
     )
 
 
+from django.utils.html import format_html
+
 @admin.register(PortfolioItem)
 class PortfolioItemAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'price_estimate', 'badge')
+    list_display = ('apercu_visuel', 'title', 'category', 'price_estimate', 'badge')
     list_filter = ('category',)
     search_fields = ('title', 'id')
+
+    @admin.display(description='Aperçu Visuel')
+    def apercu_visuel(self, obj):
+        if obj.image_url:
+            return format_html('<img src="{}" style="width: 55px; height: 38px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(245,158,11,0.3);" />', obj.image_url)
+        return format_html('<span style="color:#94a3b8; font-size:11px;">Sans aperçu</span>')
 
 
 @admin.register(StoreProduct)
 class StoreProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'brand', 'category', 'status', 'price')
+    list_display = ('apercu_visuel', 'name', 'brand', 'category', 'status', 'price')
     list_filter = ('status', 'category', 'visible', 'featured')
     search_fields = ('name', 'brand', 'id')
     list_editable = ('status',)
+
+    @admin.display(description='Aperçu')
+    def apercu_visuel(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="width: 45px; height: 35px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(245,158,11,0.3);" />', obj.image)
+        return format_html('<span style="color:#94a3b8; font-size:11px;">Sans image</span>')
 
 
 @admin.register(Template)

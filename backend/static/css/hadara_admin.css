@@ -1,24 +1,29 @@
 /* ================================================================
-   HADARA ADMIN — Custom Theme CSS
-   Palette : Slate-950 background · Amber-400/500 accent · Or doré
+   HADARA STUDIO MANAGER — Custom Theme CSS
+   Palette Premium : Dark Slate #0B1120 · Surface #151F2E · Or #f59e0b / #816C07 · Bleu #335A79
    ================================================================ */
 
-/* ─── Variables de couleurs Hadara ─────────────────────────────── */
+/* ─── Variables de couleurs Hadara Studio ─────────────────────── */
 :root {
+    --hadara-bg:          #0B1120;
+    --hadara-surface:     #151F2E;
+    --hadara-surface-2:   #1B2636;
     --hadara-gold:        #f59e0b;
-    --hadara-gold-light:  #fbbf24;
-    --hadara-gold-dark:   #d97706;
-    --hadara-slate-950:   #020617;
-    --hadara-slate-900:   #0f172a;
-    --hadara-slate-800:   #1e293b;
-    --hadara-slate-700:   #334155;
-    --hadara-slate-400:   #94a3b8;
-    --hadara-slate-100:   #f1f5f9;
+    --hadara-gold-dark:   #816C07;
+    --hadara-blue:        #335A79;
+    --hadara-text:        #F5F5F5;
+    --hadara-text-sub:    #94A3B8;
+}
+
+/* ─── Global Background & Body ─────────────────────────────────── */
+body, .content-wrapper, .main-footer {
+    background-color: var(--hadara-bg) !important;
+    color: var(--hadara-text) !important;
 }
 
 /* ─── Page de connexion ─────────────────────────────────────────── */
 body.login-page {
-    background: var(--hadara-slate-950) !important;
+    background: var(--hadara-bg) !important;
     background-image: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.08) 0%, transparent 70%) !important;
 }
 
@@ -27,197 +32,126 @@ body.login-page {
     max-width: 95vw;
 }
 
-.login-logo {
-    margin-bottom: 16px !important;
-}
-
 .login-logo img {
     max-width: 110px !important;
     max-height: 75px !important;
-    width: auto !important;
-    height: auto !important;
-    object-fit: contain;
-    display: block;
-    margin: 0 auto;
     filter: drop-shadow(0 0 12px rgba(245,158,11,0.3));
 }
 
-/* Boîte de connexion */
 .login-card-body,
 .card.login-card-body {
-    background: var(--hadara-slate-800) !important;
+    background: var(--hadara-surface) !important;
     border: 1px solid rgba(245,158,11,0.2) !important;
     border-radius: 16px !important;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 30px rgba(245,158,11,0.05) !important;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6) !important;
 }
 
-.login-card-body .form-control,
-.card.login-card-body .form-control {
-    background: var(--hadara-slate-900) !important;
-    border-color: var(--hadara-slate-700) !important;
-    color: var(--hadara-slate-100) !important;
+.login-card-body .form-control {
+    background: var(--hadara-bg) !important;
+    border-color: var(--hadara-surface-2) !important;
+    color: var(--hadara-text) !important;
     border-radius: 8px !important;
 }
 
-.login-card-body .form-control:focus,
-.card.login-card-body .form-control:focus {
-    border-color: var(--hadara-gold) !important;
-    box-shadow: 0 0 0 3px rgba(245,158,11,0.15) !important;
-}
-
-/* Bouton Se connecter → Amber/Gold */
-.login-card-body .btn-primary,
-.card.login-card-body .btn-primary,
-body.login-page .btn-primary {
+.login-card-body .btn-primary {
     background: linear-gradient(135deg, var(--hadara-gold) 0%, var(--hadara-gold-dark) 100%) !important;
     border-color: var(--hadara-gold-dark) !important;
     color: #0f172a !important;
     font-weight: 700 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 15px rgba(245,158,11,0.3) !important;
-    transition: all 0.2s ease !important;
-}
-
-.login-card-body .btn-primary:hover,
-body.login-page .btn-primary:hover {
-    background: linear-gradient(135deg, var(--hadara-gold-light) 0%, var(--hadara-gold) 100%) !important;
-    box-shadow: 0 6px 20px rgba(245,158,11,0.5) !important;
-    transform: translateY(-1px) !important;
-}
-
-/* Texte de bienvenue */
-.login-box-msg {
-    color: var(--hadara-slate-400) !important;
-    font-size: 0.9rem !important;
 }
 
 /* ─── Navbar ────────────────────────────────────────────────────── */
 .main-header.navbar {
-    background: var(--hadara-slate-900) !important;
+    background: var(--hadara-surface) !important;
     border-bottom: 1px solid rgba(245,158,11,0.15) !important;
 }
 
-/* Assurer que le bouton hamburger et les icônes sont bien visibles (surtout sur mobile) */
 .main-header.navbar .nav-link {
-    color: var(--hadara-slate-100) !important;
+    color: var(--hadara-text) !important;
 }
 .main-header.navbar .nav-link:hover {
     color: var(--hadara-gold) !important;
 }
 
-/* Sur mobile, afficher correctement les liens du menu haut (topmenu_links) s'ils sont masqués */
-@media (max-width: 768px) {
-    .main-header.navbar .navbar-nav {
-        flex-direction: row;
-    }
-    .main-header.navbar .navbar-nav .nav-item {
-        display: block !important;
-    }
-    .main-header.navbar .nav-link {
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
-        font-size: 0.9rem !important;
-    }
-}
-
 .brand-link {
-    background: var(--hadara-slate-950) !important;
+    background: var(--hadara-bg) !important;
     border-bottom: 1px solid rgba(245,158,11,0.15) !important;
 }
 
-.brand-image {
-    max-height: 32px !important;
-    width: auto !important;
-    filter: drop-shadow(0 0 6px rgba(245,158,11,0.2));
+/* ─── Sidebar Navigation ────────────────────────────────────────── */
+.main-sidebar {
+    background: var(--hadara-bg) !important;
+    border-right: 1px solid rgba(255,255,255,0.05) !important;
 }
 
-/* ─── Sidebar ───────────────────────────────────────────────────── */
-.main-sidebar {
-    background: var(--hadara-slate-950) !important;
+.nav-sidebar .nav-link {
+    color: var(--hadara-text-sub) !important;
+    border-radius: 8px !important;
+    margin: 2px 8px !important;
 }
 
 .nav-sidebar .nav-link.active,
 .nav-sidebar .nav-link:hover {
-    background: rgba(245,158,11,0.12) !important;
+    background: var(--hadara-surface-2) !important;
     color: var(--hadara-gold) !important;
     border-left: 3px solid var(--hadara-gold) !important;
 }
 
-/* ─── KPI Cards (small-box) — couleurs Hadara ───────────────────── */
+/* ─── KPI Cards ─────────────────────────────────────────────────── */
+.small-box {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+    overflow: hidden;
+}
 
-/* Remplace le jaune Bootstrap (Nouveaux Briefs) */
 .small-box.bg-warning {
-    background: linear-gradient(135deg, #92400e 0%, #b45309 50%, var(--hadara-gold-dark) 100%) !important;
+    background: linear-gradient(135deg, #92400e 0%, var(--hadara-gold-dark) 100%) !important;
     color: #fff !important;
 }
 
-/* Remplace le vert Bootstrap (CA Potentiel) */
 .small-box.bg-success {
-    background: linear-gradient(135deg, var(--hadara-slate-800) 0%, var(--hadara-slate-700) 100%) !important;
-    border: 1px solid rgba(245,158,11,0.4) !important;
+    background: linear-gradient(135deg, var(--hadara-surface) 0%, var(--hadara-surface-2) 100%) !important;
+    border: 1px solid rgba(245,158,11,0.3) !important;
     color: #fff !important;
 }
 .small-box.bg-success .inner h3,
 .small-box.bg-success .inner p {
-    color: var(--hadara-gold-light) !important;
+    color: var(--hadara-gold) !important;
 }
 
-/* Remplace le bleu Bootstrap (Produits en Boutique) */
 .small-box.bg-info {
-    background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%) !important;
+    background: linear-gradient(135deg, #1e3a5f 0%, var(--hadara-blue) 100%) !important;
     color: #fff !important;
 }
 
-/* Remplace le rouge Bootstrap (Total Briefs) */
 .small-box.bg-danger {
-    background: linear-gradient(135deg, var(--hadara-slate-800) 0%, #1e293b 100%) !important;
+    background: linear-gradient(135deg, var(--hadara-surface) 0%, #1e293b 100%) !important;
     border: 1px solid rgba(148,163,184,0.2) !important;
     color: #fff !important;
 }
 
-/* Pied des KPI cards */
-.small-box .small-box-footer {
-    background: rgba(0,0,0,0.25) !important;
-    color: rgba(255,255,255,0.8) !important;
-    transition: background 0.2s;
-}
-.small-box .small-box-footer:hover {
-    background: rgba(245,158,11,0.3) !important;
-    color: #fff !important;
-}
-
-/* Icônes des KPI cards */
-.small-box > .icon {
-    font-size: 70px !important;
-    top: 10px !important;
-    opacity: 0.25;
-}
-
-/* ─── Cards (tableau briefs, app list) ──────────────────────────── */
+/* ─── Cards & Containers ────────────────────────────────────────── */
 .card {
-    background: var(--hadara-slate-900) !important;
-    border-color: rgba(245,158,11,0.15) !important;
-    border-radius: 12px !important;
+    background: var(--hadara-surface) !important;
+    border: 1px solid rgba(245,158,11,0.15) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
 }
 
 .card-header {
-    background: var(--hadara-slate-800) !important;
+    background: var(--hadara-surface-2) !important;
     border-bottom: 1px solid rgba(245,158,11,0.15) !important;
-    color: var(--hadara-gold-light) !important;
-    border-radius: 12px 12px 0 0 !important;
+    color: var(--hadara-gold) !important;
+    border-radius: 14px 14px 0 0 !important;
 }
 
-.card-primary.card-outline {
-    border-top: 3px solid var(--hadara-gold) !important;
-}
-
-/* ─── Tableau des briefs ────────────────────────────────────────── */
+/* ─── Tableaux ─────────────────────────────────────────────────── */
 .table {
-    color: var(--hadara-slate-100) !important;
+    color: var(--hadara-text) !important;
 }
 
 .table thead th {
-    background: var(--hadara-slate-800) !important;
+    background: var(--hadara-surface-2) !important;
     border-color: rgba(245,158,11,0.1) !important;
     color: var(--hadara-gold) !important;
     font-size: 0.75rem !important;
@@ -227,6 +161,7 @@ body.login-page .btn-primary:hover {
 
 .table tbody td {
     border-color: rgba(255,255,255,0.05) !important;
+    vertical-align: middle !important;
 }
 
 .table-hover tbody tr:hover {
@@ -235,7 +170,7 @@ body.login-page .btn-primary:hover {
 
 /* Badges statuts */
 .badge-warning { background-color: var(--hadara-gold-dark) !important; color: #fff !important; }
-.badge-info    { background-color: #1d4ed8 !important; }
+.badge-info    { background-color: var(--hadara-blue) !important; }
 .badge-success { background-color: #059669 !important; }
 .badge-danger  { background-color: #dc2626 !important; }
 
@@ -247,48 +182,29 @@ body.login-page .btn-primary:hover {
     font-weight: 600 !important;
 }
 .btn-primary:hover {
-    background: var(--hadara-gold-light) !important;
-    border-color: var(--hadara-gold) !important;
+    background: #fbbf24 !important;
     color: #0f172a !important;
 }
 
-.btn-success {
-    background: #059669 !important;
-    border-color: #047857 !important;
-}
-
-/* ─── Responsive mobile ─────────────────────────────────────────── */
-@media (max-height: 700px) {
-    .login-logo { margin-bottom: 10px !important; }
-    .login-logo img { max-height: 55px !important; }
-}
-
-/* ─── OPTIMISATION LISIBILITÉ GLOBALE (Fond plus agréable) ────────── */
-body, .content-wrapper {
-    background-color: var(--hadara-slate-900) !important;
-}
-
-/* ─── VUE MOBILE : TRANSFORMATION DES TABLEAUX EN CARTES (Mobile First) ─── */
+/* ─── OPTIMISATION MOBILE : CARTES PARFAITES ET COMPACTES ───────── */
 @media (max-width: 768px) {
-    /* Forcer le tableau et ses éléments à se comporter comme des blocs */
     .table, .table tbody, .table tr, .table td {
         display: block !important;
         width: 100% !important;
     }
 
-    /* Cacher les en-têtes du tableau classique */
     .table thead {
         display: none !important;
     }
 
-    /* Style de la carte (Chaque ligne devient une carte interactive) */
+    /* Chaque ligne de tableau devient une carte compacte interactive */
     .table tbody tr {
-        background: var(--hadara-slate-800) !important;
+        background: var(--hadara-surface-2) !important;
         border: 1px solid rgba(245,158,11,0.2) !important;
         border-radius: 12px !important;
-        margin-bottom: 1rem !important;
-        padding: 0.5rem !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+        margin-bottom: 0.85rem !important;
+        padding: 0.75rem 0.85rem !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
         cursor: pointer !important;
         transition: all 0.2s ease !important;
     }
@@ -296,42 +212,41 @@ body, .content-wrapper {
     .table tbody tr:active,
     .table tbody tr.selected-card {
         border-color: var(--hadara-gold) !important;
-        box-shadow: 0 0 15px rgba(245, 158, 11, 0.3) !important;
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.35) !important;
+        background: rgba(245, 158, 11, 0.1) !important;
     }
 
-    /* Afficher la case à cocher (checkbox) de sélection sur mobile de manière tactile */
+    /* Checkbox de sélection tactile */
     .table tbody td.action-checkbox,
     .table thead th.action-checkbox-column {
         display: inline-block !important;
         vertical-align: middle !important;
         margin-right: 0.5rem !important;
-        transform: scale(1.3) !important; /* Agrandir pour sélection facile au toucher */
+        transform: scale(1.3) !important;
         cursor: pointer !important;
     }
 
-    /* Chaque cellule s'affiche en bloc avec un espacement */
     .table tbody td {
         border: none !important;
-        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-        position: relative !important;
-        padding: 0.75rem 0.5rem !important;
+        border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+        padding: 0.4rem 0 !important;
         text-align: left !important;
-        color: var(--hadara-slate-100) !important;
+        color: var(--hadara-text) !important;
+        font-size: 0.9rem !important;
     }
 
-    /* Supprimer la bordure de la dernière cellule de la carte */
     .table tbody td:last-child {
         border-bottom: none !important;
+        padding-top: 0.6rem !important;
     }
 
-    /* Mettre en évidence la première cellule visible (souvent l'ID ou le Nom) */
+    /* Première cellule d'identification (Nom/ID) mise en valeur */
     .table tbody td:nth-child(2) {
-        font-size: 1.1rem !important;
-        font-weight: bold !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
         color: var(--hadara-gold) !important;
-        border-bottom: 1px dashed rgba(245,158,11,0.3) !important;
-        padding-top: 0 !important;
-        padding-bottom: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
+        border-bottom: 1px dashed rgba(245,158,11,0.25) !important;
+        padding-bottom: 0.4rem !important;
+        margin-bottom: 0.3rem !important;
     }
 }

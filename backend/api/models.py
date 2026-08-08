@@ -75,6 +75,11 @@ class Brief(models.Model):
             return
         super().save(*args, **kwargs)
 
+    class Meta:
+        verbose_name = "Brief & Projet"
+        verbose_name_plural = "Briefs & Projets"
+        ordering = ['-created_at']
+
     def __str__(self):
         return f"{self.id} - {self.client_name}"
 
@@ -94,6 +99,10 @@ class Template(models.Model):
     default_budget_range = models.CharField(max_length=50)
     suggested_price_fcfa = models.IntegerField()
     usage_count = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Modèle de Brief"
+        verbose_name_plural = "Modèles de Brief"
 
     def __str__(self):
         return self.title
@@ -126,6 +135,11 @@ class PortfolioItem(models.Model):
                 super().save(*args, **kwargs)  # Dans l'atomic block — rollback si échec
             return
         super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Projet Portfolio"
+        verbose_name_plural = "Portfolio"
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.id} - {self.title}"
@@ -172,6 +186,11 @@ class StoreProduct(models.Model):
                 super().save(*args, **kwargs)
                 return
         super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Produit Boutique"
+        verbose_name_plural = "Hadara Store (Produits)"
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.id} - {self.name}"

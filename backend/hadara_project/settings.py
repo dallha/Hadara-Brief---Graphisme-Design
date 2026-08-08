@@ -217,14 +217,23 @@ JAZZMIN_SETTINGS = {
     
     "icons": {
         "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
+        "auth.user": "fas fa-user-shield",
         "auth.Group": "fas fa-users",
-        "api.Brief": "fas fa-briefcase",
-        "api.PortfolioItem": "fas fa-image",
-        "api.StoreProduct": "fas fa-shopping-cart",
+        "api.Brief": "fas fa-file-signature",
+        "api.PortfolioItem": "fas fa-palette",
+        "api.StoreProduct": "fas fa-store",
         "api.Template": "fas fa-layer-group",
-        "api.ToolUsageLog": "fas fa-tools",
+        "api.ToolUsageLog": "fas fa-chart-line",
     },
+    "order_with_respect_to": [
+        "api.Brief",
+        "api.StoreProduct",
+        "api.PortfolioItem",
+        "api.Template",
+        "api.ToolUsageLog",
+        "auth.user",
+        "auth.Group",
+    ],
     
     "custom_links": {
         "api": [{

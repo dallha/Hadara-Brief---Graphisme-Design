@@ -130,22 +130,22 @@ class BriefAdmin(admin.ModelAdmin):
 
 @admin.register(PortfolioItem)
 class PortfolioItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'category', 'price_estimate', 'badge')
+    list_display = ('title', 'category', 'price_estimate', 'badge')
     list_filter = ('category',)
     search_fields = ('title', 'id')
 
 
 @admin.register(StoreProduct)
 class StoreProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'brand', 'category', 'price', 'status', 'visible', 'featured')
+    list_display = ('name', 'brand', 'category', 'status', 'price')
     list_filter = ('status', 'category', 'visible', 'featured')
     search_fields = ('name', 'brand', 'id')
-    list_editable = ('status', 'visible', 'featured', 'price')
+    list_editable = ('status',)
 
 
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'category', 'suggested_price_fcfa')
+    list_display = ('title', 'category', 'suggested_price_fcfa')
     list_filter = ('category',)
     search_fields = ('title',)
 

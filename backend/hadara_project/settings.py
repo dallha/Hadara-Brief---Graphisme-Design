@@ -228,9 +228,14 @@ JAZZMIN_SETTINGS = {
     
     "custom_links": {
         "api": [{
-            "name": "🧰 Hub des 11 Outils",
+            "name": "🧰 Hub des 12 Outils Gratuits",
             "url": "https://hadara-design.com/outils",
             "icon": "fas fa-tools",
+            "new_window": True,
+        }, {
+            "name": "🔍 Agrandisseur HD (Upscale)",
+            "url": "https://hadara-design.com/outils/upscale",
+            "icon": "fas fa-search-plus",
             "new_window": True,
         }, {
             "name": "☁️ Nuage de Mots",

@@ -46,5 +46,17 @@ document.addEventListener('DOMContentLoaded', function() {
             tr.style.border = '';
             tr.style.background = '';
         }
+    // Forcer tous les liens des Outils et du site public à s'ouvrir dans un NOUVEL ONGLET (_blank)
+    // afin de ne JAMAIS quitter la session de l'Admin Django
+    function fixExternalLinks() {
+        const links = document.querySelectorAll('a[href*="/outils"], a[href*="hadara-design.com"], .nav-sidebar a[href^="http"]');
+        links.forEach(function(link) {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+        });
     }
+
+    fixExternalLinks();
+    // Exécuter également si le DOM change dynamiquement
+    setTimeout(fixExternalLinks, 500);
 });

@@ -62,13 +62,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ── 4. HADARA IMAGE UPLOADER & COMPRESSOR (Mobile-First) ────────
-    const imageFields = document.querySelectorAll('input[name="image_url"], input[name="image"], textarea[name="image_url"], textarea[name="image"]');
+    // ── 4. HADARA IMAGE UPLOADER & COMPRESSOR (Dual-Mode: Appareil + URL) ─
+    const imageFields = document.querySelectorAll('input[name="image_url"], input[name="image"], input[name="previewUrl"], input[name="fileUrl"], textarea[name="image_url"], textarea[name="image"]');
     imageFields.forEach(function(field) {
         if (field.dataset.hadaraUploaderInit) return;
         field.dataset.hadaraUploaderInit = "true";
 
-        // Cacher le champ brut sans supprimer sa valeur
         field.style.display = "none";
 
         const container = document.createElement('div');
@@ -81,27 +80,65 @@ document.addEventListener('DOMContentLoaded', function() {
         previewDiv.innerHTML = `
             <img src="${field.value || ''}" style="max-width: 100%; max-height: 200px; object-fit: contain; border-radius: 10px; border: 1px solid rgba(208,162,28,0.3); margin-bottom: 0.5rem;" />
             <div>
-                <span class="badge" style="background: rgba(0,201,167,0.2); color: #00C9A7; border: 1px solid #00C9A7;">✓ Image optimisée</span>
+                <span class="badge" style="background: rgba(0,201,167,0.2); color: #00C9A7; border: 1px solid #00C9A7;">✓ Image prête & optimisée</span>
             </div>
         `;
 
+        const btnGroup = document.createElement('div');
+        btnGroup.className = "d-flex flex-wrap justify-content-center gap-2";
+
+        // Mode 1: Fichier / Appareil Photo / Mobile
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = 'image/*';
         fileInput.style.display = 'none';
 
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'btn btn-outline-warning btn-sm font-weight-bold px-3 py-2';
-        btn.innerHTML = `<i class="fas fa-camera mr-2"></i> ${field.value ? 'Remplacer l\'image' : '📷 Ajouter une image (Photos / Caméra)'}`;
+        const deviceBtn = document.createElement('button');
+        deviceBtn.type = 'button';
+        deviceBtn.className = 'btn btn-outline-warning btn-sm font-weight-bold px-3 py-2 mr-2 my-1';
+        deviceBtn.innerHTML = `<i class="fas fa-camera mr-2"></i> 📱 Choisir depuis l'appareil`;
+        deviceBtn.addEventListener('click', function() { fileInput.click(); });
 
-        btn.addEventListener('click', function() { fileInput.click(); });
+        // Mode 2: Saisie Lien URL
+        const urlBtn = document.createElement('button');
+        urlBtn.type = 'button';
+        urlBtn.className = 'btn btn-outline-info btn-sm font-weight-bold px-3 py-2 my-1';
+        urlBtn.innerHTML = `<i class="fas fa-link mr-2"></i> 🔗 Utiliser un lien d'image`;
+
+        const urlInputBox = document.createElement('div');
+        urlInputBox.style.cssText = "display: none; margin-top: 0.75rem; background: #070B18; padding: 0.75rem; border-radius: 10px; border: 1px solid #335A79;";
+        urlInputBox.innerHTML = `
+            <div class="input-group input-group-sm">
+                <input type="text" class="form-control" placeholder="https://exemple.com/image.jpg" value="${field.value && field.value.startsWith('http') ? field.value : ''}" style="background:#111827; color:#F4F1EA; border-color:#335A79;">
+                <div class="input-group-append">
+                    <button class="btn btn-primary font-weight-bold" type="button" style="background:#D0A21C; border-color:#D0A21C; color:#070B18;">✓ Valider Lien</button>
+                </div>
+            </div>
+        `;
+
+        urlBtn.addEventListener('click', function() {
+            urlInputBox.style.display = urlInputBox.style.display === 'none' ? 'block' : 'none';
+        });
+
+        const urlInput = urlInputBox.querySelector('input');
+        const urlConfirmBtn = urlInputBox.querySelector('button');
+
+        urlConfirmBtn.addEventListener('click', function() {
+            const val = urlInput.value.trim();
+            if (val) {
+                field.value = val;
+                const imgEl = previewDiv.querySelector('img');
+                imgEl.src = val;
+                previewDiv.style.display = "block";
+                urlInputBox.style.display = "none";
+            }
+        });
 
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Compression WebP...`;
+            deviceBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Compression WebP...`;
 
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -133,15 +170,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     const imgEl = previewDiv.querySelector('img');
                     imgEl.src = webpDataUrl;
                     previewDiv.style.display = "block";
-                    btn.innerHTML = `<i class="fas fa-sync-alt mr-2"></i> Remplacer l'image`;
+                    deviceBtn.innerHTML = `<i class="fas fa-camera mr-2"></i> 📱 Choisir depuis l'appareil`;
                 };
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
 
+        btnGroup.appendChild(deviceBtn);
+        btnGroup.appendChild(urlBtn);
+
         container.appendChild(previewDiv);
-        container.appendChild(btn);
+        container.appendChild(btnGroup);
+        container.appendChild(urlInputBox);
         container.appendChild(fileInput);
         field.parentNode.insertBefore(container, field.nextSibling);
     });

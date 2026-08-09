@@ -235,6 +235,12 @@ JAZZMIN_SETTINGS = {
     ],
     
     "custom_links": {},
+    "changeform_format": "collapsible",
+    "changeform_format_overrides": {
+        "api.brief": "collapsible",
+        "api.portfolioitem": "collapsible",
+        "api.storeproduct": "collapsible",
+    },
 
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",

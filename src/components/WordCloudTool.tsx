@@ -261,6 +261,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
 
   // Composition
   const [rotationMode, setRotationMode]   = useState<RotationMode>('none');
+  const [sizingMode, setSizingMode]       = useState<'smooth' | 'hierarchy'>('smooth');
   const [density, setDensity]             = useState(3);   // 1=aéré, 5=dense
   const [fontFamily, setFontFamily]       = useState('Plus Jakarta Sans, sans-serif');
 
@@ -356,7 +357,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
       const minCount = rawWords[rawWords.length - 1].count;
 
       // Density params
-      const GAP = Math.max(4, 20 - density * 3);          // density 1→17, 5→5
+      const GAP = Math.max(1, 12 - density * 2);          // density 1→10, 5→2
       const spiralStep = Math.max(1.0, 3.0 - density * 0.4); // density 1→2.6, 5→1.0
       const maxIter = 300 + density * 80;
 
@@ -366,34 +367,70 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
         return mask[(Math.floor(py) * W + Math.floor(px)) * 4 + 3] > 128;
       };
 
-      const placedBoxes: { x1: number; y1: number; x2: number; y2: number }[] = [];
+      const getOBBCorners = (cx: number, cy: number, w: number, h: number, angle: number, gap: number) => {
+        const cos = Math.cos(angle), sin = Math.sin(angle);
+        const hw = w / 2 + gap, hh = h / 2 + gap;
+        return [
+          { x: cx + (-hw)*cos - (-hh)*sin, y: cy + (-hw)*sin + (-hh)*cos },
+          { x: cx + hw*cos - (-hh)*sin,    y: cy + hw*sin + (-hh)*cos },
+          { x: cx + hw*cos - hh*sin,       y: cy + hw*sin + hh*cos },
+          { x: cx + (-hw)*cos - hh*sin,    y: cy + (-hw)*sin + hh*cos }
+        ];
+      };
 
-      const noCollision = (bx: number, by: number, bw: number, bh: number) => {
-        const x1 = bx - GAP, y1 = by - GAP;
-        const x2 = bx + bw + GAP, y2 = by + bh + GAP;
-        for (const p of placedBoxes) {
-          if (x1 < p.x2 && x2 > p.x1 && y1 < p.y2 && y2 > p.y1) return false;
+      const polygonsIntersect = (a: {x:number, y:number}[], b: {x:number, y:number}[]) => {
+        const polys = [a, b];
+        for (let i = 0; i < polys.length; i++) {
+          const poly = polys[i];
+          for (let i1 = 0; i1 < poly.length; i1++) {
+            const p1 = poly[i1], p2 = poly[(i1 + 1) % poly.length];
+            const normal = { x: p2.y - p1.y, y: p1.x - p2.x };
+            let minA = Infinity, maxA = -Infinity;
+            for (const p of a) {
+              const proj = normal.x * p.x + normal.y * p.y;
+              if (proj < minA) minA = proj;
+              if (proj > maxA) maxA = proj;
+            }
+            let minB = Infinity, maxB = -Infinity;
+            for (const p of b) {
+              const proj = normal.x * p.x + normal.y * p.y;
+              if (proj < minB) minB = proj;
+              if (proj > maxB) maxB = proj;
+            }
+            if (maxA < minB || maxB < minA) return false;
+          }
         }
         return true;
       };
 
-      const boxInsideMask = (bx: number, by: number, bw: number, bh: number) => {
-        // Check 9 points (4 corners + 4 edge midpoints + center)
-        const pts = [
-          [bx, by], [bx+bw, by], [bx, by+bh], [bx+bw, by+bh],
-          [bx+bw/2, by], [bx+bw/2, by+bh],
-          [bx, by+bh/2], [bx+bw, by+bh/2],
-          [bx+bw/2, by+bh/2],
-        ];
-        return pts.every(([px, py]) => pixelInMask(px, py));
+      const placedOBBs: {x:number, y:number}[][] = [];
+
+      const noCollisionSAT = (corners: {x:number, y:number}[]) => {
+        for (const p of placedOBBs) {
+          if (polygonsIntersect(corners, p)) return false;
+        }
+        return true;
+      };
+
+      const boxInsideMask = (corners: {x:number, y:number}[], cx: number, cy: number) => {
+        return pixelInMask(cx, cy) && corners.every(c => pixelInMask(c.x, c.y));
       };
 
       const newPlaced: PlacedWord[] = [];
 
       rawWords.forEach((word, idx) => {
         const ratio = maxCount === minCount ? 1 : (word.count - minCount) / (maxCount - minCount);
-        // Logarithmic (more balanced)
-        const size = Math.round(minFontSize + Math.pow(ratio, 0.55) * (maxFontSize - minFontSize));
+        
+        let size;
+        if (sizingMode === 'hierarchy') {
+          if (idx === 0) size = maxFontSize;
+          else if (idx === 1) size = Math.round(maxFontSize * 0.7);
+          else if (idx === 2) size = Math.round(maxFontSize * 0.5);
+          else size = Math.round(minFontSize + Math.pow(ratio, 3) * (maxFontSize * 0.35 - minFontSize));
+        } else {
+          size = Math.round(minFontSize + Math.pow(ratio, 0.55) * (maxFontSize - minFontSize));
+        }
+        
         const color = paletteColors[idx % paletteColors.length];
 
         // Rotation per mode
@@ -413,32 +450,34 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
         const rawW = ctx.measureText(word.text).width + 6;
         const rawH = size * 1.15;
 
-        // AABB after rotation
-        const bw = Math.abs(rawW * Math.cos(angle)) + Math.abs(rawH * Math.sin(angle));
-        const bh = Math.abs(rawW * Math.sin(angle)) + Math.abs(rawH * Math.cos(angle));
-
         let placed = false;
         let finalCX = cx, finalCY = cy;
-        let spiralAngle = rng() * Math.PI * 2; // random start angle for spiral
+        let spiralAngle = rng() * Math.PI * 2;
         let radius = 0;
 
         for (let i = 0; i < maxIter; i++) {
-          spiralAngle += 0.42 + rng() * 0.05; // slight jitter
+          spiralAngle += 0.42 + rng() * 0.05;
           radius += spiralStep;
 
-          const tx = cx + radius * Math.cos(spiralAngle) - bw / 2;
-          const ty = cy + radius * Math.sin(spiralAngle) - bh / 2;
+          const tx = cx + radius * Math.cos(spiralAngle);
+          const ty = cy + radius * Math.sin(spiralAngle);
 
-          if (boxInsideMask(tx, ty, bw, bh) && noCollision(tx, ty, bw, bh)) {
-            placedBoxes.push({ x1: tx, y1: ty, x2: tx+bw, y2: ty+bh });
-            finalCX = tx + bw / 2;
-            finalCY = ty + bh / 2;
+          const corners = getOBBCorners(tx, ty, rawW, rawH, angle, GAP);
+
+          if (boxInsideMask(corners, tx, ty) && noCollisionSAT(corners)) {
+            placedOBBs.push(corners);
+            finalCX = tx;
+            finalCY = ty;
             placed = true;
             break;
           }
         }
 
         if (!placed) return; // skip word if no position found
+        
+        // AABB (just for filling area stats)
+        const bw = Math.abs(rawW * Math.cos(angle)) + Math.abs(rawH * Math.sin(angle));
+        const bh = Math.abs(rawW * Math.sin(angle)) + Math.abs(rawH * Math.cos(angle));
 
         newPlaced.push({ text: word.text, count: word.count, size, color, x: finalCX, y: finalCY, angle, w: rawW, h: rawH, bw, bh });
       });
@@ -451,7 +490,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
       setExportUrl(null); // reset export URL when layout changes
       setIsComputing(false);
     }, 20);
-  }, [rawWords, layoutSeed, bgMode, selectedPalette, shapeType, customImage, rotationMode, density, fontFamily, maxFontSize, minFontSize]);
+  }, [rawWords, layoutSeed, bgMode, selectedPalette, shapeType, customImage, rotationMode, sizingMode, density, fontFamily, maxFontSize, minFontSize]);
 
   useEffect(() => { computeLayout(); }, [computeLayout]);
 
@@ -698,15 +737,26 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">Rotation</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Rotation & Échelle</label>
               <div className="grid grid-cols-2 gap-1.5">
                 {ROTATIONS.map(r => (
                   <button key={r.key} onClick={() => setRotationMode(r.key)}
                     className={`p-2 rounded-xl border text-[10px] font-bold transition-all text-left ${rotationMode === r.key ? 'bg-amber-500 text-slate-950 border-amber-500' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'}`}>
                     <div>{r.label}</div>
-                    <div className={`text-[9px] font-normal mt-0.5 ${rotationMode === r.key ? 'text-slate-800' : 'text-slate-600'}`}>{r.desc}</div>
                   </button>
                 ))}
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mt-2">
+                  <button onClick={() => setSizingMode('smooth')}
+                    className={`p-2 rounded-xl border text-[10px] font-bold transition-all text-left ${sizingMode === 'smooth' ? 'bg-indigo-500 text-slate-950 border-indigo-500' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'}`}>
+                    <div>Sizing Lisse</div>
+                    <div className={`text-[9px] font-normal mt-0.5 ${sizingMode === 'smooth' ? 'text-slate-900' : 'text-slate-600'}`}>Progressif</div>
+                  </button>
+                  <button onClick={() => setSizingMode('hierarchy')}
+                    className={`p-2 rounded-xl border text-[10px] font-bold transition-all text-left ${sizingMode === 'hierarchy' ? 'bg-indigo-500 text-slate-950 border-indigo-500' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'}`}>
+                    <div>Contraste Fort</div>
+                    <div className={`text-[9px] font-normal mt-0.5 ${sizingMode === 'hierarchy' ? 'text-slate-900' : 'text-slate-600'}`}>Style Affiche</div>
+                  </button>
               </div>
             </div>
 

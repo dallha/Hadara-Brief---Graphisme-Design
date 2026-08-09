@@ -352,17 +352,39 @@ class BriefAdmin(admin.ModelAdmin):
                 return "{:,.0f}".format(p).replace(',', ' ')
             
             ai_block = f'''
-            <div style="background: #0F172A; border: 1px solid #1E293B; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; color: #E2E8F0; font-family: system-ui, -apple-system, sans-serif; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            <style>
+                .hadara-ai-dashboard {{
+                    background: #0F172A; border: 1px solid #1E293B; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; color: #E2E8F0; font-family: system-ui, -apple-system, sans-serif; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }}
+                .hadara-ai-header {{
+                    display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E293B; padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px;
+                }}
+                .hadara-ai-stats {{
+                    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;
+                }}
+                .hadara-ai-pricing {{
+                    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+                }}
+                .hadara-ai-details {{
+                    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;
+                }}
+                @media (max-width: 768px) {{
+                    .hadara-ai-dashboard {{ padding: 1rem; }}
+                    .hadara-ai-pricing {{ grid-template-columns: 1fr; gap: 0.8rem; }}
+                    .hadara-ai-details {{ grid-template-columns: 1fr; gap: 1rem; }}
+                }}
+            </style>
+            <div class="hadara-ai-dashboard">
                 <!-- Header -->
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E293B; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <div class="hadara-ai-header">
                     <h3 style="margin: 0; color: #F8FAFC; display: flex; align-items: center; gap: 8px; font-size: 1.2rem;">
                         <span>✨</span> Hadara AI Analyzer
                     </h3>
-                    <button type="button" onclick="{js_submit.replace('"', '&quot;')}" style="background: #1E293B; border: 1px solid #334155; color: #94A3B8; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.8rem;">🔄 Réanalyser</button>
+                    <button type="button" onclick="{js_submit.replace('"', '&quot;')}" style="background: #1E293B; border: 1px solid #334155; color: #94A3B8; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.8rem; white-space: nowrap;">🔄 Réanalyser</button>
                 </div>
 
                 <!-- Top Stats Grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="hadara-ai-stats">
                     <div style="background: #1E293B; padding: 1rem; border-radius: 12px; border-left: 4px solid {decision_color};">
                         <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Recommandation</div>
                         <div style="font-size: 1.05rem; font-weight: bold; color: {decision_color};">{decision}</div>
@@ -395,7 +417,7 @@ class BriefAdmin(admin.ModelAdmin):
                     <h4 style="margin: 0 0 1rem 0; color: #34D399; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
                         <span>💰</span> Estimation Métier (Pricing Engine)
                     </h4>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="hadara-ai-pricing">
                         <div>
                             <div style="font-size: 0.7rem; color: #6EE7B7; text-transform: uppercase;">Budget Estimé</div>
                             <div style="font-size: 1.1rem; font-weight: bold; color: #FFF; margin: 0.2rem 0;">{format_price(pricing.get('prix_min', 0))} – {format_price(pricing.get('prix_max', 0))} <span style="font-size: 0.75rem; font-weight: normal;">FCFA</span></div>
@@ -413,7 +435,7 @@ class BriefAdmin(admin.ModelAdmin):
                 </div>
 
                 <!-- AI Analysis Details -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="hadara-ai-details">
                     <div>
                         <h4 style="color: #F8FAFC; margin: 0 0 0.8rem 0; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">⚠️ Points d'attention</h4>
                         {risques_html}

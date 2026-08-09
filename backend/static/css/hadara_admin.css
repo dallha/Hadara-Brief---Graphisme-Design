@@ -258,4 +258,37 @@ body.login-page {
         padding-bottom: 0.4rem !important;
         margin-bottom: 0.3rem !important;
     }
+
+    /* Actions Directes sur Mobile */
+    .table tbody td.field-direct_actions {
+        display: block !important;
+        width: 100% !important;
+        margin-top: 0.5rem !important;
+        padding-top: 0.5rem !important;
+        border-top: 1px solid rgba(208,162,28,0.2) !important;
+        text-align: center !important;
+    }
+    
+    .field-direct_actions .direct-action-btn {
+        display: inline-block !important;
+        width: 45% !important;
+        text-align: center !important;
+        padding: 10px 0 !important;
+        margin: 2px !important;
+        font-size: 0.95rem !important;
+    }
+    
+    .field-direct_actions .btn-publish {
+        width: 100% !important;
+        margin-top: 8px !important;
+    }
+}
+
+/* ─── Actions Directes (Globale) ────────────────────────────────── */
+.direct-action-btn {
+    transition: all 0.2s ease;
+}
+.direct-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(208,162,28,0.4) !important;
 }

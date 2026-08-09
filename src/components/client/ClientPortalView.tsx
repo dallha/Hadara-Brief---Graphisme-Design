@@ -592,9 +592,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
                   <div className="p-4 rounded-2xl bg-slate-950/80 border border-emerald-900/40 text-xs space-y-2">
                     <p className="font-bold text-emerald-400">Modes de règlement acceptés par Hadara Studio :</p>
-                    <div className="flex flex-wrap gap-4 text-slate-300">
-                      <span>📲 Wave Sénégal : <strong className="font-mono text-emerald-300">+221 77 623 27 41</strong></span>
-                      <span>🍊 Orange Money : <strong className="font-mono text-orange-300">+221 76 375 63 63</strong></span>
+                    <div className="flex flex-col gap-2 text-slate-300">
+                      <span>📲 Wave Sénégal & 🍊 Orange Money : <strong className="font-mono text-emerald-300">+221 77 623 27 41</strong></span>
+                      <span>📲 Wave Sénégal uniquement : <strong className="font-mono text-emerald-300">+221 76 375 63 63</strong></span>
                     </div>
                   </div>
                 </div>

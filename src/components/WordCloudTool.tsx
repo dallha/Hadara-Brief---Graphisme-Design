@@ -253,6 +253,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
   const [maxFontSize, setMaxFontSize]     = useState(64);
   const [minFontSize] = useState(11);
   const [excludedWords, setExcludedWords] = useState<Set<string>>(new Set());
+  const [listMode, setListMode]           = useState(false); // split by comma
 
   // Shape
   const [shapeType, setShapeType]         = useState<ShapeType>('circle');
@@ -286,6 +287,29 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
   const parseText = useCallback(() => {
     if (!textInput.trim()) { setRawWords([]); return; }
 
+    if (listMode) {
+      // ── Mode Liste : séparer par virgules, garder les noms complets ──
+      const entries = textInput
+        .split(',')
+        .map(e => e.trim())
+        .filter(e => e.length >= 1);
+
+      const counts: Record<string, number> = {};
+      entries.forEach(name => {
+        const key = forceLowercase ? name.toLowerCase() : name;
+        if (excludedWords.has(key.toLowerCase())) return;
+        counts[key] = (counts[key] || 0) + 1;
+      });
+
+      const sorted = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, maxWords)
+        .map(([text, count]) => ({ text, count }));
+      setRawWords(sorted);
+      return;
+    }
+
+    // ── Mode Texte : séparer par espaces ──
     let text = textInput.replace(/[^\w\sàâäéèêëîïôöùûüçñ'-]/g, ' ').replace(/\s+/g, ' ');
     if (forceLowercase) text = text.toLowerCase();
 
@@ -303,7 +327,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
       .slice(0, maxWords)
       .map(([text, count]) => ({ text, count }));
     setRawWords(sorted);
-  }, [textInput, maxWords, excludedWords, removeStopWords, forceLowercase]);
+  }, [textInput, maxWords, excludedWords, removeStopWords, forceLowercase, listMode]);
 
   useEffect(() => { parseText(); }, [parseText]);
 
@@ -588,6 +612,35 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
             <textarea rows={4} value={textInput} onChange={e => setTextInput(e.target.value)}
               placeholder="Collez votre texte, article, brief…"
               className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-400 resize-none leading-relaxed" />
+            {/* Mode : Texte libre vs Liste de noms */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Mode de lecture</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setListMode(false)}
+                  className={`p-2 rounded-xl border text-[10px] font-bold flex flex-col items-start gap-0.5 transition-all ${
+                    !listMode ? 'bg-amber-500 border-amber-500 text-slate-950' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'
+                  }`}>
+                  <span>📄 Texte libre</span>
+                  <span className={`font-normal ${!listMode ? 'text-slate-800' : 'text-slate-600'}`}>Séparer par espaces</span>
+                </button>
+                <button
+                  onClick={() => setListMode(true)}
+                  className={`p-2 rounded-xl border text-[10px] font-bold flex flex-col items-start gap-0.5 transition-all ${
+                    listMode ? 'bg-amber-500 border-amber-500 text-slate-950' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'
+                  }`}>
+                  <span>👤 Liste de noms</span>
+                  <span className={`font-normal ${listMode ? 'text-slate-800' : 'text-slate-600'}`}>Séparer par virgules</span>
+                </button>
+              </div>
+              {listMode && (
+                <p className="text-[10px] text-amber-500/80 bg-amber-500/10 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
+                  ✓ Mode noms actif — chaque entrée entre virgules est traitée comme un nom complet. Les doublons agrandissent le mot.
+                </p>
+              )}
+            </div>
+
+            {!listMode && (
             <div className="flex flex-col gap-1.5">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={removeStopWords} onChange={e => setRemoveStopWords(e.target.checked)} className="accent-amber-500" />
@@ -598,6 +651,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
                 <span className="text-xs text-slate-300">Tout en minuscules</span>
               </label>
             </div>
+            )}
           </div>
 
           {/* 02 Forme */}

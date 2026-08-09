@@ -47,10 +47,67 @@ class BriefAdmin(admin.ModelAdmin):
     list_display = ('id', 'client_name', 'email', 'whatsapp', 'status', 'created_at', 'quoted_price_fcfa')
     list_filter = ('status', 'created_at')
     search_fields = ('id', 'client_name', 'email', 'whatsapp')
-    readonly_fields = ('id', 'created_at', 'ai_analysis', 'status_actions_guided', 'display_deliverable_versions')
+    readonly_fields = ('id', 'created_at', 'ai_analysis', 'status_actions_guided', 'display_client_files_and_references', 'display_deliverable_versions')
     ordering = ('-created_at',)
 
     actions = ['send_whatsapp_quote', 'publish_new_version', 'mark_acompte_recu', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
+
+    @admin.display(description='📎 Références & Fichiers Client (Gestionnaire Cockpit)')
+    def display_client_files_and_references(self, obj):
+        from django.utils.safestring import mark_safe
+        if not obj or not obj.id:
+            return mark_safe('<span style="color:#A8B0BD;">Enregistrez le brief pour afficher le gestionnaire de fichiers client.</span>')
+
+        attachments = obj.attachments if isinstance(obj.attachments, list) else []
+        ref_links = []
+        if obj.reference_links:
+            ref_links = [r.strip() for r in str(obj.reference_links).split('\n') if r.strip()]
+
+        cards_html = []
+        
+        # Section 1: Client Files (attachments)
+        cards_html.append('<div style="background:#070B18; border:1px solid #335A79; border-radius:12px; padding:1rem; margin-bottom:0.75rem;">')
+        cards_html.append('<strong style="color:#64B5F6; font-size:0.95rem; display:block; margin-bottom:0.5rem;">🖼️ Fichiers Client Reçus (' + str(len(attachments)) + ')</strong>')
+        
+        if not attachments:
+            cards_html.append('<p style="color:#A8B0BD; font-size:0.85rem; margin:0.3rem 0;">Aucun fichier client téléversé.</p>')
+        else:
+            for idx, att in enumerate(attachments):
+                if isinstance(att, str) and att.strip():
+                    is_img = att.startswith('data:image/') or any(att.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.webp'])
+                    cards_html.append(f'''
+                    <div style="background:#111827; border:1px solid rgba(100,181,246,0.3); border-radius:10px; padding:0.6rem 0.8rem; margin-bottom:0.4rem; display:flex; align-items:center; justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            {'<img src="' + att + '" style="width:45px; height:45px; object-fit:cover; border-radius:6px; border:1px solid rgba(208,162,28,0.4);" />' if is_img else '<span style="font-size:1.5rem;">📄</span>'}
+                            <div>
+                                <strong style="color:#F4F1EA; font-size:0.85rem;">Fichier Client #{idx+1}</strong>
+                                <span style="display:block; color:#00C9A7; font-size:0.75rem;">✓ Document/Visuel sécurisé</span>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="{att}" target="_blank" style="background:#335A79; color:#FFFFFF; padding:4px 10px; border-radius:6px; font-size:0.75rem; text-decoration:none; font-weight:bold;">👁️ Voir Fichier</a>
+                        </div>
+                    </div>
+                    ''')
+        cards_html.append('</div>')
+
+        # Section 2: Inspiration Links (reference_links)
+        cards_html.append('<div style="background:#070B18; border:1px solid #335A79; border-radius:12px; padding:1rem;">')
+        cards_html.append('<strong style="color:#64B5F6; font-size:0.95rem; display:block; margin-bottom:0.5rem;">🔗 Liens d\'Inspiration & Références (' + str(len(ref_links)) + ')</strong>')
+        
+        if not ref_links:
+            cards_html.append('<p style="color:#A8B0BD; font-size:0.85rem; margin:0.3rem 0;">Aucun lien d\'inspiration transmis par le client.</p>')
+        else:
+            for link in ref_links:
+                cards_html.append(f'''
+                <div style="background:#111827; border:1px solid rgba(51,90,121,0.4); border-radius:8px; padding:0.5rem 0.75rem; margin-bottom:0.4rem; display:flex; align-items:center; justify-content:space-between;">
+                    <a href="{link}" target="_blank" rel="noreferrer" style="color:#64B5F6; font-size:0.85rem; text-decoration:underline; font-weight:bold; overflow:hidden; text-overflow:ellipsis; max-width:80%;">🔗 {link}</a>
+                    <a href="{link}" target="_blank" style="background:rgba(100,181,246,0.15); color:#64B5F6; border:1px solid #64B5F6; padding:2px 8px; border-radius:6px; font-size:0.75rem; text-decoration:none; font-weight:bold;">Ouvrir</a>
+                </div>
+                ''')
+        cards_html.append('</div>')
+
+        return mark_safe(''.join(cards_html))
 
     @admin.display(description='🎨 Versions & Maquettes Publiées (V1, V2, V3)')
     def display_deliverable_versions(self, obj):
@@ -225,9 +282,8 @@ class BriefAdmin(admin.ModelAdmin):
             'fields': ('accept_process', 'accept_deadlines'),
             'classes': ('collapse',),
         }),
-        ('📎 Références & Fichiers Client (Optionnels)', {
-            'fields': ('reference_links', 'attachments'),
-            'classes': ('collapse',),
+        ('📎 Références & Fichiers Client (Vue Cockpit Clean)', {
+            'fields': ('display_client_files_and_references', 'attachments', 'reference_links'),
         }),
         ('🎨 Versions & Maquettes Publiées (V1, V2, V3)', {
             'fields': ('display_deliverable_versions',)

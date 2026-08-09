@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (field.dataset.hadaraUploaderInit) return;
         field.dataset.hadaraUploaderInit = "true";
 
-        field.style.display = "none";
+        field.style.cssText = "display: none !important;";
 
         const container = document.createElement('div');
         container.className = "hadara-uploader-wrapper my-2";

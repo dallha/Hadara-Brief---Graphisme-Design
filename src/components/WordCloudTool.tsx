@@ -564,34 +564,13 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
         </p>
       </motion.div>
 
-      {/* ── CANVAS (hero sur mobile) ─────────────────────────────────── */}
-      <div className="lg:hidden">
-        <div className={`relative rounded-2xl overflow-hidden border ${bgMode === 'white-color' || bgMode === 'white-black' ? 'bg-white border-slate-300' : bgMode === 'transparent' ? 'bg-slate-700/30 border-dashed border-slate-600' : 'bg-slate-950 border-slate-800'}`}>
-          <canvas ref={canvasRef} width={CANVAS_W} height={CANVAS_H} className="w-full h-auto" />
-          {isComputing && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80">
-              <Loader2 className="w-8 h-8 text-amber-400 animate-spin mb-2" />
-              <span className="text-xs text-amber-400 font-bold">Calcul de la composition…</span>
-            </div>
-          )}
-        </div>
-        {stats && !isComputing && (
-          <div className="mt-2 flex items-center gap-3 text-[11px] font-mono text-slate-400 px-1">
-            <BarChart2 className="w-3.5 h-3.5 text-amber-500" />
-            <span>{stats.placed} mots</span>
-            <span>•</span>
-            <span className={stats.collisions > 0 ? 'text-rose-400' : 'text-emerald-400'}>{stats.collisions} collision{stats.collisions !== 1 ? 's' : ''}</span>
-            <span>•</span>
-            <span>{stats.fillRate}% remplissage</span>
-          </div>
-        )}
-      </div>
 
-      {/* Main Grid */}
+
+      {/* Main Grid — canvas en premier sur mobile (order-1), settings en dessous (order-2) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        {/* ── LEFT PANEL ─────────────────────────────────────────────── */}
-        <div className="lg:col-span-5 space-y-4">
+        {/* ── LEFT PANEL — order-2 sur mobile, gauche sur desktop ──── */}
+        <div className="lg:col-span-5 space-y-4 order-2 lg:order-1">
 
           {/* 01 Contenu */}
           <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
@@ -722,11 +701,11 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
           </div>
         </div>
 
-        {/* ── RIGHT PANEL ────────────────────────────────────────────── */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* ── RIGHT PANEL — order-1 sur mobile (canvas hero), droite sur desktop ── */}
+        <div className="lg:col-span-7 space-y-4 order-1 lg:order-2">
 
-          {/* Canvas (desktop) */}
-          <div className="hidden lg:block">
+          {/* Canvas UNIQUE — affiché en premier sur mobile, dans la colonne droite sur desktop */}
+          <div>
             <div className={`relative rounded-2xl overflow-hidden border ${bgMode === 'white-color' || bgMode === 'white-black' ? 'bg-white border-slate-300' : bgMode === 'transparent' ? 'bg-slate-700/30 border-dashed border-slate-600' : 'bg-slate-950 border-slate-800'}`}>
               <canvas ref={canvasRef} width={CANVAS_W} height={CANVAS_H} className="w-full h-auto" />
               {isComputing && (

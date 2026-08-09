@@ -325,24 +325,126 @@ class BriefAdmin(admin.ModelAdmin):
         """
         
         if obj.ai_analysis:
-            ai_data_str = json.dumps(obj.ai_analysis, indent=2, ensure_ascii=False)
+            ai = obj.ai_analysis.get('ai', {})
+            pricing = obj.ai_analysis.get('pricing', {})
+            
+            decision = ai.get('decision_recommandee', 'INCONNUE').upper()
+            decision_color = "#10B981" if "ACCEPTER" in decision and "RÉSERVE" not in decision else "#F59E0B" if "RÉSERVE" in decision or "CLARIFIER" in decision else "#EF4444"
+            
+            comp_score = ai.get('score_completude', 0)
+            comp_color = "#10B981" if comp_score >= 80 else "#F59E0B" if comp_score >= 40 else "#EF4444"
+            
+            cpx_score = ai.get('complexite_percue', 5)
+            cpx_color = "#EF4444" if cpx_score >= 8 else "#F59E0B" if cpx_score >= 5 else "#10B981"
+            
+            # Helper to generate lists
+            def build_list(items, empty_msg="Aucun"):
+                if not items: return f'<span style="color:#64748B; font-style:italic;">{empty_msg}</span>'
+                return '<ul style="margin: 0; padding-left: 1.2rem; color: #94A3B8; font-size: 0.85rem; line-height: 1.4;">' + ''.join([f'<li>{i}</li>' for i in items]) + '</ul>'
+            
+            risques_html = build_list(ai.get('risques', []) + ai.get('informations_manquantes', []), "Aucun risque ou manque détecté")
+            questions_html = build_list(ai.get('questions_client', []), "Aucune question requise")
+            
+            whatsapp_text = ai.get('brouillon_whatsapp', '').replace('"', '&quot;').replace("'", "&#39;")
+            
+            # Format prices
+            def format_price(p):
+                return "{:,.0f}".format(p).replace(',', ' ')
+            
             ai_block = f'''
-            <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
-                <h4 style="color: #F59E0B; margin: 0 0 0.5rem 0;">✨ Analyse Hadara AI</h4>
-                <pre style="background: #0F172A; padding: 0.5rem; border-radius: 6px; font-size: 0.75rem; color: #94A3B8; overflow: auto; max-height: 200px;">{ai_data_str}</pre>
-                <div style="margin-top: 0.5rem;">
-                    <button type="button" onclick="{js_submit}" style="background: transparent; border: 1px solid #64748B; color: #94A3B8; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">🔄 Réanalyser</button>
+            <div style="background: #0F172A; border: 1px solid #1E293B; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; color: #E2E8F0; font-family: system-ui, -apple-system, sans-serif; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E293B; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                    <h3 style="margin: 0; color: #F8FAFC; display: flex; align-items: center; gap: 8px; font-size: 1.2rem;">
+                        <span>✨</span> Hadara AI Analyzer
+                    </h3>
+                    <button type="button" onclick="{js_submit.replace('"', '&quot;')}" style="background: #1E293B; border: 1px solid #334155; color: #94A3B8; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.8rem;">🔄 Réanalyser</button>
+                </div>
+
+                <!-- Top Stats Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: #1E293B; padding: 1rem; border-radius: 12px; border-left: 4px solid {decision_color};">
+                        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Recommandation</div>
+                        <div style="font-size: 1.05rem; font-weight: bold; color: {decision_color};">{decision}</div>
+                        <div style="font-size: 0.75rem; color: #64748B; margin-top: 0.4rem; line-height: 1.3;">{ai.get('raison_decision', '')}</div>
+                    </div>
+                    
+                    <div style="background: #1E293B; padding: 1rem; border-radius: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Complétude</span>
+                            <span style="font-weight: bold; color: {comp_color};">{comp_score}%</span>
+                        </div>
+                        <div style="background: #0F172A; height: 6px; border-radius: 3px; overflow: hidden;">
+                            <div style="background: {comp_color}; width: {comp_score}%; height: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="background: #1E293B; padding: 1rem; border-radius: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Complexité IA</span>
+                            <span style="font-weight: bold; color: {cpx_color};">{cpx_score}/10</span>
+                        </div>
+                        <div style="background: #0F172A; height: 6px; border-radius: 3px; overflow: hidden;">
+                            <div style="background: {cpx_color}; width: {cpx_score * 10}%; height: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing Engine Grid -->
+                <div style="background: linear-gradient(to right, #064E3B, #022C22); border: 1px solid #047857; border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem;">
+                    <h4 style="margin: 0 0 1rem 0; color: #34D399; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                        <span>💰</span> Estimation Métier (Pricing Engine)
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <div>
+                            <div style="font-size: 0.7rem; color: #6EE7B7; text-transform: uppercase;">Budget Estimé</div>
+                            <div style="font-size: 1.1rem; font-weight: bold; color: #FFF; margin: 0.2rem 0;">{format_price(pricing.get('prix_min', 0))} – {format_price(pricing.get('prix_max', 0))} <span style="font-size: 0.75rem; font-weight: normal;">FCFA</span></div>
+                            <div style="font-size: 0.75rem; color: #34D399;">Acompte: {format_price(pricing.get('acompte_conseille', 0))}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: #6EE7B7; text-transform: uppercase;">Charge de travail</div>
+                            <div style="font-size: 1.1rem; font-weight: bold; color: #FFF; margin: 0.2rem 0;">{pricing.get('heures_min', 0)}h – {pricing.get('heures_max', 0)}h</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: #6EE7B7; text-transform: uppercase;">Délai conseillé</div>
+                            <div style="font-size: 1.1rem; font-weight: bold; color: #FFF; margin: 0.2rem 0;">{pricing.get('delai_min_jours', 0)} – {pricing.get('delai_max_jours', 0)} <span style="font-size: 0.75rem; font-weight: normal;">jours</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Analysis Details -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <h4 style="color: #F8FAFC; margin: 0 0 0.8rem 0; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">⚠️ Points d'attention</h4>
+                        {risques_html}
+                    </div>
+                    <div>
+                        <h4 style="color: #F8FAFC; margin: 0 0 0.8rem 0; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">❓ À clarifier</h4>
+                        {questions_html}
+                    </div>
+                </div>
+
+                <!-- WhatsApp Draft -->
+                <div style="background: #1E293B; border-left: 4px solid #25D366; border-radius: 8px; padding: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #25D366; display: flex; align-items: center; gap: 6px;">
+                            📱 Brouillon WhatsApp (Généré par IA)
+                        </span>
+                        <button type="button" data-text="{whatsapp_text}" onclick="navigator.clipboard.writeText(this.dataset.text); this.innerText='✅ Copié!'; setTimeout(()=>this.innerText='📋 Copier', 2000);" style="background: #25D366; border: none; color: #000; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: bold; transition: background 0.2s;">📋 Copier</button>
+                    </div>
+                    <div style="color: #E2E8F0; font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap; background: #0F172A; padding: 1rem; border-radius: 6px; border: 1px solid #334155;">{ai.get('brouillon_whatsapp', '')}</div>
                 </div>
             </div>
             '''
         else:
             ai_block = f'''
-            <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
-                <h4 style="color: #F59E0B; margin: 0 0 0.5rem 0;">✨ Analyse Hadara AI</h4>
-                <p style="color: #94A3B8; font-size: 0.85rem; margin-bottom: 0.8rem;">Le brief n'a pas encore été analysé.</p>
-                <div>
-                    <button type="button" onclick="{js_submit}" style="background: #D0A21C; border: none; color: #070B18; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">✨ Analyser le brief</button>
-                </div>
+            <div style="background: #0F172A; border: 1px solid #1E293B; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; text-align: center;">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">✨</div>
+                <h4 style="color: #F8FAFC; margin: 0 0 0.5rem 0; font-size: 1.2rem;">Hadara AI Analyzer</h4>
+                <p style="color: #94A3B8; font-size: 0.9rem; margin-bottom: 1.2rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    Obtenez instantanément l'estimation métier (prix/délai) couplée à une analyse intelligente des risques et un brouillon de réponse client.
+                </p>
+                <button type="button" onclick="{js_submit.replace('"', '&quot;')}" style="background: #D0A21C; border: none; color: #070B18; padding: 10px 24px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 10px rgba(208,162,28,0.2);">✨ Analyser ce brief</button>
             </div>
             '''
             

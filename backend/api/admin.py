@@ -195,17 +195,23 @@ class BriefAdmin(admin.ModelAdmin):
 
     def publish_version_view(self, request, object_id, *args, **kwargs):
         from django.http import HttpResponseRedirect
+        from django.contrib import messages
         import datetime
         brief = self.get_object(request, object_id)
         if not brief:
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
         
+        if not isinstance(brief.attachments, list) or not any(isinstance(att, str) and att.strip() for att in brief.attachments):
+            self.message_user(request, "⚠️ Ajoutez d’abord la maquette à publier dans la section 'Pièces Jointes'.", messages.ERROR)
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+            
+        valid_attachments = [att.strip() for att in brief.attachments if isinstance(att, str) and att.strip()]
+        file_url = valid_attachments[-1]
+        
         versions = brief.deliverable_versions if isinstance(brief.deliverable_versions, list) else []
         v_num = len(versions) + 1
         now_str = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
-        file_url = '/assets/logo-or--hmgXa1H.png'
-        if isinstance(brief.attachments, list) and len(brief.attachments) > 0 and isinstance(brief.attachments[0], str) and brief.attachments[0].strip():
-            file_url = brief.attachments[0]
+        
         new_v = {
             'id': f"ver-{v_num}-{int(datetime.datetime.now().timestamp())}",
             'versionNumber': v_num,
@@ -220,7 +226,7 @@ class BriefAdmin(admin.ModelAdmin):
         brief.status = 'validation'
         brief.save(update_fields=['deliverable_versions', 'status'])
         
-        self.message_user(request, f"Maquette V{v_num} publiée avec succès pour le projet {brief.id} !", messages.SUCCESS)
+        self.message_user(request, f"Maquette V{v_num} publiée avec succès ! Elle est immédiatement visible par le client.", messages.SUCCESS)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
     @admin.display(description='Actions Directes')
@@ -236,12 +242,12 @@ class BriefAdmin(admin.ModelAdmin):
         
         html = f'<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">'
         
-        # Bouton Ouvrir (toujours présent)
         html += f'<a href="{edit_url}" class="direct-action-btn btn-open" style="background:rgba(51,90,121,0.2); border:1px solid #335A79; color:#64B5F6; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap;">👁️ Ouvrir</a>'
         
-        # Bouton Publier V...
-        if obj.status not in ['termine', 'rejected', 'refusé']:
-            html += f'<a href="{publish_url}" class="direct-action-btn btn-publish" style="background:#D0A21C; border:1px solid #E7BE35; color:#070B18; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 5px rgba(208,162,28,0.3);">🎨 Publier V{v_num}</a>'
+        if obj.status in ['nouveau', 'devis_envoye', 'acompte_recu', 'en_creation']:
+            html += f'<a href="{publish_url}" onclick="return confirm(\'Publier cette maquette en V{v_num} ? Elle sera immédiatement visible par le client.\');" class="direct-action-btn btn-publish" style="background:#D0A21C; border:1px solid #E7BE35; color:#070B18; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 5px rgba(208,162,28,0.3);">🎨 Publier V{v_num}</a>'
+        elif obj.status == 'approved':
+            html += f'<a href="{edit_url}" class="direct-action-btn btn-publish" style="background:#10B981; border:1px solid #34D399; color:#070B18; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 5px rgba(16,185,129,0.3);">📦 Préparer Livraison</a>'
             
         html += '</div>'
         return mark_safe(html)
@@ -255,46 +261,55 @@ class BriefAdmin(admin.ModelAdmin):
         
         try:
             publish_url = reverse('admin:api_brief_publish_version', args=[obj.id])
+            edit_url = reverse('admin:api_brief_change', args=[obj.id])
         except Exception:
             publish_url = "#"
+            edit_url = "#"
             
         versions = obj.deliverable_versions if isinstance(obj.deliverable_versions, list) else []
         v_num = len(versions) + 1
         
-        btn_publish = f'<a href="{publish_url}" style="display:inline-block; margin-top:0.5rem; background:#D0A21C; border:1px solid #E7BE35; color:#070B18; padding:8px 16px; border-radius:8px; text-decoration:none; font-size:0.9rem; font-weight:bold; box-shadow: 0 4px 10px rgba(208,162,28,0.3);">📤 Publier V{v_num}</a>'
+        btn_publish = f'<a href="{publish_url}" onclick="return confirm(\'Publier cette maquette en V{v_num} ? Elle sera immédiatement visible par le client.\');" style="display:inline-block; margin-top:0.5rem; background:#D0A21C; border:1px solid #E7BE35; color:#070B18; padding:8px 16px; border-radius:8px; text-decoration:none; font-size:0.9rem; font-weight:bold; box-shadow: 0 4px 10px rgba(208,162,28,0.3);">📤 Publier V{v_num}</a>'
+        btn_delivery = f'<a href="{edit_url}" style="display:inline-block; margin-top:0.5rem; background:#10B981; border:1px solid #34D399; color:#070B18; padding:8px 16px; border-radius:8px; text-decoration:none; font-size:0.9rem; font-weight:bold; box-shadow: 0 4px 10px rgba(16,185,129,0.3);">📦 Préparer la livraison HD</a>'
 
         status_map = {
             'nouveau': (
                 '<div style="background: rgba(208,162,28,0.12); border: 1px solid #D0A21C; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
-                '<strong style="color: #D0A21C; font-size: 1.05rem;">📨 Nouveau Brief Reçu !</strong>'
-                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Saisissez le devis estimé FCFA ci-dessous puis validez pour transmettre la notification WhatsApp au client.</p>'
+                '<strong style="color: #D0A21C; font-size: 1.05rem;">📨 Brief reçu</strong>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Vérifiez les informations du client et saisissez le devis.</p>'
                 '</div>'
             ),
             'devis_envoye': (
                 '<div style="background: rgba(51,90,121,0.2); border: 1px solid #335A79; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
-                '<strong style="color: #64B5F6; font-size: 1.05rem;">💰 Devis Transmis — En attente validation client</strong>'
-                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Dès confirmation de l\'acompte 50%, basculez le statut sur "En Création".</p>'
+                '<strong style="color: #64B5F6; font-size: 1.05rem;">💰 Devis Transmis</strong>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">En attente de validation client. Aucun travail requis.</p>'
                 '</div>'
             ),
             'acompte_recu': (
                 '<div style="background: rgba(0,201,167,0.15); border: 1px solid #00C9A7; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
-                '<strong style="color: #00C9A7; font-size: 1.05rem;">💳 Acompte 50% Confirmé !</strong>'
-                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Le projet est prêt à être créé. Pour publier votre première conception V1, cliquez ci-dessous.</p>'
+                '<strong style="color: #00C9A7; font-size: 1.05rem;">💳 Paiement confirmé</strong>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Le projet peut commencer.</p>'
                 f'{btn_publish}'
                 '</div>'
             ),
             'en_creation': (
                 '<div style="background: rgba(0,201,167,0.18); border: 1px solid #00C9A7; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
-                '<strong style="color: #00C9A7; font-size: 1.05rem;">🎨 Projet Actuellement en Création Studio</strong>'
-                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Ajoutez les visuels/pièces jointes dans la section "Pièces Jointes" puis cliquez ci-dessous pour transmettre la version au Portail Client.</p>'
+                f'<strong style="color: #00C9A7; font-size: 1.05rem;">{"🎨 Projet en création" if v_num == 1 else "🔵 Le client demande une modification"}</strong>'
+                f'<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">{"La prochaine étape est de publier la première proposition." if v_num == 1 else "Publiez la nouvelle maquette une fois corrigée."}</p>'
                 f'{btn_publish}'
                 '</div>'
             ),
             'validation': (
                 '<div style="background: rgba(208,162,28,0.12); border: 1px solid #D0A21C; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
-                f'<strong style="color: #D0A21C; font-size: 1.05rem;">🟡 V{v_num - 1} Publiée — En attente de validation client</strong>'
-                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Si le client demande une modification, vous pourrez publier la prochaine version ici.</p>'
-                f'{btn_publish}'
+                '<strong style="color: #D0A21C; font-size: 1.05rem;">🟡 En attente du retour client</strong>'
+                '<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">Aucun travail requis pour le moment.</p>'
+                '</div>'
+            ),
+            'approved': (
+                '<div style="background: rgba(16,185,129,0.2); border: 1px solid #10B981; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">'
+                '<strong style="color: #34D399; font-size: 1.05rem;">🟢 Conception validée</strong>'
+                f'<p style="color: #F4F1EA; margin: 0.3rem 0 0.6rem 0; font-size: 0.88rem;">La maquette finale a été approuvée par le client.</p>'
+                f'{btn_delivery}'
                 '</div>'
             ),
             'termine': (
@@ -303,7 +318,7 @@ class BriefAdmin(admin.ModelAdmin):
                 '</div>'
             )
         }
-        return mark_safe(status_map.get(obj.status, '<span style="color:#A8B0BD;">Projet en cours de traitement.</span>' + f'<br/>{btn_publish}'))
+        return mark_safe(status_map.get(obj.status, '<span style="color:#A8B0BD;">Projet en cours de traitement.</span>'))
 
     @admin.action(description='Générer & Envoyer Devis via WhatsApp')
     def send_whatsapp_quote(self, request, queryset):

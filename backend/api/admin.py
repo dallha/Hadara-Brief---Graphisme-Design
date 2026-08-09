@@ -190,8 +190,47 @@ class BriefAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path('<path:object_id>/publish-version/', self.admin_site.admin_view(self.publish_version_view), name='api_brief_publish_version'),
+            path('<path:object_id>/analyze/', self.admin_site.admin_view(self.analyze_brief_view), name='api_brief_analyze'),
         ]
         return custom_urls + urls
+
+    def analyze_brief_view(self, request, object_id, *args, **kwargs):
+        from django.http import HttpResponseRedirect, Http404
+        from django.contrib import messages
+        from django.urls import reverse
+        from .pricing_engine import pricing_engine
+        
+        # 1. Vérification méthode POST uniquement
+        if request.method != 'POST':
+            messages.error(request, "L'analyse doit être déclenchée via un bouton (POST).")
+            return HttpResponseRedirect(reverse('admin:api_brief_change', args=[object_id]))
+            
+        # 2. Vérification existence et permissions
+        brief = self.get_object(request, object_id)
+        if brief is None:
+            raise Http404("Le brief n'existe pas.")
+            
+        if not self.has_change_permission(request, brief):
+            messages.error(request, "Vous n'avez pas la permission d'analyser ce brief.")
+            return HttpResponseRedirect(reverse('admin:api_brief_change', args=[object_id]))
+            
+        # 3. Calcul métier pur
+        pricing_result = pricing_engine.calculate(brief)
+        
+        # 4. Interprétation IA + fusion
+        analysis = analyze_brief_with_ai(brief, pricing_result)
+        
+        # 5. Sauvegarde
+        import datetime
+        analysis['analyzed_at'] = datetime.datetime.now().isoformat()
+        analysis['analysis_version'] = "2.0"
+        
+        brief.ai_analysis = analysis
+        brief.save()
+        
+        # 6. Redirection
+        messages.success(request, "✅ Analyse Hadara AI mise à jour avec succès.")
+        return HttpResponseRedirect(reverse('admin:api_brief_change', args=[object_id]))
 
     def publish_version_view(self, request, object_id, *args, **kwargs):
         from django.http import HttpResponseRedirect

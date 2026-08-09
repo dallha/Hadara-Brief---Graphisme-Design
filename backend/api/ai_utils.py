@@ -5,53 +5,89 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Placeholder pour l'API Key Groq
-# Vous pourrez obtenir une clé gratuite sur https://console.groq.com
+# Clé API Groq (llama-3.1-8b-instant est gratuit)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "gsk_placeholder_key_remplacez_moi")
 
-def analyze_brief_with_ai(brief):
+def analyze_brief_with_ai(brief, pricing_result: dict) -> dict:
     """
     Analyse un brief en utilisant une API LLM gratuite (Groq - Llama 3)
-    Retourne un dictionnaire (JSON) structuré avec l'analyse.
+    
+    Règles P0.2 :
+    1. Ne calcule jamais de prix (utilise pricing_result).
+    2. Ne transmet aucune donnée personnelle à l'IA (AI-Safe).
+    3. Exige un format JSON strict.
+    4. Ne plante jamais en cas de panne de l'IA (Fallback propre).
+    5. Conserve les données du Pricing Engine séparément.
     """
-    if GROQ_API_KEY == "gsk_placeholder_key_remplacez_moi":
-        # Mode Simulation si la clé n'est pas encore configurée
-        # Cela permet d'éviter que l'admin ne plante lors du test
-        return {
-            "resume": f"Simulation d'analyse pour le projet de {brief.client_name}.",
-            "charge_travail": "Moyenne",
-            "suggestion_prix": "À estimer (clé API manquante)",
-            "points_attention": ["Veuillez configurer GROQ_API_KEY dans votre environnement backend."],
-            "mode": "Simulation (Clé API non configurée)"
-        }
-
-    # Préparation des données du brief pour le prompt
-    brief_data = {
-        "client": brief.client_name,
-        "type_projet": brief.project_type or brief.project_type_custom,
-        "contexte": brief.context_description,
-        "objectifs": brief.primary_objective,
-        "format": brief.technical_format,
-        "budget_client": brief.budget_range,
-        "delai": brief.desired_delivery_date
+    
+    # 1. Structure de base (le socle de P1)
+    final_result = {
+        "engine_version": pricing_result.get("engine_version", "pricing-v1.0"),
+        "pricing": {
+            "prix_min": pricing_result.get("prix_min_fcfa", 0),
+            "prix_max": pricing_result.get("prix_max_fcfa", 0),
+            "heures_min": pricing_result.get("heures_min", 0),
+            "heures_max": pricing_result.get("heures_max", 0),
+            "delai_min_jours": pricing_result.get("delai_min_jours", 0),
+            "delai_max_jours": pricing_result.get("delai_max_jours", 0),
+            "complexite": pricing_result.get("score_complexite", 0),
+            "acompte_conseille": pricing_result.get("acompte_conseille", 0)
+        },
+        "ai": None
     }
+    
+    # 2. Construction de l'objet AI-Safe
+    # On exclut volontairement: client_name, organization, whatsapp, email, city_country
+    ai_safe_brief = {
+        "type_projet": brief.project_type or brief.project_type_custom or "Non défini",
+        "contexte_description": brief.context_description or "Non défini",
+        "objectif_principal": brief.primary_objective or "Non défini",
+        "cible": brief.target_audience or "Non défini",
+        "format_technique": brief.technical_format or "Non défini",
+        "budget_client": brief.budget_range or "Non défini",
+        "delai_souhaite": brief.desired_delivery_date or "Non défini",
+        "delai_critique": brief.critical_deadline or "Non défini",
+        "styles_souhaites": brief.style_preferences or [],
+        "titre_principal": brief.main_title or "Non défini"
+    }
+    
+    # 3. Fallback immédiat si clé API manquante
+    if not GROQ_API_KEY or GROQ_API_KEY == "gsk_placeholder_key_remplacez_moi":
+        final_result["ai"] = _get_fallback_ai(pricing_result, "Clé API Groq manquante")
+        return final_result
 
-    # Construction du prompt système
+    # 4. Construction des Prompts
     system_prompt = (
-        "Tu es une IA d'analyse ultra-minimaliste (style 'Caveman'). "
-        "Zéro blabla. Utilise des mots-clés, sois hyper direct. "
-        "Tu dois TOUJOURS répondre uniquement avec un objet JSON valide, sans aucun texte autour. "
-        "Format JSON attendu : \n"
+        "Tu es l'assistant IA 'Hadara AI', expert en gestion de projets graphiques.\n"
+        "RÈGLE ABSOLUE N°1 : Le Pricing Engine a DÉJÀ calculé les prix, heures, et délais. "
+        "Tu ne dois JAMAIS inventer, modifier, ou suggérer de tarifs, d'heures ou de délais. "
+        "Le Pricing Engine est la SEULE source de vérité pour les finances.\n\n"
+        "RÈGLE ABSOLUE N°2 : Tu dois répondre UNIQUEMENT avec un objet JSON strict et valide. "
+        "Aucun texte avant ou après, pas de balises Markdown (pas de ```json).\n\n"
+        "Distingue bien un brief 'incomplet' (impossible à démarrer, manque description/objectif) "
+        "d'un brief avec 'informations manquantes' (budget absent, format absent) qui reste 'exploitable_sous_reserve'.\n\n"
+        "Format JSON strict attendu :\n"
         "{\n"
-        "  \"resume\": \"3 mots-clés max décrivant le besoin\",\n"
-        "  \"charge_travail\": \"Facile/Moyenne/Complexe\",\n"
-        "  \"suggestion_prix\": \"Ex: 50000 FCFA\",\n"
-        "  \"points_attention\": [\"Risque 1 très court\", \"Action urgente 2\"],\n"
-        "  \"brouillon_whatsapp\": \"Bonjour, bien reçu le brief pour [Projet]. Budget estimé : [Prix]. Dispo pour un appel ?\"\n"
+        "  \"statut_brief\": \"exploitable|exploitable_sous_reserve|incomplet|refuser\",\n"
+        "  \"score_completude\": <entier 0-100>,\n"
+        "  \"complexite_percue\": <entier 1-10>,\n"
+        "  \"decision_recommandee\": \"ACCEPTER|ACCEPTER SOUS RÉSERVE|CLARIFIER|REFUSER\",\n"
+        "  \"raison_decision\": \"Explication courte de la décision (max 2 phrases)\",\n"
+        "  \"informations_manquantes\": [\"Format final\", \"Budget\"],\n"
+        "  \"questions_client\": [\"Quel est le format final ?\"],\n"
+        "  \"risques\": [\"Délai trop court pour le volume demandé\"],\n"
+        "  \"niveau_priorite\": \"Normal|Urgent\",\n"
+        "  \"brouillon_whatsapp\": \"Bonjour, ... (1-2 phrases courtes max)\"\n"
         "}"
     )
 
-    user_prompt = f"Voici les données du brief à analyser :\n{json.dumps(brief_data, ensure_ascii=False, indent=2)}"
+    user_prompt = (
+        "Voici les données anonymisées (AI-safe) du brief :\n"
+        f"{json.dumps(ai_safe_brief, ensure_ascii=False, indent=2)}\n\n"
+        "Voici les résultats du Pricing Engine (SOURCE DE VÉRITÉ, NE PAS MODIFIER) :\n"
+        f"{json.dumps(final_result['pricing'], ensure_ascii=False, indent=2)}\n\n"
+        "Génère ton analyse en JSON."
+    )
 
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -59,7 +95,7 @@ def analyze_brief_with_ai(brief):
     }
 
     payload = {
-        "model": "llama-3.1-8b-instant",  # Modèle gratuit et très rapide chez Groq
+        "model": "llama-3.1-8b-instant",
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
@@ -68,6 +104,7 @@ def analyze_brief_with_ai(brief):
         "temperature": 0.2
     }
 
+    # 5. Appel Réseau & Gestion des Erreurs
     try:
         response = requests.post(
             "https://api.groq.com/openai/v1/chat/completions",
@@ -78,120 +115,40 @@ def analyze_brief_with_ai(brief):
         response.raise_for_status()
         
         data = response.json()
-        ai_message = data["choices"][0]["message"]["content"]
+        ai_content = data['choices'][0]['message']['content']
+        ai_data = json.loads(ai_content)
+        final_result["ai"] = ai_data
         
-        # Le contenu est censé être un JSON valide
-        parsed_json = json.loads(ai_message)
-        return parsed_json
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Erreur lors de l'appel à l'API IA : {e}")
-        return {
-            "erreur": "Erreur de connexion à l'API IA.",
-            "details": str(e)
-        }
     except json.JSONDecodeError as e:
-        logger.error(f"Erreur de parsing JSON depuis l'IA : {e}")
-        return {
-            "erreur": "L'IA a retourné un format invalide.",
-            "brut": ai_message if 'ai_message' in locals() else "N/A"
-        }
+        logger.error(f"Erreur de parsing JSON de l'IA: {e}")
+        final_result["ai"] = _get_fallback_ai(pricing_result, "Format de réponse IA invalide (non-JSON)")
+    except requests.Timeout:
+        logger.error("Timeout de l'API Groq")
+        final_result["ai"] = _get_fallback_ai(pricing_result, "Temps de réponse IA dépassé")
+    except requests.RequestException as e:
+        logger.error(f"Erreur réseau Groq: {e}")
+        final_result["ai"] = _get_fallback_ai(pricing_result, "Service IA indisponible")
     except Exception as e:
-        logger.error(f"Erreur inattendue IA : {e}")
-        return {
-            "erreur": "Une erreur inattendue est survenue.",
-            "details": str(e)
-        }
+        logger.exception(f"Erreur inattendue IA: {e}")
+        final_result["ai"] = _get_fallback_ai(pricing_result, "Erreur interne IA")
 
-def chat_with_assistant(messages):
-    """
-    Parle avec l'assistant IA (Groq - Llama 3)
-    `messages` est une liste de dicts [{"role": "user", "content": "..."}]
-    """
-    if GROQ_API_KEY == "gsk_placeholder_key_remplacez_moi":
-        return "Simulation : L'assistant IA n'est pas encore connecté à l'API (clé manquante). Veuillez configurer GROQ_API_KEY sur le serveur."
+    return final_result
 
-    system_prompt = (
-        "Tu es Mme Niass Madina, l'assistante virtuelle intelligente de MrNiass (le créateur de la plateforme Hadara Studio). "
-        "Ton but est d'accueillir les visiteurs, de répondre à leurs questions de base, et de les diriger poliment vers MrNiass sur WhatsApp "
-        "pour finaliser toute transaction ou discuter des prix précis. "
-        "Ne donne pas de prix exacts fixes, mais tu peux donner des fourchettes vagues d'estimations (ex: 'Un logo professionnel commence généralement à partir de 50 000 FCFA'). "
-        "Sois très concis, chaleureux, utilise des émojis. Ne fais pas de longues listes. "
-        "Si le client demande à parler à un humain ou semble prêt à commander, dis-lui de cliquer sur 'Finaliser sur WhatsApp'."
-    )
 
-    # Format check: ensure all messages have 'role' and 'content'
-    safe_messages = [{"role": "system", "content": system_prompt}]
-    for msg in messages[-5:]: # Keep last 5 messages for context to avoid huge payloads
-        if isinstance(msg, dict) and 'role' in msg and 'content' in msg:
-            safe_messages.append({"role": msg['role'], "content": msg['content']})
-
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
+def _get_fallback_ai(pricing_result: dict, reason: str) -> dict:
+    """Retourne une structure IA dégradée mais valide en cas d'erreur de Groq."""
+    score_completude = pricing_result.get("score_completude", 50)
+    complexite = pricing_result.get("score_complexite", 5)
+    
+    return {
+        "statut_brief": "exploitable_sous_reserve",
+        "score_completude": score_completude,
+        "complexite_percue": complexite,
+        "decision_recommandee": "ACCEPTER SOUS RÉSERVE",
+        "raison_decision": f"Analyse IA indisponible ({reason}). Le moteur métier a été appliqué avec succès.",
+        "informations_manquantes": ["Vérification manuelle requise (IA hors-ligne)"],
+        "questions_client": [],
+        "risques": ["Analyse de risques indisponible"],
+        "niveau_priorite": "Normal",
+        "brouillon_whatsapp": ""
     }
-
-    payload = {
-        "model": "llama-3.1-8b-instant",
-        "messages": safe_messages,
-        "temperature": 0.5,
-        "max_tokens": 150
-    }
-
-    try:
-        response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=10
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data["choices"][0]["message"]["content"]
-
-    except Exception as e:
-        logger.error(f"Erreur lors du chat IA : {e}")
-        return "Désolé, je rencontre un petit problème de connexion en ce moment. Vous pouvez utiliser le bouton 'Finaliser sur WhatsApp' pour joindre MrNiass directement !"
-
-def correct_ocr_text(raw_text):
-    """
-    Corrige les imperfections d'OCR (particulièrement pour l'arabe et le français) avec Groq.
-    """
-    if GROQ_API_KEY == "gsk_placeholder_key_remplacez_moi":
-        return raw_text + "\n\n[Correction IA indisponible : Clé API non configurée]"
-
-    system_prompt = (
-        "Tu es un expert en linguistique (Arabe, Français, Anglais). "
-        "Le texte fourni ci-dessous a été extrait d'une image par un logiciel d'OCR (Reconnaissance Optique de Caractères) et contient des erreurs, "
-        "des caractères brouillés ou une mauvaise mise en forme. "
-        "Ta mission est de corriger ces erreurs, de reconstruire les mots de manière logique et fluide, "
-        "et de renvoyer UNIQUEMENT le texte corrigé final, sans aucune explication ni introduction. "
-        "Si le texte contient de l'arabe, assure-toi que les mots sont correctement formés."
-    )
-
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "model": "llama-3.1-8b-instant",
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": raw_text}
-        ],
-        "temperature": 0.1
-    }
-
-    try:
-        response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=15
-        )
-        response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"]
-    except Exception as e:
-        logger.error(f"Erreur lors de la correction OCR IA : {e}")
-        return raw_text

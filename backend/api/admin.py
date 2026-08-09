@@ -301,9 +301,39 @@ class BriefAdmin(admin.ModelAdmin):
         try:
             publish_url = reverse('admin:api_brief_publish_version', args=[obj.id])
             edit_url = reverse('admin:api_brief_change', args=[obj.id])
+            analyze_url = reverse('admin:api_brief_analyze', args=[obj.id])
         except Exception:
             publish_url = "#"
             edit_url = "#"
+            analyze_url = "#"
+            
+        import json
+        
+        # UI pour l'analyse IA (basique P0.3 pour test)
+        ai_block = ""
+        if obj.ai_analysis:
+            ai_data_str = json.dumps(obj.ai_analysis, indent=2, ensure_ascii=False)
+            ai_block = f'''
+            <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                <h4 style="color: #F59E0B; margin: 0 0 0.5rem 0;">✨ Analyse Hadara AI</h4>
+                <pre style="background: #0F172A; padding: 0.5rem; border-radius: 6px; font-size: 0.75rem; color: #94A3B8; overflow: auto; max-height: 200px;">{ai_data_str}</pre>
+                <form id="analyze-form-{obj.id}" action="{analyze_url}" method="POST" style="margin-top: 0.5rem;">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="">
+                    <button type="submit" onclick="document.querySelector('#analyze-form-{obj.id} input[name=csrfmiddlewaretoken]').value = document.querySelector('[name=csrfmiddlewaretoken]').value;" style="background: transparent; border: 1px solid #64748B; color: #94A3B8; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">🔄 Réanalyser</button>
+                </form>
+            </div>
+            '''
+        else:
+            ai_block = f'''
+            <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                <h4 style="color: #F59E0B; margin: 0 0 0.5rem 0;">✨ Analyse Hadara AI</h4>
+                <p style="color: #94A3B8; font-size: 0.85rem; margin-bottom: 0.8rem;">Le brief n'a pas encore été analysé.</p>
+                <form id="analyze-form-{obj.id}" action="{analyze_url}" method="POST">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="">
+                    <button type="submit" onclick="document.querySelector('#analyze-form-{obj.id} input[name=csrfmiddlewaretoken]').value = document.querySelector('[name=csrfmiddlewaretoken]').value;" style="background: #D0A21C; border: none; color: #070B18; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">✨ Analyser le brief</button>
+                </form>
+            </div>
+            '''
             
         versions = obj.deliverable_versions if isinstance(obj.deliverable_versions, list) else []
         v_num = len(versions) + 1
@@ -357,7 +387,7 @@ class BriefAdmin(admin.ModelAdmin):
                 '</div>'
             )
         }
-        return mark_safe(status_map.get(obj.status, '<span style="color:#A8B0BD;">Projet en cours de traitement.</span>'))
+        return mark_safe(ai_block + status_map.get(obj.status, '<span style="color:#A8B0BD;">Projet en cours de traitement.</span>'))
 
     @admin.action(description='Générer & Envoyer Devis via WhatsApp')
     def send_whatsapp_quote(self, request, queryset):

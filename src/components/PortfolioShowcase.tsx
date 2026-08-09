@@ -611,7 +611,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
               </div>
 
               {/* Delivery & Revisions */}
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-950 border border-slate-800">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-950 border border-slate-800">
                 <div className="flex items-center space-x-3">
                   <Clock className="w-5 h-5 text-amber-400 shrink-0" />
                   <div>

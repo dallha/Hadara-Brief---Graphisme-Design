@@ -3,35 +3,38 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
-import { LandingHero } from './components/LandingHero';
-import { BriefForm } from './components/BriefForm';
-import { BriefConfirmation } from './components/BriefConfirmation';
-import { PortfolioShowcase } from './components/PortfolioShowcase';
-import { AdminDashboard } from './components/AdminDashboard';
-import { PrintableBrief } from './components/PrintableBrief';
-import { ResumeCV } from './components/ResumeCV';
-import { ClientPortalView } from './components/client/ClientPortalView';
 import { AIChatWidget } from './components/AIChatWidget';
 import { SplashEntry } from './components/SplashEntry';
-import { RoadmapView } from './components/RoadmapView';
-import { HadaraStore } from './components/HadaraStore';
-import { BgRemovalTool } from './components/BgRemovalTool';
-import { QRCodeTool } from './components/QRCodeTool';
-import { OCRTool } from './components/OCRTool';
-import { InvoiceTool } from './components/InvoiceTool';
-import { ColorExtractorTool } from './components/ColorExtractorTool';
-import { QuoteCalculatorTool } from './components/QuoteCalculatorTool';
-import { TimerTool } from './components/TimerTool';
-import { WatermarkTool } from './components/WatermarkTool';
-import { ImageCompressorTool } from './components/ImageCompressorTool';
-import { MockupTool } from './components/MockupTool';
-import { WordCloudTool } from './components/WordCloudTool';
-import { UpscaleTool } from './components/UpscaleTool';
-import { ToolsHub } from './components/ToolsHub';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
+
+const LandingHero = lazy(() => import('./components/LandingHero').then(m => ({ default: m.LandingHero })));
+const BriefForm = lazy(() => import('./components/BriefForm').then(m => ({ default: m.BriefForm })));
+const BriefConfirmation = lazy(() => import('./components/BriefConfirmation').then(m => ({ default: m.BriefConfirmation })));
+const PortfolioShowcase = lazy(() => import('./components/PortfolioShowcase').then(m => ({ default: m.PortfolioShowcase })));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const PrintableBrief = lazy(() => import('./components/PrintableBrief').then(m => ({ default: m.PrintableBrief })));
+const ResumeCV = lazy(() => import('./components/ResumeCV').then(m => ({ default: m.ResumeCV })));
+const ClientPortalView = lazy(() => import('./components/client/ClientPortalView').then(m => ({ default: m.ClientPortalView })));
+const RoadmapView = lazy(() => import('./components/RoadmapView').then(m => ({ default: m.RoadmapView })));
+const HadaraStore = lazy(() => import('./components/HadaraStore').then(m => ({ default: m.HadaraStore })));
+
+// Outils lourds lazily loaded
+const BgRemovalTool = lazy(() => import('./components/BgRemovalTool').then(m => ({ default: m.BgRemovalTool })));
+const QRCodeTool = lazy(() => import('./components/QRCodeTool').then(m => ({ default: m.QRCodeTool })));
+const OCRTool = lazy(() => import('./components/OCRTool').then(m => ({ default: m.OCRTool })));
+const InvoiceTool = lazy(() => import('./components/InvoiceTool').then(m => ({ default: m.InvoiceTool })));
+const ColorExtractorTool = lazy(() => import('./components/ColorExtractorTool').then(m => ({ default: m.ColorExtractorTool })));
+const QuoteCalculatorTool = lazy(() => import('./components/QuoteCalculatorTool').then(m => ({ default: m.QuoteCalculatorTool })));
+const TimerTool = lazy(() => import('./components/TimerTool').then(m => ({ default: m.TimerTool })));
+const WatermarkTool = lazy(() => import('./components/WatermarkTool').then(m => ({ default: m.WatermarkTool })));
+const ImageCompressorTool = lazy(() => import('./components/ImageCompressorTool').then(m => ({ default: m.ImageCompressorTool })));
+const MockupTool = lazy(() => import('./components/MockupTool').then(m => ({ default: m.MockupTool })));
+const WordCloudTool = lazy(() => import('./components/WordCloudTool').then(m => ({ default: m.WordCloudTool })));
+const UpscaleTool = lazy(() => import('./components/UpscaleTool').then(m => ({ default: m.UpscaleTool })));
+const ToolsHub = lazy(() => import('./components/ToolsHub').then(m => ({ default: m.ToolsHub })));
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
 
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
@@ -631,7 +634,13 @@ export default function App() {
 
       <main className="flex-1 w-full min-w-0 overflow-x-hidden pt-4 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] px-2 sm:px-6 lg:px-8 md:pt-8 md:pb-24 relative">
         <ErrorBoundary fallbackLabel="Hadara Studio Application">
-          <Routes>
+          <Suspense fallback={
+            <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] gap-4">
+              <div className="w-12 h-12 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin"></div>
+              <p className="text-slate-500 text-sm font-medium animate-pulse">Chargement de l'interface...</p>
+            </div>
+          }>
+            <Routes>
             {/* /studio = main studio page (navigated to from splash) */}
             <Route path="/studio" element={
               <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
@@ -744,10 +753,15 @@ export default function App() {
               <LandingHero onStartBrief={() => goTo('brief')} onViewPortfolio={() => goTo('portfolio')} onOpenAdmin={() => goTo('admin')} onOpenCV={() => goTo('cv')} />
             } />
           </Routes>
+          </Suspense>
         </ErrorBoundary>
       </main>
 
-      {printableBrief && <PrintableBrief brief={printableBrief} onClose={() => setPrintableBrief(null)} />}
+      {printableBrief && (
+        <Suspense fallback={<div />}>
+          <PrintableBrief brief={printableBrief} onClose={() => setPrintableBrief(null)} />
+        </Suspense>
+      )}
 
       <footer className="border-t border-slate-800 bg-slate-950/80 backdrop-blur-md pt-8 pb-36 md:pb-16 text-center text-xs text-slate-400 space-y-4 print:hidden">
         <div className="flex flex-col items-center justify-center space-y-2 mb-4">

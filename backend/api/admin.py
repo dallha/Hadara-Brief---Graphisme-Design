@@ -112,31 +112,50 @@ class BriefAdmin(admin.ModelAdmin):
     @admin.display(description='🎨 Versions & Maquettes Publiées (V1, V2, V3)')
     def display_deliverable_versions(self, obj):
         from django.utils.safestring import mark_safe
-        if not obj or not obj.deliverable_versions:
-            return mark_safe('<div style="color:#A8B0BD; padding:0.5rem 0;">Aucune maquette publiée pour le moment. Utilisez l\'action "🎨 Publier Nouvelle Maquette" pour créer V1.</div>')
+        if not obj or not obj.id:
+            return mark_safe('<span style="color:#A8B0BD;">Enregistrez le brief pour publier des maquettes.</span>')
         
         versions = obj.deliverable_versions if isinstance(obj.deliverable_versions, list) else []
+        v_num = len(versions) + 1
         cards_html = []
-        for v in versions:
-            v_num = v.get('versionNumber', 1)
-            title = v.get('title', f'Maquette V{v_num}')
-            file_url = v.get('previewUrl') or v.get('fileUrl') or ''
-            date_str = v.get('createdAt', '')
-            status_str = '✅ Approuvé' if v.get('status') == 'approved' else '🔵 En Révision Client'
-            
-            card = f'''
-            <div style="background:#111827; border:1px solid rgba(208,162,28,0.3); border-radius:10px; padding:0.75rem 1rem; margin-bottom:0.6rem; display:flex; align-items:center; justify-content:space-between;">
-                <div>
-                    <strong style="color:#D0A21C; font-size:0.95rem;">Version {v_num} : {title}</strong>
-                    <span style="display:block; color:#A8B0BD; font-size:0.8rem;">Publié le {date_str}</span>
-                </div>
-                <div style="text-align:right;">
-                    <span style="background:rgba(0,201,167,0.15); color:#00C9A7; border:1px solid #00C9A7; border-radius:12px; padding:2px 8px; font-size:0.75rem; font-weight:bold;">{status_str}</span>
-                    {f'<a href="{file_url}" target="_blank" style="margin-left:8px; color:#D0A21C; text-decoration:underline; font-size:0.8rem;">🖼️ Aperçu</a>' if file_url else ''}
-                </div>
+
+        if not versions:
+            cards_html.append('''
+            <div style="background:#070B18; border:1px dashed #D0A21C; border-radius:12px; padding:1.25rem; text-align:center; margin-bottom:0.75rem;">
+                <div style="font-size:1.8rem; margin-bottom:0.3rem;">🎨</div>
+                <strong style="color:#D0A21C; font-size:1rem; display:block; margin-bottom:0.3rem;">Aucune maquette publiée pour le moment</strong>
+                <p style="color:#A8B0BD; font-size:0.85rem; margin-bottom:0.5rem;">Publiez votre première proposition visuelle V1 à destination du Portail Client.</p>
             </div>
-            '''
-            cards_html.append(card)
+            ''')
+        else:
+            for v in versions:
+                v_n = v.get('versionNumber', 1)
+                title = v.get('title', f'Maquette V{v_n}')
+                file_url = v.get('previewUrl') or v.get('fileUrl') or ''
+                date_str = v.get('createdAt', '')
+                is_approved = v.get('status') == 'approved'
+                status_str = '🟢 Approuvé par le Client' if is_approved else '🟡 En Révision Client'
+                
+                card = f'''
+                <div style="background:#070B18; border:1px solid rgba(208,162,28,0.3); border-radius:12px; padding:1rem; margin-bottom:0.75rem;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+                        <div>
+                            <strong style="color:#D0A21C; font-size:1rem;">🎨 Version V{v_n} : {title}</strong>
+                            <span style="display:block; color:#A8B0BD; font-size:0.8rem;">Publié le {date_str}</span>
+                        </div>
+                        <span style="background:{'rgba(16,185,129,0.2)' if is_approved else 'rgba(245,158,11,0.2)'}; color:{'#34D399' if is_approved else '#FBBF24'}; border:1px solid {'#10B981' if is_approved else '#F59E0B'}; border-radius:20px; padding:3px 10px; font-size:0.75rem; font-weight:bold;">{status_str}</span>
+                    </div>
+                    {f'<div style="margin-top:0.5rem;"><img src="{file_url}" style="max-height:160px; border-radius:8px; border:1px solid rgba(208,162,28,0.3);" /><br/><a href="{file_url}" target="_blank" style="color:#D0A21C; font-size:0.8rem; text-decoration:underline; display:inline-block; margin-top:0.3rem;">🖼️ Ouvrir l\'aperçu</a></div>' if file_url else ''}
+                </div>
+                '''
+                cards_html.append(card)
+
+        cards_html.append(f'''
+        <div style="background:rgba(208,162,28,0.1); border:1px solid rgba(208,162,28,0.4); border-radius:10px; padding:0.8rem 1rem; text-align:center;">
+            <span style="color:#F4F1EA; font-size:0.88rem; display:block;">Pour publier la <strong>Maquette V{v_num}</strong> au client, utilisez l\'action <strong>"🎨 Publier Nouvelle Maquette / Version V1-V2-V3"</strong>.</span>
+        </div>
+        ''')
+
         return mark_safe(''.join(cards_html))
 
     @admin.action(description='🎨 Publier Nouvelle Maquette / Version V1-V2-V3')
@@ -283,7 +302,7 @@ class BriefAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),
         ('📎 Références & Fichiers Client (Vue Cockpit Clean)', {
-            'fields': ('display_client_files_and_references', 'attachments', 'reference_links'),
+            'fields': ('display_client_files_and_references',),
         }),
         ('🎨 Versions & Maquettes Publiées (V1, V2, V3)', {
             'fields': ('display_deliverable_versions',)

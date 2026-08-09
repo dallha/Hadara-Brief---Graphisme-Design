@@ -311,16 +311,28 @@ class BriefAdmin(admin.ModelAdmin):
         
         # UI pour l'analyse IA (basique P0.3 pour test)
         ai_block = ""
+        js_submit = f"""
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{analyze_url}';
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = 'csrfmiddlewaretoken';
+            csrf.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            form.appendChild(csrf);
+            document.body.appendChild(form);
+            form.submit();
+        """
+        
         if obj.ai_analysis:
             ai_data_str = json.dumps(obj.ai_analysis, indent=2, ensure_ascii=False)
             ai_block = f'''
             <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
                 <h4 style="color: #F59E0B; margin: 0 0 0.5rem 0;">✨ Analyse Hadara AI</h4>
                 <pre style="background: #0F172A; padding: 0.5rem; border-radius: 6px; font-size: 0.75rem; color: #94A3B8; overflow: auto; max-height: 200px;">{ai_data_str}</pre>
-                <form id="analyze-form-{obj.id}" action="{analyze_url}" method="POST" style="margin-top: 0.5rem;">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="">
-                    <button type="submit" onclick="document.querySelector('#analyze-form-{obj.id} input[name=csrfmiddlewaretoken]').value = document.querySelector('[name=csrfmiddlewaretoken]').value;" style="background: transparent; border: 1px solid #64748B; color: #94A3B8; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">🔄 Réanalyser</button>
-                </form>
+                <div style="margin-top: 0.5rem;">
+                    <button type="button" onclick="{js_submit}" style="background: transparent; border: 1px solid #64748B; color: #94A3B8; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">🔄 Réanalyser</button>
+                </div>
             </div>
             '''
         else:
@@ -328,10 +340,9 @@ class BriefAdmin(admin.ModelAdmin):
             <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
                 <h4 style="color: #F59E0B; margin: 0 0 0.5rem 0;">✨ Analyse Hadara AI</h4>
                 <p style="color: #94A3B8; font-size: 0.85rem; margin-bottom: 0.8rem;">Le brief n'a pas encore été analysé.</p>
-                <form id="analyze-form-{obj.id}" action="{analyze_url}" method="POST">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="">
-                    <button type="submit" onclick="document.querySelector('#analyze-form-{obj.id} input[name=csrfmiddlewaretoken]').value = document.querySelector('[name=csrfmiddlewaretoken]').value;" style="background: #D0A21C; border: none; color: #070B18; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">✨ Analyser le brief</button>
-                </form>
+                <div>
+                    <button type="button" onclick="{js_submit}" style="background: #D0A21C; border: none; color: #070B18; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">✨ Analyser le brief</button>
+                </div>
             </div>
             '''
             

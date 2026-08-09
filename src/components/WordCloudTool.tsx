@@ -83,6 +83,7 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
   const [fontFamily, setFontFamily] = useState<string>('Plus Jakarta Sans, sans-serif');
   const [excludedWords, setExcludedWords] = useState<Set<string>>(new Set());
   const [extractedWords, setExtractedWords] = useState<WordFreq[]>([]);
+  const [placedWords, setPlacedWords] = useState<WordFreq[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Parse text and compute frequencies
@@ -149,38 +150,24 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
     parseText();
   }, [parseText]);
 
-  // Render Cloud on Canvas using Archimedean Spiral algorithm
-  const renderCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-
-    // Clear & Fill Background
-    ctx.clearRect(0, 0, width, height);
-
-    if (bgMode === 'white-color' || bgMode === 'white-black') {
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, width, height);
-    } else if (bgMode === 'dark') {
-      ctx.fillStyle = '#020617';
-      ctx.fillRect(0, 0, width, height);
-    }
-
+  // 1. Moteur de calcul (Layout Engine)
+  const computeLayout = useCallback(() => {
     if (extractedWords.length === 0) {
-      ctx.fillStyle = bgMode === 'dark' ? '#64748b' : '#94a3b8';
-      ctx.font = '14px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Saisissez du texte pour générer le nuage de mots.', width / 2, height / 2);
+      setPlacedWords([]);
       return;
     }
 
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = 650;
+    const height = 450;
     const centerX = width / 2;
     const centerY = height / 2;
+
     const placedBoxes: { x: number; y: number; w: number; h: number }[] = [];
+    const newPlacedWords: WordFreq[] = [];
 
     const checkCollision = (box: { x: number; y: number; w: number; h: number }) => {
       for (const p of placedBoxes) {
@@ -205,6 +192,8 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
       let placed = false;
       let angle = 0;
       let radius = 0;
+      let finalX = 0;
+      let finalY = 0;
 
       for (let i = 0; i < 350; i++) {
         angle += 0.35;
@@ -219,46 +208,167 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
         const box = { x, y, w, h };
         if (!checkCollision(box)) {
           placedBoxes.push(box);
-          ctx.fillStyle = word.color;
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'top';
-
-          if (bgMode === 'dark') {
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-            ctx.shadowBlur = 3;
-          } else {
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-          }
-
-          ctx.fillText(word.text, x, y);
-          ctx.shadowColor = 'transparent';
-          ctx.shadowBlur = 0;
+          finalX = x;
+          finalY = y;
           placed = true;
           break;
         }
       }
 
       if (!placed) {
-        const x = Math.max(10, Math.min(width - w - 10, centerX + (Math.random() - 0.5) * (width * 0.5)));
-        const y = Math.max(10, Math.min(height - h - 10, centerY + (Math.random() - 0.5) * (height * 0.5)));
-        ctx.fillStyle = word.color;
-        ctx.fillText(word.text, x, y);
+        finalX = Math.max(10, Math.min(width - w - 10, centerX + (Math.random() - 0.5) * (width * 0.5)));
+        finalY = Math.max(10, Math.min(height - h - 10, centerY + (Math.random() - 0.5) * (height * 0.5)));
       }
+
+      newPlacedWords.push({ ...word, x: finalX, y: finalY });
     });
-  }, [extractedWords, fontFamily, bgMode]);
+
+    setPlacedWords(newPlacedWords);
+  }, [extractedWords, fontFamily]);
+
+  useEffect(() => {
+    computeLayout();
+  }, [computeLayout]);
+
+  // 2. Moteur de Rendu (Preview Canvas)
+  const renderCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    if (bgMode === 'white-color' || bgMode === 'white-black') {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+    } else if (bgMode === 'dark') {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, width, height);
+    }
+
+    if (placedWords.length === 0) {
+      ctx.fillStyle = bgMode === 'dark' ? '#64748b' : '#94a3b8';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Saisissez du texte pour générer le nuage de mots.', width / 2, height / 2);
+      return;
+    }
+
+    placedWords.forEach((word) => {
+      ctx.font = `bold ${word.size}px ${fontFamily}`;
+      ctx.fillStyle = word.color;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+
+      if (bgMode === 'dark') {
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+        ctx.shadowBlur = 3;
+      } else {
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.fillText(word.text, word.x!, word.y!);
+    });
+  }, [placedWords, fontFamily, bgMode]);
 
   useEffect(() => {
     renderCanvas();
   }, [renderCanvas]);
 
-  const handleDownloadPNG = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // 3. Export Engine P0
+  const exportImage = (type: 'image/png' | 'image/jpeg', scale: number = 3) => {
+    if (placedWords.length === 0) return;
+    const canvas = document.createElement('canvas');
+    const width = 650;
+    const height = 450;
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.scale(scale, scale);
+
+    if (bgMode === 'white-color' || bgMode === 'white-black' || type === 'image/jpeg') {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+    } else if (bgMode === 'dark') {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, width, height);
+    } else if (bgMode === 'transparent') {
+      ctx.clearRect(0, 0, width, height);
+    }
+
+    placedWords.forEach((word) => {
+      ctx.font = `bold ${word.size}px ${fontFamily}`;
+      ctx.fillStyle = word.color;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+
+      if (bgMode === 'dark') {
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+        ctx.shadowBlur = 3;
+      }
+
+      ctx.fillText(word.text, word.x!, word.y!);
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+    });
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const ext = type === 'image/jpeg' ? 'jpg' : 'png';
+      a.download = `hadara-cloud-${bgMode}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, type, 1.0);
+  };
+
+  const handleDownloadSVG = () => {
+    if (placedWords.length === 0) return;
+    
+    let bgRect = '';
+    if (bgMode === 'white-color' || bgMode === 'white-black') {
+      bgRect = `<rect width="650" height="450" fill="#ffffff" />`;
+    } else if (bgMode === 'dark') {
+      bgRect = `<rect width="650" height="450" fill="#020617" />`;
+    }
+
+    const shadowDef = bgMode === 'dark' 
+      ? `<defs><filter id="shadow"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#000000" flood-opacity="0.6"/></filter></defs>`
+      : '';
+
+    const textElements = placedWords.map(word => {
+      const safeText = word.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const filterAttr = bgMode === 'dark' ? `filter="url(#shadow)"` : '';
+      const fontName = fontFamily.split(',')[0].replace(/'/g, '');
+      return `<text x="${word.x}" y="${word.y! + word.size * 0.85}" font-family="${fontName}" font-size="${word.size}px" font-weight="bold" fill="${word.color}" ${filterAttr}>${safeText}</text>`;
+    }).join('\n');
+
+    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 450" width="100%" height="100%">
+      ${shadowDef}
+      ${bgRect}
+      ${textElements}
+    </svg>`;
+
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = canvas.toDataURL('image/png');
-    a.download = `hadara-nuage-mots-${bgMode}.png`;
+    a.href = url;
+    a.download = `hadara-cloud-${bgMode}.svg`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const toggleExcludeWord = (word: string) => {
@@ -464,18 +574,40 @@ export const WordCloudTool: React.FC<WordCloudToolProps> = ({ onGoToBrief }) => 
             </div>
 
             {/* Canvas Action Bar */}
-            <div className="w-full pt-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="w-full pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
               <span className="text-xs text-slate-400 font-mono">
-                {extractedWords.length} mots placés • Mode: {bgMode}
+                {placedWords.length} mots placés • Mode: {bgMode}
               </span>
-              <button
-                onClick={handleDownloadPNG}
-                disabled={extractedWords.length === 0}
-                className="px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-400/20 active:scale-95 transition-all"
-              >
-                <Download className="w-4 h-4" />
-                <span>Télécharger PNG HD</span>
-              </button>
+              
+              <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-1">Exporter le design</div>
+                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 w-full">
+                  <button
+                    onClick={() => exportImage('image/png', 3)}
+                    disabled={placedWords.length === 0}
+                    className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-400/20 active:scale-95 transition-all flex-1 sm:flex-none"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>PNG HD</span>
+                  </button>
+                  <button
+                    onClick={handleDownloadSVG}
+                    disabled={placedWords.length === 0}
+                    className="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 disabled:opacity-40 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-500/20 active:scale-95 transition-all flex-1 sm:flex-none"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>SVG</span>
+                  </button>
+                  <button
+                    onClick={() => exportImage('image/jpeg', 3)}
+                    disabled={placedWords.length === 0}
+                    className="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all flex-1 sm:flex-none"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>JPG</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 

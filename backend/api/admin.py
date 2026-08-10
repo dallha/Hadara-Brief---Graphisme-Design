@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.db.models import Sum
-from .models import Brief, PortfolioItem, StoreProduct, Template, ToolUsageLog
+from django.utils.html import format_html
+from .models import Brief, PortfolioItem, StoreProduct, Template, ToolUsageLog, Client, BillingDocument, BillingLine, Payment
 from .ai_utils import analyze_brief_with_ai
 from django.contrib import messages
 
@@ -708,3 +709,102 @@ class ToolUsageLogAdmin(admin.ModelAdmin):
     search_fields = ('tool_name', 'ip_address')
     readonly_fields = ('created_at',)
 
+
+# ─── MODULE FACTURATION & REVENUS ────────────────────────────────────────────────────
+
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    list_display  = ('id', 'name', 'organization', 'whatsapp', 'email', 'created_at')
+    search_fields = ('id', 'name', 'organization', 'whatsapp', 'email')
+    readonly_fields = ('id', 'created_at')
+    fieldsets = (
+        ('Identifiant', {'fields': ('id', 'created_at')}),
+        ('Informations Client', {'fields': ('name', 'organization', 'email', 'whatsapp', 'address')}),
+    )
+
+
+class BillingLineInline(admin.TabularInline):
+    model   = BillingLine
+    extra   = 1
+    fields  = ('designation', 'quantity', 'unit_price', 'line_total_display')
+    readonly_fields = ('line_total_display',)
+
+    def line_total_display(self, obj):
+        if obj and obj.pk:
+            return format_html('<strong>{:,} FCFA</strong>', obj.line_total).replace(',', '\u202f')
+        return '—'
+    line_total_display.short_description = 'Total ligne'
+
+
+class PaymentInline(admin.TabularInline):
+    model   = Payment
+    extra   = 1
+    fields  = ('id', 'amount', 'method', 'payment_date', 'reference_code', 'note')
+    readonly_fields = ('id',)
+
+
+@admin.register(BillingDocument)
+class BillingDocumentAdmin(admin.ModelAdmin):
+    list_display  = ('document_number', 'doc_type', 'billing_client_name', 'display_total', 'display_paid', 'display_balance', 'payment_status_badge', 'issue_date')
+    list_filter   = ('doc_type', 'payment_status', 'issue_date')
+    search_fields = ('document_number', 'billing_client_name', 'billing_organization')
+    readonly_fields = (
+        'document_number', 'issue_date', 'created_at', 'updated_at',
+        'display_total', 'display_paid', 'display_balance', 'payment_status_badge',
+    )
+    inlines = [BillingLineInline, PaymentInline]
+    save_on_top = True
+
+    fieldsets = (
+        ('📄 Document', {
+            'fields': ('document_number', 'doc_type', 'payment_status', 'issue_date', 'due_date', 'notes')
+        }),
+        ('👤 Lien Projet', {
+            'fields': ('client', 'brief'),
+        }),
+        ('📸 Snapshot Client (Immuable sur la facture)', {
+            'classes': ('collapse',),
+            'fields': ('billing_client_name', 'billing_organization', 'billing_address', 'billing_email', 'billing_whatsapp'),
+        }),
+        ('💰 Finance', {
+            'fields': ('subtotal', 'discount', 'display_total', 'currency'),
+        }),
+        ('📊 Encaissements', {
+            'fields': ('display_paid', 'display_balance', 'payment_status_badge'),
+        }),
+    )
+
+    def display_total(self, obj):
+        return format_html('<strong style="color:#f59e0b">{:,} FCFA</strong>', obj.total).replace(',', '\u202f')
+    display_total.short_description = 'Total net'
+
+    def display_paid(self, obj):
+        paid = obj.paid_amount
+        color = '#10b981' if paid > 0 else '#64748b'
+        return format_html('<span style="color:{}">{:,} FCFA</span>', color, paid).replace(',', '\u202f')
+    display_paid.short_description = 'Encaissé'
+
+    def display_balance(self, obj):
+        bal = obj.balance_due
+        color = '#ef4444' if bal > 0 else '#10b981'
+        label = f'{bal:,} FCFA'.replace(',', '\u202f')
+        return format_html('<strong style="color:{}">{}</strong>', color, label)
+    display_balance.short_description = 'Solde restant'
+
+    def payment_status_badge(self, obj):
+        colors = {
+            'brouillon':   '#64748b',
+            'en_attente':  '#94a3b8',
+            'acompte':     '#f59e0b',
+            'partiel':     '#f97316',
+            'paye':        '#10b981',
+            'en_retard':   '#ef4444',
+            'annule':      '#6b7280',
+        }
+        label = obj.get_payment_status_display()
+        color = colors.get(obj.payment_status, '#94a3b8')
+        return format_html(
+            '<span style="background:{};color:#fff;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold">{}</span>',
+            color, label
+        )
+    payment_status_badge.short_description = 'Statut'

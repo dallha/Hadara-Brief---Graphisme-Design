@@ -302,21 +302,19 @@ class BillingDocument(models.Model):
     ]
 
     # Statuts de paiement — CALCULÉS automatiquement, jamais saisis
-    STATUS_BROUILLON     = 'brouillon'
-    STATUS_EN_ATTENTE    = 'en_attente'
-    STATUS_ACOMPTE       = 'acompte'
-    STATUS_PARTIEL       = 'partiel'
-    STATUS_PAYE          = 'paye'
-    STATUS_EN_RETARD     = 'en_retard'
-    STATUS_ANNULE        = 'annule'
+    STATUS_BROUILLON         = 'brouillon'
+    STATUS_EN_ATTENTE        = 'en_attente'
+    STATUS_PARTIELLEMENT_PAYE = 'partiellement_paye'
+    STATUS_PAYE              = 'paye'
+    STATUS_EN_RETARD         = 'en_retard'
+    STATUS_ANNULE            = 'annule'
     STATUS_CHOICES = [
-        (STATUS_BROUILLON,  'Brouillon'),
-        (STATUS_EN_ATTENTE, 'En attente de paiement'),
-        (STATUS_ACOMPTE,    'Acompte reçu'),
-        (STATUS_PARTIEL,    'Partiellement payé'),
-        (STATUS_PAYE,       'Payé ✅'),
-        (STATUS_EN_RETARD,  'En retard 🔴'),
-        (STATUS_ANNULE,     'Annulé'),
+        (STATUS_BROUILLON,          'Brouillon'),
+        (STATUS_EN_ATTENTE,         'Non payé'),
+        (STATUS_PARTIELLEMENT_PAYE, 'Partiellement payé'),
+        (STATUS_PAYE,               'Payé ✅'),
+        (STATUS_EN_RETARD,          'En retard 🔴'),
+        (STATUS_ANNULE,             'Annulé'),
     ]
 
     # Identifiant et type
@@ -365,31 +363,31 @@ class BillingDocument(models.Model):
 
     def refresh_payment_state(self) -> None:
         """Recalcule et persiste le statut de paiement.
-        À appeler après chaque ajout ou suppression d'un Payment.
+        Règle : paid_amount et balance_due ne sont jamais stockés.
+        Le statut est la SEULE valeur persistée, calculée à partir des paiements.
         """
         import datetime
         if self.payment_status == self.STATUS_ANNULE:
-            return  # Statut annulé est le seul à ne pas être recalculé
+            return  # Seul statut non recalculable
 
         paid = self.paid_amount
         due  = self.balance_due
 
         if paid == 0:
-            # Vérification En retard
+            # Aucun paiement — vérifier si en retard
             if self.due_date and self.due_date < datetime.date.today():
                 new_status = self.STATUS_EN_RETARD
             else:
                 new_status = self.STATUS_EN_ATTENTE
         elif due <= 0:
+            # Tout est réglé
             new_status = self.STATUS_PAYE
         else:
-            # Paiement partiel — distingue "acompte" (premier paiement) de "partiel"
-            nb_payments = self.payments.count()
-            if nb_payments == 1:
-                new_status = self.STATUS_ACOMPTE
-            else:
-                new_status = self.STATUS_PARTIEL
-            # Vérifier quand même si on est en retard sur le solde
+            # Paiement partiel (qu'il s'agisse d'un acompte ou de plusieurs versements)
+            # Le LABEL affiché ("Acompte reçu", "Partiellement payé") peut évoluer
+            # dans l'UI, mais le statut technique est toujours partiellement_paye
+            new_status = self.STATUS_PARTIELLEMENT_PAYE
+            # Vérifier si en retard sur le solde restant
             if self.due_date and self.due_date < datetime.date.today():
                 new_status = self.STATUS_EN_RETARD
 

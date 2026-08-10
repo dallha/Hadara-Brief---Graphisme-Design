@@ -793,13 +793,12 @@ class BillingDocumentAdmin(admin.ModelAdmin):
 
     def payment_status_badge(self, obj):
         colors = {
-            'brouillon':   '#64748b',
-            'en_attente':  '#94a3b8',
-            'acompte':     '#f59e0b',
-            'partiel':     '#f97316',
-            'paye':        '#10b981',
-            'en_retard':   '#ef4444',
-            'annule':      '#6b7280',
+            'brouillon':         '#64748b',
+            'en_attente':        '#94a3b8',
+            'partiellement_paye':'#f59e0b',
+            'paye':              '#10b981',
+            'en_retard':         '#ef4444',
+            'annule':            '#6b7280',
         }
         label = obj.get_payment_status_display()
         color = colors.get(obj.payment_status, '#94a3b8')

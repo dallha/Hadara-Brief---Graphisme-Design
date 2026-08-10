@@ -49,12 +49,19 @@ export const ToolsHub: React.FC<ToolsHubProps> = ({ onGoToBrief }) => {
       badge: 'Populaire',
     },
     {
-      name: 'Générateur de Factures',
+      name: 'Facturation & Revenus',
+      path: '/outils/facturation',
+      icon: Receipt,
+      color: 'from-amber-500/20 to-amber-600/10 border-amber-500/30 text-amber-400',
+      description: 'Gérez vos proformas, factures, encaissements et suivez vos revenus.',
+      badge: 'Pro',
+    },
+    {
+      name: 'Générateur de Factures (Simple)',
       path: '/outils/facture',
       icon: Receipt,
       color: 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/30 text-emerald-400',
       description: 'Créez et exportez des factures professionnelles en PDF en un clic.',
-      badge: 'Essentiel',
     },
     {
       name: 'Extracteur de Couleurs',

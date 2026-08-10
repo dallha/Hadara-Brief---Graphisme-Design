@@ -35,6 +35,7 @@ const MockupTool = lazy(() => import('./components/MockupTool').then(m => ({ def
 const WordCloudTool = lazy(() => import('./components/WordCloudTool').then(m => ({ default: m.WordCloudTool })));
 const UpscaleTool = lazy(() => import('./components/UpscaleTool').then(m => ({ default: m.UpscaleTool })));
 const ToolsHub = lazy(() => import('./components/ToolsHub').then(m => ({ default: m.ToolsHub })));
+const BillingTool = lazy(() => import('./components/BillingTool').then(m => ({ default: m.BillingTool })));
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
 
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
@@ -696,6 +697,9 @@ export default function App() {
             } />
             <Route path="/outils/upscale" element={
               <UpscaleTool onGoToBrief={() => goTo('brief')} />
+            } />
+            <Route path="/outils/facturation" element={
+              <BillingTool />
             } />
             <Route path="/outils" element={
               <ToolsHub onGoToBrief={() => goTo('brief')} />

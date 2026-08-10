@@ -377,3 +377,79 @@ export interface LegacyStoreProduct {
   isActive: boolean;
   createdAt: string;
 }
+
+// ─── MODULE FACTURATION & REVENUS ────────────────────────────────────────────
+
+export type DocType = 'proforma' | 'facture' | 'avoir';
+export type PaymentStatus = 'brouillon' | 'en_attente' | 'partiellement_paye' | 'paye' | 'en_retard' | 'annule';
+export type PaymentMethod = 'wave' | 'orange_money' | 'especes' | 'virement' | 'cheque' | 'autre';
+
+export interface BillingClient {
+  id: string;
+  name: string;
+  organization?: string;
+  whatsapp?: string;
+  email?: string;
+  address?: string;
+  created_at: string;
+}
+
+export interface BillingLine {
+  id?: number;
+  designation: string;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+}
+
+export interface BillingPayment {
+  id: string;
+  amount: number;
+  method: PaymentMethod;
+  method_display: string;
+  reference_code: string;
+  payment_date: string;
+  note: string;
+  created_at: string;
+}
+
+export interface BillingDocument {
+  id: number;
+  document_number: string;
+  doc_type: DocType;
+  doc_type_display: string;
+  payment_status: PaymentStatus;
+  payment_status_display: string;
+  client?: string;
+  client_name?: string;
+  brief?: string;
+  billing_client_name: string;
+  billing_organization: string;
+  billing_address: string;
+  billing_email: string;
+  billing_whatsapp: string;
+  subtotal: number;
+  discount: number;
+  total: number;
+  currency: string;
+  issue_date: string;
+  due_date?: string;
+  notes: string;
+  paid_amount: number;
+  balance_due: number;
+  lines: BillingLine[];
+  payments: BillingPayment[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BillingStats {
+  ca_facture: number;
+  ca_encaisse: number;
+  ca_restant: number;
+  en_retard: number;
+  non_payees: number;
+  partielles: number;
+  monthly: { month: string; encaisse: number }[];
+}
+

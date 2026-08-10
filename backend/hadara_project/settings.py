@@ -53,7 +53,9 @@ CSRF_TRUSTED_ORIGINS = ['https://hadara-backend.onrender.com', 'https://hadara-d
 # Application definition
 
 INSTALLED_APPS = [
-    # 'jazzmin',  # Compatible Python ≤ 3.13 — désactivé localement (Python 3.14)
+    # jazzmin est activé automatiquement si disponible (Render/Python ≤ 3.13)
+    # Désactivé gracieusement en local si Python 3.14 ne le supporte pas encore
+    *(['jazzmin'] if __import__('importlib.util', fromlist=['find_spec']).find_spec('jazzmin') else []),
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

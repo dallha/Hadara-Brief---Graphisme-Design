@@ -366,3 +366,101 @@ class StoreProductViewSet(viewsets.ModelViewSet):
         if not verify_admin_token(request):
             return Response({"error": "Non autorisé"}, status=status.HTTP_401_UNAUTHORIZED)
         return super().destroy(request, *args, **kwargs)
+
+
+# ──────────────────────────────────────────────
+# Billing ViewSets
+# ──────────────────────────────────────────────
+from .models import Client, BillingDocument, BillingLine, Payment  # noqa: E402 (late import ok)
+from .serializers import ClientSerializer, BillingDocumentSerializer, BillingLineSerializer, PaymentSerializer
+from django.db.models import Sum
+import datetime
+
+
+class ClientViewSet(viewsets.ModelViewSet):
+    queryset = Client.objects.all().order_by('name')
+    serializer_class = ClientSerializer
+
+
+class BillingDocumentViewSet(viewsets.ModelViewSet):
+    queryset = BillingDocument.objects.all().order_by('-created_at')
+    serializer_class = BillingDocumentSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        doc_type = self.request.query_params.get('type')
+        status_param = self.request.query_params.get('status')
+        client_id = self.request.query_params.get('client')
+        if doc_type:
+            qs = qs.filter(doc_type=doc_type)
+        if status_param:
+            qs = qs.filter(payment_status=status_param)
+        if client_id:
+            qs = qs.filter(client_id=client_id)
+        return qs
+
+    @action(detail=False, methods=['get'], url_path='stats')
+    def stats(self, request):
+        """Dashboard financier : CA facturé, encaissé, restant, impayés, en retard."""
+        docs = BillingDocument.objects.exclude(payment_status='annule')
+
+        # CA total facturé (valeur des documents actifs)
+        ca_facture = docs.aggregate(s=Sum('total'))['s'] or 0
+
+        # CA encaissé (somme de tous les paiements validés)
+        ca_encaisse = Payment.objects.filter(
+            billing_document__payment_status__in=['partiellement_paye', 'paye']
+        ).aggregate(s=Sum('amount'))['s'] or 0
+
+        # Reste à encaisser
+        ca_restant_raw = docs.exclude(payment_status='paye').aggregate(s=Sum('total'))['s'] or 0
+        ca_restant = max(0, ca_restant_raw - ca_encaisse)
+
+        # Compteurs par statut
+        en_retard = docs.filter(payment_status='en_retard').count()
+        non_payees = docs.filter(payment_status='en_attente').count()
+        partielles = docs.filter(payment_status='partiellement_paye').count()
+
+        # Revenus par mois (6 derniers mois)
+        today = datetime.date.today()
+        monthly = []
+        for i in range(5, -1, -1):
+            month_start = (today.replace(day=1) - datetime.timedelta(days=i * 30)).replace(day=1)
+            month_end = (month_start + datetime.timedelta(days=32)).replace(day=1)
+            month_pays = Payment.objects.filter(
+                payment_date__gte=month_start,
+                payment_date__lt=month_end,
+            ).aggregate(s=Sum('amount'))['s'] or 0
+            monthly.append({
+                'month': month_start.strftime('%b %Y'),
+                'encaisse': month_pays,
+            })
+
+        return Response({
+            'ca_facture': ca_facture,
+            'ca_encaisse': ca_encaisse,
+            'ca_restant': ca_restant,
+            'en_retard': en_retard,
+            'non_payees': non_payees,
+            'partielles': partielles,
+            'monthly': monthly,
+        })
+
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = Payment.objects.all().order_by('-payment_date')
+    serializer_class = PaymentSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        doc_id = self.request.query_params.get('document')
+        if doc_id:
+            qs = qs.filter(billing_document_id=doc_id)
+        return qs
+
+    def perform_create(self, serializer):
+        serializer.save()
+        # refresh_payment_state est appelé automatiquement dans Payment.save()
+
+    def perform_destroy(self, instance):
+        instance.delete()  # delete() déclenche refresh_payment_state via signal/override

@@ -97,3 +97,74 @@ class StoreProductSerializer(serializers.ModelSerializer):
             'id', 'name', 'brand', 'category', 'description', 'image', 'status',
             'featured', 'visible', 'price', 'created_at', 'updated_at', 'createdAt', 'updatedAt'
         ]
+
+
+# ──────────────────────────────────────────────
+# Billing serializers
+# ──────────────────────────────────────────────
+from .models import Client, BillingDocument, BillingLine, Payment
+
+
+class ClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = '__all__'
+        read_only_fields = ['id', 'created_at']
+
+
+class BillingLineSerializer(serializers.ModelSerializer):
+    line_total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BillingLine
+        fields = ['id', 'designation', 'quantity', 'unit_price', 'line_total']
+
+    def get_line_total(self, obj):
+        return obj.line_total
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    method_display = serializers.CharField(source='get_method_display', read_only=True)
+
+    class Meta:
+        model = Payment
+        fields = [
+            'id', 'amount', 'method', 'method_display',
+            'reference_code', 'payment_date', 'note', 'created_at',
+        ]
+        read_only_fields = ['id', 'created_at']
+
+
+class BillingDocumentSerializer(serializers.ModelSerializer):
+    lines = BillingLineSerializer(many=True, read_only=True)
+    payments = PaymentSerializer(many=True, read_only=True)
+    paid_amount = serializers.SerializerMethodField()
+    balance_due = serializers.SerializerMethodField()
+    doc_type_display = serializers.CharField(source='get_doc_type_display', read_only=True)
+    payment_status_display = serializers.CharField(source='get_payment_status_display', read_only=True)
+    client_name = serializers.CharField(source='client.name', read_only=True, default='')
+
+    class Meta:
+        model = BillingDocument
+        fields = [
+            'id', 'document_number', 'doc_type', 'doc_type_display',
+            'payment_status', 'payment_status_display',
+            'client', 'client_name', 'brief',
+            'billing_client_name', 'billing_organization', 'billing_address',
+            'billing_email', 'billing_whatsapp',
+            'subtotal', 'discount', 'total', 'currency',
+            'issue_date', 'due_date', 'notes',
+            'paid_amount', 'balance_due',
+            'lines', 'payments',
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = [
+            'id', 'document_number', 'total',
+            'issue_date', 'created_at', 'updated_at',
+        ]
+
+    def get_paid_amount(self, obj):
+        return obj.paid_amount
+
+    def get_balance_due(self, obj):
+        return obj.balance_due

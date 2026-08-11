@@ -244,6 +244,8 @@ export interface BriefData {
   status: BriefStatus;
   
   // 1. Client Info
+  client_id?: string;
+  clientDetails?: any;
   clientName: string;
   organization?: string;
   whatsapp: string;

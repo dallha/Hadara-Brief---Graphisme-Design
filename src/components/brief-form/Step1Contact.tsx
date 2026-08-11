@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { User, Building, Phone, MapPin, Mail } from 'lucide-react';
 import { BriefData } from '../../types';
+import { HadaraClientCombobox } from '../HadaraClientCombobox';
 
 interface Step1ContactProps {
   formData: Partial<BriefData>;
@@ -28,93 +29,46 @@ export const Step1Contact: React.FC<Step1ContactProps> = ({ formData, setFormDat
           <span>1. Informations & Coordonnées Client</span>
         </h3>
         <p className="text-xs text-slate-400 mt-1">
-          Vos coordonnées permettent au studio d'identifier votre commande et de vous transmettre votre devis sous 24h.
+          Sélectionnez un client existant ou créez-en un nouveau.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-            Nom complet / Raison Sociale *
-          </label>
-          <div className="relative">
-            <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-            <input
-              type="text"
-              required
-              placeholder="Saisissez votre prénom et nom complet"
-              value={formData.clientName || ''}
-              onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 focus:outline-none transition-colors"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-            Organisation / Dahira / Entreprise
-          </label>
-          <div className="relative">
-            <Building className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-            <input
-              type="text"
-              placeholder="Nom de la structure, entreprise ou association"
-              value={formData.organization || ''}
-              onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 focus:outline-none transition-colors"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-            Téléphone (WhatsApp & Telegram) *
-          </label>
-          <div className="relative">
-            <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-            <input
-              type="tel"
-              required
-              placeholder="+221 7X XXX XX XX (Numéro joignable)"
-              value={formData.whatsapp || ''}
-              onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 focus:outline-none transition-colors"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-            Ville & Pays de Résidence
-          </label>
-          <div className="relative">
-            <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-            <input
-              type="text"
-              placeholder="Ville, Pays (ex: Dakar, Sénégal / Paris, France)"
-              value={formData.cityCountry || ''}
-              onChange={(e) => setFormData({ ...formData, cityCountry: e.target.value })}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 focus:outline-none transition-colors"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-1.5 sm:col-span-2">
-          <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-            Adresse Email (Optionnel)
-          </label>
-          <div className="relative">
-            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-            <input
-              type="email"
-              placeholder="Ex: client@exemple.sn"
-              value={formData.email || ''}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 focus:outline-none transition-colors"
-            />
-          </div>
-        </div>
+      <div className="max-w-md">
+        <HadaraClientCombobox 
+          value={formData.client_id}
+          onChange={(id) => setFormData({ ...formData, client_id: id })}
+          onClientData={(client) => setFormData({ 
+            ...formData, 
+            client_id: client.id,
+            clientName: client.name,
+            whatsapp: client.whatsapp || '',
+            organization: client.organization || '',
+            email: client.email || '',
+            cityCountry: client.address || ''
+          })}
+        />
       </div>
+
+      {formData.clientName && (
+        <div className="mt-4 p-4 rounded-xl border border-slate-800 bg-slate-900/50 flex flex-col space-y-2">
+          <div className="text-sm font-bold text-slate-200">Client sélectionné :</div>
+          <div className="flex items-center space-x-2 text-slate-300 text-sm">
+            <User className="w-4 h-4 text-slate-500" />
+            <span>{formData.clientName}</span>
+          </div>
+          {formData.organization && (
+            <div className="flex items-center space-x-2 text-slate-300 text-sm">
+              <Building className="w-4 h-4 text-slate-500" />
+              <span>{formData.organization}</span>
+            </div>
+          )}
+          <div className="flex items-center space-x-2 text-slate-300 text-sm">
+            <Phone className="w-4 h-4 text-slate-500" />
+            <span>{formData.whatsapp}</span>
+          </div>
+        </div>
+      )}
+
     </motion.div>
   );
 };

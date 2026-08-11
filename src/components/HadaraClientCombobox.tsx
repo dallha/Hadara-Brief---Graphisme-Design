@@ -24,9 +24,16 @@ export const HadaraClientCombobox: React.FC<Props> = ({ value, onChange, onClien
   const [newClient, setNewClient] = useState({ name: '', organization: '', whatsapp: '', email: '', address: '' });
   
   useEffect(() => {
-    // Ideally fetch from real API here
-    // fetch('/api/clients/').then(r => r.json()).then(setClients)
-    // For now we'll mock or leave it ready for integration
+    fetch('/api/clients/')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setClients(data);
+        } else if (data.results && Array.isArray(data.results)) {
+          setClients(data.results);
+        }
+      })
+      .catch(err => console.error("Erreur chargement clients", err));
   }, []);
 
   const filteredClients = clients.filter(c => 
@@ -40,21 +47,23 @@ export const HadaraClientCombobox: React.FC<Props> = ({ value, onChange, onClien
   const handleCreate = async () => {
     if (!newClient.name || !newClient.whatsapp) return;
     
-    // Call API to create client
-    // const res = await fetch('/api/clients/', { method: 'POST', body: JSON.stringify(newClient) });
-    // const created = await res.json();
-    
-    const created: Client = {
-      id: `CLT-${Math.floor(Math.random()*1000)}`,
-      ...newClient
-    };
-    
-    setClients(prev => [created, ...prev]);
-    onChange(created.id);
-    onClientData?.(created);
-    setIsCreating(false);
-    setIsOpen(false);
-    setNewClient({ name: '', organization: '', whatsapp: '', email: '', address: '' });
+    try {
+      const res = await fetch('/api/clients/', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newClient) 
+      });
+      const created = await res.json();
+      
+      setClients(prev => [created, ...prev]);
+      onChange(created.id);
+      onClientData?.(created);
+      setIsCreating(false);
+      setIsOpen(false);
+      setNewClient({ name: '', organization: '', whatsapp: '', email: '', address: '' });
+    } catch (err) {
+      console.error("Erreur création client", err);
+    }
   };
 
   return (

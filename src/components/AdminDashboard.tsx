@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BriefData, BriefStatus, UserRole } from '../types';
 import { KanbanTab } from './admin/KanbanTab';
 import { Project360Modal } from './admin/Project360Modal';
+import { MigrationTool } from './admin/MigrationTool';
 import { LayoutDashboard, LogOut } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -17,6 +18,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const [userRole] = useState<UserRole>('admin');
   const [selected360Brief, setSelected360Brief] = useState<BriefData | null>(null);
+  const [activeTab, setActiveTab] = useState<'kanban' | 'migration'>('kanban');
 
   // Safe parsing for briefs in case any fields are missing
   const safeBriefs = (briefs || []).map(b => ({
@@ -39,16 +41,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <h1 className="text-base sm:text-lg font-black text-[#F5F5DC] tracking-tight flex items-center space-x-2">
                 <span>Hadara Studio</span>
                 <span className="text-[10px] uppercase font-bold tracking-widest bg-[#335A79]/30 text-[#D4C9BF] px-2 py-0.5 rounded-full border border-[#335A79]/50">
-                  Kanban
+                  {activeTab === 'kanban' ? 'Kanban' : 'Migration'}
                 </span>
               </h1>
               <p className="text-[10px] sm:text-xs text-[#D4C9BF]/70 font-mono">
-                Vue rapide des briefs
+                {activeTab === 'kanban' ? 'Vue rapide des briefs' : 'Outil de rapprochement'}
               </p>
             </div>
           </div>
           
           <div className="flex items-center space-x-3 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <div className="flex bg-slate-800/50 p-1 rounded-lg border border-slate-700/50 mr-4">
+              <button 
+                onClick={() => setActiveTab('kanban')}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${activeTab === 'kanban' ? 'bg-amber-500 text-slate-900' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                Kanban
+              </button>
+              <button 
+                onClick={() => setActiveTab('migration')}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${activeTab === 'migration' ? 'bg-amber-500 text-slate-900' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                Migration
+              </button>
+            </div>
+
             {onLogout && (
               <button
                 onClick={onLogout}
@@ -62,14 +79,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       </header>
 
-      {/* Main Content Area - Kanban Only */}
+      {/* Main Content Area */}
       <main className="flex-1 p-2 sm:p-4 overflow-y-auto">
+        {activeTab === 'kanban' ? (
         <KanbanTab 
           briefs={safeBriefs} 
           userRole={userRole}
           onOpenProject360={(b) => setSelected360Brief(b)}
           onUpdateStatus={async (id, st) => onUpdateStatus(id, st)}
         />
+        ) : (
+          <MigrationTool />
+        )}
       </main>
 
       {/* Modals */}

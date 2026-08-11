@@ -24,7 +24,7 @@ export const HadaraClientCombobox: React.FC<Props> = ({ value, onChange, onClien
   const [newClient, setNewClient] = useState({ name: '', organization: '', whatsapp: '', email: '', address: '' });
   
   useEffect(() => {
-    fetch('/api/clients/')
+    fetch('/api/billing/clients/')
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -48,7 +48,7 @@ export const HadaraClientCombobox: React.FC<Props> = ({ value, onChange, onClien
     if (!newClient.name || !newClient.whatsapp) return;
     
     try {
-      const res = await fetch('/api/clients/', { 
+      const res = await fetch('/api/billing/clients/', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newClient) 

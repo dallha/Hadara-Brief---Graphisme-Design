@@ -775,21 +775,22 @@ class BillingDocumentAdmin(admin.ModelAdmin):
     )
 
     def display_total(self, obj):
-        return format_html('<strong style="color:#f59e0b">{:,} FCFA</strong>', obj.total).replace(',', '\u202f')
+        total = int(obj.total) if obj.total is not None else 0
+        return format_html('<strong style="color:#f59e0b">{:,} FCFA</strong>', total).replace(',', '\u202f')
     display_total.short_description = 'Total net'
 
     def display_paid(self, obj):
-        paid = obj.paid_amount
+        paid = int(obj.paid_amount) if obj.paid_amount is not None else 0
         color = '#10b981' if paid > 0 else '#64748b'
         return format_html('<span style="color:{}">{:,} FCFA</span>', color, paid).replace(',', '\u202f')
     display_paid.short_description = 'Encaissé'
 
     def display_balance(self, obj):
-        bal = obj.balance_due
+        bal = int(obj.balance_due) if obj.balance_due is not None else 0
         color = '#ef4444' if bal > 0 else '#10b981'
         label = f'{bal:,} FCFA'.replace(',', '\u202f')
         return format_html('<strong style="color:{}">{}</strong>', color, label)
-    display_balance.short_description = 'Solde restant'
+    display_balance.short_description = 'Reste à payer'
 
     def payment_status_badge(self, obj):
         colors = {

@@ -417,7 +417,8 @@ class BillingDocument(models.Model):
 
     def __str__(self):
         client_display = self.billing_client_name or (str(self.client) if self.client else "—")
-        return f"{self.document_number} — {client_display} — {self.total:,} FCFA".replace(',', '\u202f')
+        total = int(self.total) if self.total is not None else 0
+        return f"{self.document_number} — {client_display} — {total:,} FCFA".replace(',', '\u202f')
 
 
 class BillingLine(models.Model):
@@ -497,7 +498,8 @@ class Payment(models.Model):
         ordering = ['payment_date']
 
     def __str__(self):
-        return f"{self.id} — {self.amount:,} FCFA — {self.get_method_display()}".replace(',', '\u202f')
+        amount = int(self.amount) if self.amount is not None else 0
+        return f"{self.id} — {amount:,} FCFA — {self.get_method_display()}".replace(',', '\u202f')
 
 
 class ToolUsageLog(models.Model):

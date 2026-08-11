@@ -776,13 +776,15 @@ class BillingDocumentAdmin(admin.ModelAdmin):
 
     def display_total(self, obj):
         total = int(obj.total) if obj.total is not None else 0
-        return format_html('<strong style="color:#f59e0b">{:,} FCFA</strong>', total).replace(',', '\u202f')
+        formatted = f'{total:,}'.replace(',', '\u202f')
+        return format_html('<strong style="color:#f59e0b">{} FCFA</strong>', formatted)
     display_total.short_description = 'Total net'
 
     def display_paid(self, obj):
         paid = int(obj.paid_amount) if obj.paid_amount is not None else 0
         color = '#10b981' if paid > 0 else '#64748b'
-        return format_html('<span style="color:{}">{:,} FCFA</span>', color, paid).replace(',', '\u202f')
+        formatted = f'{paid:,}'.replace(',', '\u202f')
+        return format_html('<span style="color:{}">{} FCFA</span>', color, formatted)
     display_paid.short_description = 'Encaissé'
 
     def display_balance(self, obj):

@@ -35,7 +35,6 @@ const MockupTool = lazy(() => import('./components/MockupTool').then(m => ({ def
 const WordCloudTool = lazy(() => import('./components/WordCloudTool').then(m => ({ default: m.WordCloudTool })));
 const UpscaleTool = lazy(() => import('./components/UpscaleTool').then(m => ({ default: m.UpscaleTool })));
 const ToolsHub = lazy(() => import('./components/ToolsHub').then(m => ({ default: m.ToolsHub })));
-const BillingTool = lazy(() => import('./components/BillingTool').then(m => ({ default: m.BillingTool })));
 import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
 
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
@@ -419,15 +418,15 @@ export default function App() {
     }
   };
 
-  const handleUpdateStatus = async (briefId: string, status: BriefStatus, notes?: string, price?: number) => {
+  const handleUpdateStatus = async (briefId: string, status: BriefStatus, notes?: string) => {
     try {
       const res = await fetch(`${API_BASE}/api/briefs/${briefId}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, designerNotes: notes, quotedPriceFCFA: price }),
+        body: JSON.stringify({ status, designerNotes: notes }),
       });
       const updated = res.ok ? (await res.json()) : null;
-      setBriefs(prev => prev.map(b => b.id === briefId ? (updated?.brief || updated || { ...b, status, designerNotes: notes, quotedPriceFCFA: price }) : b));
+      setBriefs(prev => prev.map(b => b.id === briefId ? (updated?.brief || updated || { ...b, status, designerNotes: notes }) : b));
     } catch (err) { console.error(err); }
   };
 
@@ -697,9 +696,6 @@ export default function App() {
             } />
             <Route path="/outils/upscale" element={
               <UpscaleTool onGoToBrief={() => goTo('brief')} />
-            } />
-            <Route path="/outils/facturation" element={
-              <BillingTool />
             } />
             <Route path="/outils" element={
               <ToolsHub onGoToBrief={() => goTo('brief')} />

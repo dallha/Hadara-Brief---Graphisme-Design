@@ -12,8 +12,28 @@ from google.genai import types
 
 from .models import Brief, Template, PortfolioItem, StoreProduct
 from .serializers import BriefSerializer, TemplateSerializer, PortfolioItemSerializer, StoreProductSerializer
-from .auth_views import verify_admin_token
+from .auth_views import verify_admin_token, verify_client_token
 from .pdf_utils import generate_brief_pdf
+from rest_framework.permissions import BasePermission
+
+class AdminTokenPermission(BasePermission):
+    """Permission that checks for valid admin token in Authorization header"""
+    def has_permission(self, request, view):
+        return verify_admin_token(request)
+
+class AdminOrClientTokenPermission(BasePermission):
+    """Permission that checks for valid admin or client token in Authorization header"""
+    def has_permission(self, request, view):
+        if verify_admin_token(request):
+            request.is_admin = True
+            return True
+        
+        client_whatsapp = verify_client_token(request)
+        if client_whatsapp:
+            request.is_admin = False
+            request.client_whatsapp = client_whatsapp
+            return True
+        return False
 
 def send_status_email(brief, old_status, new_status):
     if old_status == new_status or not brief.email:
@@ -385,9 +405,19 @@ class ClientViewSet(viewsets.ModelViewSet):
 class BillingDocumentViewSet(viewsets.ModelViewSet):
     queryset = BillingDocument.objects.all().order_by('-created_at')
     serializer_class = BillingDocumentSerializer
+    permission_classes = [AdminOrClientTokenPermission]
 
     def get_queryset(self):
         qs = super().get_queryset()
+        
+        # Security: if client, only return their documents
+        if not getattr(self.request, 'is_admin', False):
+            client_whatsapp = getattr(self.request, 'client_whatsapp', None)
+            if client_whatsapp:
+                qs = qs.filter(client__whatsapp=client_whatsapp)
+            else:
+                qs = qs.none()
+
         doc_type = self.request.query_params.get('type')
         status_param = self.request.query_params.get('status')
         client_id = self.request.query_params.get('client')
@@ -402,23 +432,31 @@ class BillingDocumentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='stats')
     def stats(self, request):
         """Dashboard financier : CA facturé, encaissé, restant, impayés, en retard."""
-        docs = BillingDocument.objects.exclude(payment_status='annule')
+        if not getattr(request, 'is_admin', False):
+            return Response({"error": "Seul l'administrateur peut voir les statistiques."}, status=403)
+            
+        # Ne considérer que les factures et avoirs valides (pas proforma, pas annulés)
+        docs = BillingDocument.objects.exclude(payment_status='annule').exclude(doc_type='proforma')
 
-        # CA total facturé (valeur des documents actifs)
-        ca_facture = docs.aggregate(s=Sum('total'))['s'] or 0
+        # CA total facturé = Somme des factures - Somme des avoirs
+        factures_total = docs.filter(doc_type='facture').aggregate(s=Sum('total'))['s'] or 0
+        avoirs_total = docs.filter(doc_type='avoir').aggregate(s=Sum('total'))['s'] or 0
+        ca_facture = factures_total - avoirs_total
 
-        # CA encaissé (somme de tous les paiements validés)
-        ca_encaisse = Payment.objects.filter(
-            billing_document__payment_status__in=['partiellement_paye', 'paye']
+        # CA encaissé = Somme de tous les paiements liés à des factures valides
+        ca_encaisse = Payment.objects.exclude(
+            billing_document__payment_status='annule'
+        ).filter(
+            billing_document__doc_type='facture'
         ).aggregate(s=Sum('amount'))['s'] or 0
 
-        # Reste à encaisser
-        ca_restant_raw = docs.exclude(payment_status='paye').aggregate(s=Sum('total'))['s'] or 0
-        ca_restant = max(0, ca_restant_raw - ca_encaisse)
+        # Reste à encaisser = CA facturé - CA encaissé
+        ca_restant = max(0, ca_facture - ca_encaisse)
 
-        # Compteurs par statut
-        en_retard = docs.filter(payment_status='en_retard').count()
-        non_payees = docs.filter(payment_status='en_attente').count()
+        # Compteurs par statut (uniquement pour les factures)
+        factures_actives = docs.filter(doc_type='facture')
+        en_retard = factures_actives.filter(payment_status='en_retard').count()
+        non_payees = factures_actives.filter(payment_status='en_attente').count()
         partielles = docs.filter(payment_status='partiellement_paye').count()
 
         # Revenus par mois (6 derniers mois)
@@ -450,17 +488,33 @@ class BillingDocumentViewSet(viewsets.ModelViewSet):
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all().order_by('-payment_date')
     serializer_class = PaymentSerializer
+    permission_classes = [AdminOrClientTokenPermission]
 
     def get_queryset(self):
         qs = super().get_queryset()
+        
+        # Security: if client, only return their payments
+        if not getattr(self.request, 'is_admin', False):
+            client_whatsapp = getattr(self.request, 'client_whatsapp', None)
+            if client_whatsapp:
+                qs = qs.filter(billing_document__client__whatsapp=client_whatsapp)
+            else:
+                qs = qs.none()
+
         doc_id = self.request.query_params.get('document')
         if doc_id:
             qs = qs.filter(billing_document_id=doc_id)
         return qs
 
     def perform_create(self, serializer):
+        # Ensure payment does not exceed invoice total
+        billing_doc = serializer.validated_data.get('billing_document')
+        amount = serializer.validated_data.get('amount')
+        if billing_doc:
+            if amount > billing_doc.balance_due:
+                raise serializers.ValidationError('Payment amount exceeds outstanding balance.')
         serializer.save()
-        # refresh_payment_state est appelé automatiquement dans Payment.save()
+        # refresh_payment_state is called automatically in Payment.save()
 
     def perform_destroy(self, instance):
         instance.delete()  # delete() déclenche refresh_payment_state via signal/override

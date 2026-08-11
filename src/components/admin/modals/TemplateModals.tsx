@@ -46,7 +46,6 @@ export const TemplateModals: React.FC<TemplateModalsProps> = ({
         mainTitle: selectedTemplateForGen.defaultMainTitle || selectedTemplateForGen.title,
         stylePreferences: selectedTemplateForGen.defaultStylePreferences || [],
         usageType: selectedTemplateForGen.defaultUsageType || 'both',
-        quotedPriceFCFA: selectedTemplateForGen.suggestedPriceFCFA || 0,
         desiredDeliveryDate: quickGenForm.desiredDeliveryDate || ''
       } as any);
       setSelectedTemplateForGen(null);
@@ -103,8 +102,7 @@ export const TemplateModals: React.FC<TemplateModalsProps> = ({
       referenceLinks: '',
       attachments: [],
       acceptProcess: true,
-      acceptDeadlines: true,
-      quotedPriceFCFA: selectedTemplateForGen.suggestedPriceFCFA
+      acceptDeadlines: true
     };
 
     await onAddNewBriefDirectly(generatedBrief);

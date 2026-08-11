@@ -13,6 +13,15 @@ import type {
 
 const API = import.meta.env.VITE_API_BASE_URL || 'https://hadara-backend.onrender.com/api';
 
+const authFetch = (url: RequestInfo | URL, options: RequestInit = {}) => {
+  const token = sessionStorage.getItem('hadara_admin_token');
+  const headers = new Headers(options.headers || {});
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  return fetch(url, { ...options, headers });
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (n: number) =>
   new Intl.NumberFormat('fr-FR').format(n) + ' F';
@@ -120,7 +129,7 @@ function NewDocModal({ clients, onClose, onSaved }: NewDocModalProps) {
     if (lines.every(l => !l.designation)) { setError('Ajoutez au moins une ligne de prestation.'); return; }
     setSaving(true); setError('');
     try {
-      const res = await fetch(`${API}/billing/documents/`, {
+      const res = await authFetch(`${API}/billing/documents/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -140,7 +149,7 @@ function NewDocModal({ clients, onClose, onSaved }: NewDocModalProps) {
 
       // Créer les lignes
       for (const line of lines.filter(l => l.designation)) {
-        await fetch(`${API}/billing/lines/`, {
+        await authFetch(`${API}/billing/lines/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ document: doc.id, ...line }),
@@ -292,7 +301,7 @@ function AddPaymentModal({ doc, onClose, onSaved }: AddPaymentModalProps) {
     if (amount <= 0) { setError('Montant invalide.'); return; }
     setSaving(true); setError('');
     try {
-      const res = await fetch(`${API}/billing/payments/`, {
+      const res = await authFetch(`${API}/billing/payments/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ billing_document: doc.id, amount, method, reference_code: ref, payment_date: date, note }),
@@ -602,9 +611,9 @@ export const BillingTool: React.FC = () => {
     setLoading(true);
     try {
       const [docsRes, clientsRes, statsRes] = await Promise.all([
-        fetch(`${API}/billing/documents/`),
-        fetch(`${API}/billing/clients/`),
-        fetch(`${API}/billing/documents/stats/`),
+        authFetch(`${API}/billing/documents/`),
+        authFetch(`${API}/billing/clients/`),
+        authFetch(`${API}/billing/documents/stats/`),
       ]);
       if (docsRes.ok) setDocs(await docsRes.json());
       if (clientsRes.ok) setClients(await clientsRes.json());
@@ -626,8 +635,10 @@ export const BillingTool: React.FC = () => {
   const handleDocRefresh = async () => {
     await fetchAll();
     if (selectedDoc) {
-      const res = await fetch(`${API}/billing/documents/${selectedDoc.id}/`);
-      if (res.ok) setSelectedDoc(await res.json());
+      try {
+        const res = await authFetch(`${API}/billing/documents/${selectedDoc.id}/`);
+        if (res.ok) setSelectedDoc(await res.json());
+      } catch {}
     }
   };
 

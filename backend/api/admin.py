@@ -18,20 +18,28 @@ def _hadara_each_context(self, request):
     try:
         pending = Brief.objects.filter(status__in=['nouveau', 'pending']).count()
         all_briefs = Brief.objects.count()
-        revenue_agg = Brief.objects.exclude(
-            status__in=['rejected', 'refusé']
-        ).aggregate(total=Sum('quoted_price_fcfa'))
-        revenue = revenue_agg['total'] or 0
+        
+        # Dashboard financier recommandé
+        docs = BillingDocument.objects.exclude(payment_status='annule')
+        ca_facture = docs.aggregate(total=Sum('total'))['total'] or 0
+        ca_encaisse = Payment.objects.aggregate(total=Sum('amount'))['total'] or 0
+        ca_restant = max(0, ca_facture - ca_encaisse)
+        en_retard = docs.filter(payment_status='en_retard').count()
+        
         active_products = StoreProduct.objects.filter(visible=True).count()
         latest_briefs = list(Brief.objects.order_by('-created_at')[:6])
     except Exception:
-        pending = all_briefs = active_products = revenue = 0
+        pending = all_briefs = active_products = 0
+        ca_facture = ca_encaisse = ca_restant = en_retard = 0
         latest_briefs = []
 
     ctx.update({
         'kpi_pending_briefs': pending,
         'kpi_all_briefs': all_briefs,
-        'kpi_total_revenue': f"{revenue:,}".replace(',', '\u202f'),
+        'kpi_ca_facture': f"{ca_facture:,}".replace(',', '\u202f'),
+        'kpi_ca_encaisse': f"{ca_encaisse:,}".replace(',', '\u202f'),
+        'kpi_ca_restant': f"{ca_restant:,}".replace(',', '\u202f'),
+        'kpi_en_retard': en_retard,
         'kpi_active_products': active_products,
         'kpi_latest_briefs': latest_briefs,
     })
@@ -45,7 +53,7 @@ admin.AdminSite.each_context = _hadara_each_context
 
 @admin.register(Brief)
 class BriefAdmin(admin.ModelAdmin):
-    list_display = ('id', 'client_name', 'status', 'quoted_price_fcfa', 'direct_actions')
+    list_display = ('id', 'client_name', 'status', 'direct_actions')
     list_filter = ('status', 'created_at')
     search_fields = ('id', 'client_name', 'email', 'whatsapp')
     readonly_fields = ('id', 'created_at', 'ai_analysis', 'status_actions_guided', 'display_client_files_and_references', 'display_deliverable_versions')
@@ -580,7 +588,7 @@ class BriefAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('⚡ Panneau d\'Action Guidé', {
-            'fields': ('status_actions_guided', 'status', 'quoted_price_fcfa')
+            'fields': ('status_actions_guided', 'status')
         }),
         ('👤 Informations Client (Obligatoires)', {
             'fields': ('client_name', 'whatsapp', 'email', 'organization', 'city_country')

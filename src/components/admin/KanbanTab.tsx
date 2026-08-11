@@ -149,11 +149,8 @@ export const KanbanTab: React.FC<KanbanTabProps> = ({
                           </p>
                         </div>
 
-                        {/* Quoted Price & Date */}
-                        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-                          <span className="font-mono font-bold text-emerald-400">
-                            {brief.quotedPriceFCFA ? `${brief.quotedPriceFCFA.toLocaleString('fr-FR')} F` : 'À deviser'}
-                          </span>
+                        {/* Date */}
+                        <div className="pt-2 border-t border-slate-800/80 flex justify-end text-[11px]">
                           <span className="text-[10px] text-slate-500 flex items-center gap-1">
                             <Calendar className="w-3 h-3 text-slate-600" />
                             {brief.desiredDeliveryDate ? brief.desiredDeliveryDate.slice(-5) : 'Standard'}

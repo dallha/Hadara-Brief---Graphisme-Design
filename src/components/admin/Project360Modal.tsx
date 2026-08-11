@@ -40,7 +40,7 @@ interface Project360ModalProps {
   brief: BriefData;
   userRole: UserRole;
   onClose: () => void;
-  onUpdateStatus: (briefId: string, status: BriefStatus, notes?: string, price?: number) => Promise<void>;
+  onUpdateStatus: (briefId: string, status: BriefStatus, notes?: string) => Promise<void>;
   onUpdateBriefEnriched: (updatedBrief: BriefData) => Promise<void>;
   onPrintBrief: (brief: BriefData) => void;
 }
@@ -72,7 +72,6 @@ export const Project360Modal: React.FC<Project360ModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'versions' | 'quality' | 'activity'>('overview');
   const [editStatus, setEditStatus] = useState<BriefStatus>(brief.status);
-  const [editPrice, setEditPrice] = useState<number>(brief.quotedPriceFCFA || 0);
   const [editNotes, setEditNotes] = useState<string>(brief.designerNotes || '');
   const [isSaving, setIsSaving] = useState(false);
   const [copiedQuote, setCopiedQuote] = useState(false);
@@ -209,12 +208,11 @@ export const Project360Modal: React.FC<Project360ModalProps> = ({
   const handleSaveAll = async () => {
     setIsSaving(true);
     try {
-      await onUpdateStatus(brief.id, editStatus, editNotes, editPrice);
+      await onUpdateStatus(brief.id, editStatus, editNotes);
       
       const updatedBriefData: BriefData = {
         ...brief,
         status: editStatus,
-        quotedPriceFCFA: editPrice,
         designerNotes: editNotes,
         deliverableVersions: versions,
         qualityChecklist: checklist,
@@ -237,8 +235,8 @@ export const Project360Modal: React.FC<Project360ModalProps> = ({
 📋 *Projet :* ${brief.mainTitle}
 👤 *Client :* ${brief.clientName} (${brief.organization || 'Particulier'})
 📐 *Format :* ${brief.projectType.toUpperCase()} — ${brief.technicalFormat}
-💰 *Montant Global :* ${editPrice.toLocaleString('fr-FR')} FCFA
-💳 *Acompte 50% à la commande :* ${(editPrice / 2).toLocaleString('fr-FR')} FCFA
+💰 *Montant Global :* ${brief.quotedPriceFCFA ? brief.quotedPriceFCFA.toLocaleString('fr-FR') : 'Sur devis'} FCFA
+💳 *Acompte 50% à la commande :* ${brief.quotedPriceFCFA ? (brief.quotedPriceFCFA / 2).toLocaleString('fr-FR') : 'Sur devis'} FCFA
 
 📲 *Mode de Paiement :* Wave / Orange Money au +221 77 623 27 41
 📅 *Livraison Estimée :* ${brief.desiredDeliveryDate}

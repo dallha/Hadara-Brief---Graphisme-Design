@@ -43,7 +43,6 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
     if (selectedBrief) {
       setEditStatus(selectedBrief.status);
       setEditNotes(selectedBrief.adminNotes || '');
-      setEditPrice(selectedBrief.quotedPriceFCFA || 0);
       document.body.style.overflow = 'hidden';
     }
     return () => {
@@ -67,7 +66,7 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
 
   const handleSaveStatus = async () => {
     setIsSaving(true);
-    await onUpdateStatus(selectedBrief.id, editStatus, editNotes, editPrice);
+    await onUpdateStatus(selectedBrief.id, editStatus, editNotes);
     setIsSaving(false);
   };
 

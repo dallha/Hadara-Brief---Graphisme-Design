@@ -15,7 +15,7 @@ router.register(r'billing/clients', ClientViewSet)
 router.register(r'billing/documents', BillingDocumentViewSet)
 router.register(r'billing/payments', PaymentViewSet)
 
-from .auth_views import AdminLoginView, AdminVerifyView
+from .auth_views import AdminLoginView, AdminVerifyView, ClientLoginView
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -24,4 +24,5 @@ urlpatterns = [
     path('ai-analyze/<str:pk>/', ai_analyze_brief, name='ai-analyze-brief'),
     path('auth/login/', AdminLoginView.as_view(), name='auth-login'),
     path('auth/verify/', AdminVerifyView.as_view(), name='auth-verify'),
+    path('auth/client/login/', ClientLoginView.as_view(), name='auth-client-login'),
 ]

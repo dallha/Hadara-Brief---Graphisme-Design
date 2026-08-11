@@ -83,3 +83,40 @@ def verify_admin_token(request):
         return value == "admin_user"
     except (BadSignature, SignatureExpired):
         return False
+
+class ClientLoginView(APIView):
+    def post(self, request):
+        ip = get_client_ip(request)
+        cache_key = f'client_login_attempts_{ip}'
+        attempts = cache.get(cache_key, 0)
+        
+        if attempts >= MAX_ATTEMPTS:
+            return Response(
+                {"error": "Trop de tentatives. Veuillez réessayer plus tard."}, 
+                status=status.HTTP_429_TOO_MANY_REQUESTS
+            )
+
+        whatsapp = request.data.get("whatsapp", "").strip()
+        if not whatsapp:
+            return Response({"error": "Numéro WhatsApp requis"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # We just sign the whatsapp number as the identity
+        cache.delete(cache_key)
+        token = signer.sign(f"client_{whatsapp}")
+        return Response({"token": token, "message": "Connexion réussie", "whatsapp": whatsapp}, status=status.HTTP_200_OK)
+
+def verify_client_token(request):
+    """Returns the whatsapp number if valid, False otherwise"""
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return False
+        
+    token = auth_header.split(" ")[1]
+    try:
+        # Client tokens valid for 30 days
+        value = signer.unsign(token, max_age=2592000)
+        if value.startswith("client_"):
+            return value.split("client_")[1]
+        return False
+    except (BadSignature, SignatureExpired):
+        return False

@@ -29,10 +29,63 @@
     </div>
 </div>
 
-<!-- ===== KPI CARDS COCKPIT ===== -->
+<!-- ===== KPI FINANCIERS ===== -->
+<h5 class="mb-3 text-muted"><i class="fas fa-chart-line mr-2"></i> Dashboard Financier</h5>
 <div class="row mb-4">
-
     <div class="col-lg-3 col-6 mb-3">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3 style="font-size:1.5rem;">{{ kpi_ca_facture }}&thinsp;<sup style="font-size:11px">FCFA</sup></h3>
+                <p>CA Facturé</p>
+            </div>
+            <div class="icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <a href="{% url 'admin:api_billingdocument_changelist' %}?type=facture" class="small-box-footer">
+                Voir Factures <i class="fas fa-arrow-circle-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6 mb-3">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3 style="font-size:1.5rem;">{{ kpi_ca_encaisse }}&thinsp;<sup style="font-size:11px">FCFA</sup></h3>
+                <p>CA Encaissé</p>
+            </div>
+            <div class="icon"><i class="fas fa-coins"></i></div>
+            <a href="{% url 'admin:api_payment_changelist' %}" class="small-box-footer">
+                Voir Paiements <i class="fas fa-arrow-circle-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6 mb-3">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3 style="font-size:1.5rem;">{{ kpi_ca_restant }}&thinsp;<sup style="font-size:11px">FCFA</sup></h3>
+                <p>À Encaisser</p>
+            </div>
+            <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <a href="{% url 'admin:api_billingdocument_changelist' %}?payment_status=en_attente" class="small-box-footer">
+                Voir Impayés <i class="fas fa-arrow-circle-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6 mb-3">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3 style="font-size:1.5rem;">{{ kpi_en_retard }}</h3>
+                <p>Factures en Retard</p>
+            </div>
+            <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <a href="{% url 'admin:api_billingdocument_changelist' %}?payment_status=en_retard" class="small-box-footer">
+                Voir Retards <i class="fas fa-arrow-circle-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== KPI OPÉRATIONNELS ===== -->
+<h5 class="mb-3 text-muted"><i class="fas fa-cubes mr-2"></i> Activité Opérationnelle</h5>
+<div class="row mb-4">
+    <div class="col-lg-4 col-12 mb-3">
         <div class="small-box bg-warning">
             <div class="inner">
                 <h3>{{ kpi_pending_briefs }}</h3>
@@ -44,21 +97,7 @@
             </a>
         </div>
     </div>
-
-    <div class="col-lg-3 col-6 mb-3">
-        <div class="small-box bg-success">
-            <div class="inner">
-                <h3 style="font-size:1.5rem;">{{ kpi_total_revenue }}&thinsp;<sup style="font-size:11px">FCFA</sup></h3>
-                <p>CA Potentiel Estimé</p>
-            </div>
-            <div class="icon"><i class="fas fa-coins"></i></div>
-            <a href="{% url 'admin:api_brief_changelist' %}" class="small-box-footer">
-                Voir Devis <i class="fas fa-arrow-circle-right ml-1"></i>
-            </a>
-        </div>
-    </div>
-
-    <div class="col-lg-3 col-6 mb-3">
+    <div class="col-lg-4 col-6 mb-3">
         <div class="small-box bg-info">
             <div class="inner">
                 <h3>{{ kpi_active_products }}</h3>
@@ -70,9 +109,8 @@
             </a>
         </div>
     </div>
-
-    <div class="col-lg-3 col-6 mb-3">
-        <div class="small-box bg-danger">
+    <div class="col-lg-4 col-6 mb-3">
+        <div class="small-box bg-secondary">
             <div class="inner">
                 <h3>{{ kpi_all_briefs }}</h3>
                 <p>Total Briefs Studio</p>
@@ -134,10 +172,10 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if brief.quoted_price_fcfa %}
-                                        <strong style="color: #4ade80;">{{ brief.quoted_price_fcfa }} FCFA</strong>
-                                    {% else %}
+                                    {% if brief.status == 'nouveau' %}
                                         <span class="text-muted small">À deviser</span>
+                                    {% else %}
+                                        <span class="text-muted small">Via Facture</span>
                                     {% endif %}
                                 </td>
                                 <td><small class="text-muted">{{ brief.created_at|date:"d/m/Y H:i" }}</small></td>

@@ -20,9 +20,15 @@ def _hadara_each_context(self, request):
         all_briefs = Brief.objects.count()
         
         # Dashboard financier recommandé
-        docs = BillingDocument.objects.exclude(payment_status='annule')
-        ca_facture = docs.aggregate(total=Sum('total'))['total'] or 0
-        ca_encaisse = Payment.objects.aggregate(total=Sum('amount'))['total'] or 0
+        docs = BillingDocument.objects.exclude(payment_status='annule').exclude(doc_type='proforma')
+        factures_total = docs.filter(doc_type='facture').aggregate(total=Sum('total'))['total'] or 0
+        avoirs_total = docs.filter(doc_type='avoir').aggregate(total=Sum('total'))['total'] or 0
+        ca_facture = factures_total - avoirs_total
+        
+        ca_encaisse = Payment.objects.exclude(billing_document__payment_status='annule').filter(
+            billing_document__doc_type='facture'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
         ca_restant = max(0, ca_facture - ca_encaisse)
         en_retard = docs.filter(payment_status='en_retard').count()
         

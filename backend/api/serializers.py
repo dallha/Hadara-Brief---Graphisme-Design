@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import Brief, Template, PortfolioItem, StoreProduct
+from .models import (
+    Brief, Template, PortfolioItem, StoreProduct,
+    Client, BillingDocument, BillingLine, Payment
+)
 
 class BriefSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
@@ -34,6 +37,10 @@ class BriefSerializer(serializers.ModelSerializer):
     quotedPriceFCFA = serializers.IntegerField(source='quoted_price_fcfa', required=False, allow_null=True)
     aiAnalysis = serializers.JSONField(source='ai_analysis', required=False, allow_null=True)
     deliverableVersions = serializers.JSONField(source='deliverable_versions', required=False, allow_null=True)
+    client_id = serializers.PrimaryKeyRelatedField(
+        queryset=Client.objects.all(), source='client', required=False, allow_null=True, write_only=False
+    )
+    clientDetails = serializers.SerializerMethodField()
 
     class Meta:
         model = Brief
@@ -43,8 +50,13 @@ class BriefSerializer(serializers.ModelSerializer):
             'targetAudienceChips', 'mainTitle', 'fullTextContent', 'stylePreferences', 'preferredColors',
             'avoidColors', 'technicalFormat', 'customDimensions', 'usageType', 'budgetRange', 'desiredDeliveryDate',
             'criticalDeadline', 'referenceLinks', 'attachments', 'acceptProcess', 'acceptDeadlines',
-            'designerNotes', 'quotedPriceFCFA', 'aiAnalysis', 'deliverableVersions'
+            'designerNotes', 'quotedPriceFCFA', 'aiAnalysis', 'deliverableVersions', 'client_id', 'clientDetails'
         ]
+
+    def get_clientDetails(self, obj):
+        if obj.client:
+            return ClientSerializer(obj.client).data
+        return None
 
 class TemplateSerializer(serializers.ModelSerializer):
     projectType = serializers.CharField(source='project_type')
@@ -102,8 +114,6 @@ class StoreProductSerializer(serializers.ModelSerializer):
 # ──────────────────────────────────────────────
 # Billing serializers
 # ──────────────────────────────────────────────
-from .models import Client, BillingDocument, BillingLine, Payment
-
 
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:

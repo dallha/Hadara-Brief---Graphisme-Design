@@ -765,7 +765,7 @@ class BillingDocumentAdmin(admin.ModelAdmin):
     search_fields = ('document_number', 'billing_client_name', 'billing_organization')
     readonly_fields = (
         'document_number', 'issue_date', 'created_at', 'updated_at',
-        'display_total', 'display_paid', 'display_balance', 'payment_status_badge',
+        'subtotal', 'display_total', 'display_paid', 'display_balance', 'payment_status_badge',
     )
     inlines = [BillingLineInline, PaymentInline]
     save_on_top = True

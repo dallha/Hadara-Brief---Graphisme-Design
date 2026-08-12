@@ -394,6 +394,20 @@ class BillingDocument(models.Model):
         BillingDocument.objects.filter(pk=self.pk).update(payment_status=new_status)
         self.payment_status = new_status
 
+    def recalculate_totals(self) -> None:
+        """Recalcule le sous-total, le total et rafraîchit le statut de paiement."""
+        new_subtotal = sum(line.line_total for line in self.lines.all())
+        self.subtotal = new_subtotal
+        self.total = max(0, self.subtotal - self.discount)
+        
+        # Sauvegarde silencieuse (sans déclencher de signaux en cascade)
+        BillingDocument.objects.filter(pk=self.pk).update(
+            subtotal=self.subtotal,
+            total=self.total
+        )
+        # Rafraîchit le statut de paiement (car le solde a pu changer)
+        self.refresh_payment_state()
+
     # ── Save avec numérotation automatique ──────────────────────────────────
 
     def save(self, *args, **kwargs):
@@ -432,6 +446,17 @@ class BillingLine(models.Model):
     @property
     def line_total(self) -> int:
         return int(self.quantity * self.unit_price)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if getattr(self, 'document_id', None):
+            self.document.recalculate_totals()
+
+    def delete(self, *args, **kwargs):
+        doc = self.document
+        super().delete(*args, **kwargs)
+        if doc:
+            doc.recalculate_totals()
 
     class Meta:
         verbose_name = "Ligne de facturation"

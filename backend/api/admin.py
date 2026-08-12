@@ -825,3 +825,12 @@ class BillingDocumentAdmin(admin.ModelAdmin):
             color, label
         )
     payment_status_badge.short_description = 'Statut'
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display  = ('id', 'billing_document', 'amount', 'method', 'payment_date', 'reference_code')
+    list_filter   = ('method', 'payment_date')
+    search_fields = ('reference_code', 'billing_document__document_number')
+    readonly_fields = ('id',)
+    ordering = ('-payment_date',)

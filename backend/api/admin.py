@@ -745,7 +745,8 @@ class BillingLineInline(admin.TabularInline):
 
     def line_total_display(self, obj):
         if obj and obj.pk:
-            return format_html('<strong>{:,} FCFA</strong>', obj.line_total).replace(',', '\u202f')
+            formatted = f'{obj.line_total:,}'.replace(',', '\u202f')
+            return format_html('<strong>{} FCFA</strong>', formatted)
         return '—'
     line_total_display.short_description = 'Total ligne'
 

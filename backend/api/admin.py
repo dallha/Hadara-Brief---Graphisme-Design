@@ -597,7 +597,7 @@ class BriefAdmin(admin.ModelAdmin):
             'fields': ('status_actions_guided', 'status')
         }),
         ('👤 Informations Client (Obligatoires)', {
-            'fields': ('client_name', 'whatsapp', 'email', 'organization', 'city_country')
+            'fields': ('client', 'client_name', 'whatsapp', 'email', 'organization', 'city_country')
         }),
         ('🎯 Détails du Projet', {
             'fields': ('project_type', 'project_type_custom', 'context_description',

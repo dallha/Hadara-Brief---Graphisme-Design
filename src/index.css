@@ -141,6 +141,25 @@
     color: #F5F5DC;
   }
 
+  /* === FIX: WEBKIT AUTOFILL (Prevent invisible text on Safari/Chrome) === */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: #f8f8f8 !important;
+    -webkit-box-shadow: 0 0 0px 1000px #020617 inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+  
+  [data-theme="light"] input:-webkit-autofill,
+  [data-theme="light"] input:-webkit-autofill:hover,
+  [data-theme="light"] input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #0f172a !important;
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  }
+
   /* Guarantee high contrast inside dark containers in BOTH light & dark modes */
   .bg-slate-950,
   .bg-slate-900,

@@ -65,7 +65,7 @@ class BriefAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'created_at', 'ai_analysis', 'status_actions_guided', 'display_client_files_and_references', 'display_deliverable_versions')
     ordering = ('-created_at',)
 
-    actions = ['send_whatsapp_quote', 'mark_commande_validee', 'publish_new_version', 'mark_acompte_recu', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
+    actions = ['send_whatsapp_quote', 'mark_commande_validee', 'publish_new_version', 'mark_acompte_recu', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis', 'encaisser_brief_wave', 'encaisser_brief_especes']
 
     @admin.display(description='📎 Références & Fichiers Client (Gestionnaire Cockpit)')
     def display_client_files_and_references(self, obj):
@@ -582,6 +582,86 @@ class BriefAdmin(admin.ModelAdmin):
     @admin.action(description='Marquer comme "Terminé"')
     def mark_termine(self, request, queryset):
         queryset.update(status='termine')
+
+    @admin.action(description='💳 Créer Facture & Encaisser (Wave)')
+    def encaisser_brief_wave(self, request, queryset):
+        import datetime
+        from .models import BillingDocument, BillingLine, Payment
+        count = 0
+        for brief in queryset:
+            doc = brief.billing_documents.filter(doc_type='facture').first()
+            if not doc:
+                amount = brief.quoted_price_fcfa or 0
+                if amount <= 0:
+                    continue  # On ne peut pas facturer un brief sans devis estimé
+                doc = BillingDocument.objects.create(
+                    brief=brief,
+                    client=brief.client,
+                    doc_type='facture',
+                    billing_client_name=brief.client_name or "Client Hadara",
+                    issue_date=datetime.date.today()
+                )
+                BillingLine.objects.create(
+                    document=doc,
+                    designation=f"Facturation globale - {brief.id}",
+                    quantity=1,
+                    unit_price=amount
+                )
+                doc.refresh_from_db()
+                
+            if doc.balance_due > 0:
+                Payment.objects.create(
+                    billing_document=doc,
+                    amount=doc.balance_due,
+                    method=Payment.METHOD_WAVE,
+                    payment_date=datetime.date.today(),
+                    note="Encaissement rapide depuis le Brief"
+                )
+                count += 1
+                brief.status = 'commande_validee'
+                brief.save(update_fields=['status'])
+        
+        self.message_user(request, f"{count} encaissement(s) effectué(s) avec succès (Wave).")
+
+    @admin.action(description='💵 Créer Facture & Encaisser (Espèces)')
+    def encaisser_brief_especes(self, request, queryset):
+        import datetime
+        from .models import BillingDocument, BillingLine, Payment
+        count = 0
+        for brief in queryset:
+            doc = brief.billing_documents.filter(doc_type='facture').first()
+            if not doc:
+                amount = brief.quoted_price_fcfa or 0
+                if amount <= 0:
+                    continue
+                doc = BillingDocument.objects.create(
+                    brief=brief,
+                    client=brief.client,
+                    doc_type='facture',
+                    billing_client_name=brief.client_name or "Client Hadara",
+                    issue_date=datetime.date.today()
+                )
+                BillingLine.objects.create(
+                    document=doc,
+                    designation=f"Facturation globale - {brief.id}",
+                    quantity=1,
+                    unit_price=amount
+                )
+                doc.refresh_from_db()
+                
+            if doc.balance_due > 0:
+                Payment.objects.create(
+                    billing_document=doc,
+                    amount=doc.balance_due,
+                    method=Payment.METHOD_ESPECES,
+                    payment_date=datetime.date.today(),
+                    note="Encaissement rapide depuis le Brief"
+                )
+                count += 1
+                brief.status = 'commande_validee'
+                brief.save(update_fields=['status'])
+        
+        self.message_user(request, f"{count} encaissement(s) effectué(s) avec succès (Espèces).")
 
     @admin.action(description='Générer l\'Analyse IA du Brief (Gratuit)')
     def generate_ai_analysis(self, request, queryset):

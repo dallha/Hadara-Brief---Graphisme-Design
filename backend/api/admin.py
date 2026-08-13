@@ -65,7 +65,7 @@ class BriefAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'created_at', 'ai_analysis', 'status_actions_guided', 'display_client_files_and_references', 'display_deliverable_versions')
     ordering = ('-created_at',)
 
-    actions = ['send_whatsapp_quote', 'publish_new_version', 'mark_acompte_recu', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
+    actions = ['send_whatsapp_quote', 'mark_commande_validee', 'publish_new_version', 'mark_acompte_recu', 'mark_en_creation', 'mark_termine', 'generate_ai_analysis']
 
     @admin.display(description='📎 Références & Fichiers Client (Gestionnaire Cockpit)')
     def display_client_files_and_references(self, obj):
@@ -566,7 +566,12 @@ class BriefAdmin(admin.ModelAdmin):
             msg = mark_safe(f"{count} projet(s) mis(s) à jour. " + " ".join(links))
             self.message_user(request, msg, messages.SUCCESS)
 
-    @admin.action(description='Marquer "Acompte 50%% Reçu"')
+    @admin.action(description='Marquer comme "Commande Validée"')
+    def mark_commande_validee(self, request, queryset):
+        queryset.update(status='commande_validee')
+        self.message_user(request, "Les briefs sélectionnés ont été marqués comme 'Commande Validée'.")
+
+    @admin.action(description='Marquer "Acompte 50% Reçu"')
     def mark_acompte_recu(self, request, queryset):
         queryset.update(status='acompte_recu')
 
@@ -737,7 +742,7 @@ class ClientAdmin(admin.ModelAdmin):
     )
 
 
-class BillingLineInline(admin.TabularInline):
+class BillingLineInline(admin.StackedInline):
     model   = BillingLine
     extra   = 1
     fields  = ('designation', 'quantity', 'unit_price', 'line_total_display')
@@ -751,7 +756,7 @@ class BillingLineInline(admin.TabularInline):
     line_total_display.short_description = 'Total ligne'
 
 
-class PaymentInline(admin.TabularInline):
+class PaymentInline(admin.StackedInline):
     model   = Payment
     extra   = 1
     fields  = ('id', 'amount', 'method', 'payment_date', 'reference_code', 'note')
@@ -763,6 +768,7 @@ class BillingDocumentAdmin(admin.ModelAdmin):
     list_display  = ('document_number', 'doc_type', 'billing_client_name', 'display_total', 'display_paid', 'display_balance', 'payment_status_badge', 'issue_date')
     list_filter   = ('doc_type', 'payment_status', 'issue_date')
     search_fields = ('document_number', 'billing_client_name', 'billing_organization')
+    actions = ['encaissement_total_wave', 'encaissement_total_especes']
     readonly_fields = (
         'document_number', 'issue_date', 'created_at', 'updated_at',
         'subtotal', 'display_total', 'display_paid', 'display_balance', 'payment_status_badge',
@@ -794,6 +800,38 @@ class BillingDocumentAdmin(admin.ModelAdmin):
         formatted = f'{total:,}'.replace(',', '\u202f')
         return format_html('<strong style="color:#f59e0b">{} FCFA</strong>', formatted)
     display_total.short_description = 'Total net'
+
+    @admin.action(description='💳 Encaisser le solde restant (Wave)')
+    def encaissement_total_wave(self, request, queryset):
+        import datetime
+        count = 0
+        for doc in queryset:
+            if doc.balance_due > 0:
+                Payment.objects.create(
+                    billing_document=doc,
+                    amount=doc.balance_due,
+                    method='wave',
+                    payment_date=datetime.date.today(),
+                    note="Encaissement rapide depuis mobile"
+                )
+                count += 1
+        self.message_user(request, f"{count} paiement(s) enregistré(s) avec succès (Wave).")
+
+    @admin.action(description='💵 Encaisser le solde restant (Espèces)')
+    def encaissement_total_especes(self, request, queryset):
+        import datetime
+        count = 0
+        for doc in queryset:
+            if doc.balance_due > 0:
+                Payment.objects.create(
+                    billing_document=doc,
+                    amount=doc.balance_due,
+                    method='especes',
+                    payment_date=datetime.date.today(),
+                    note="Encaissement rapide depuis mobile"
+                )
+                count += 1
+        self.message_user(request, f"{count} paiement(s) enregistré(s) avec succès (Espèces).")
 
     def display_paid(self, obj):
         paid = int(obj.paid_amount) if obj.paid_amount is not None else 0

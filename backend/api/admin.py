@@ -571,7 +571,7 @@ class BriefAdmin(admin.ModelAdmin):
         queryset.update(status='commande_validee')
         self.message_user(request, "Les briefs sélectionnés ont été marqués comme 'Commande Validée'.")
 
-    @admin.action(description='Marquer "Acompte 50% Reçu"')
+    @admin.action(description='Marquer "Acompte 50%% Reçu"')
     def mark_acompte_recu(self, request, queryset):
         queryset.update(status='acompte_recu')
 

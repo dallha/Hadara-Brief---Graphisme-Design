@@ -81,7 +81,6 @@ def send_status_email(brief, old_status, new_status):
         print(f"Erreur envoi email: {e}")
 
 from rest_framework.permissions import AllowAny
-from .permissions import AdminOrClientTokenPermission
 
 class BriefViewSet(viewsets.ModelViewSet):
     queryset = Brief.objects.all().order_by('-created_at')

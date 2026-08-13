@@ -75,6 +75,7 @@ export const Project360Modal: React.FC<Project360ModalProps> = ({
   const [editNotes, setEditNotes] = useState<string>(brief.designerNotes || '');
   const [isSaving, setIsSaving] = useState(false);
   const [copiedQuote, setCopiedQuote] = useState(false);
+  const [editPrice, setEditPrice] = useState<number>(brief.quotedPriceFCFA || 0);
 
   // New Version Form State
   const [newVersionTitle, setNewVersionTitle] = useState('');

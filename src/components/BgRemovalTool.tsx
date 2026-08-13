@@ -17,6 +17,36 @@ interface BgRemovalToolProps {
   onGoToBrief: () => void;
 }
 
+const resizeImage = (dataUrl: string, maxSize: number): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxSize || height > maxSize) {
+        if (width > height) {
+          height = Math.round((height * maxSize) / width);
+          width = maxSize;
+        } else {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.9));
+      } else {
+        resolve(dataUrl);
+      }
+    };
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+};
+
 export const BgRemovalTool: React.FC<BgRemovalToolProps> = ({ onGoToBrief }) => {
   const [sourceImage, setSourceImage] = useState<string | null>(null);
   const [resultImage, setResultImage] = useState<string | null>(null);

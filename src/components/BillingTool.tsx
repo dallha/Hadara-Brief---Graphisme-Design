@@ -384,7 +384,7 @@ function AddPaymentModal({ doc, onClose, onSaved }: AddPaymentModalProps) {
 }
 
 // ─── Fiche Document ───────────────────────────────────────────────────────────
-function DocCard({ doc, onClick }: { doc: BillingDocument; onClick: () => void }) {
+const DocCard: React.FC<{ doc: BillingDocument; onClick: () => void; key?: string | number }> = ({ doc, onClick }) => {
   const docTypeColors: Record<string, string> = { proforma: '#f59e0b', facture: '#3b82f6', avoir: '#8b5cf6' };
   const color = docTypeColors[doc.doc_type] || '#94a3b8';
 

@@ -202,7 +202,11 @@ export default function App() {
 
   const fetchBriefs = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/briefs/`);
+      const token = sessionStorage.getItem('hadara_admin_token');
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE}/api/briefs/`, { headers });
       if (res.ok) {
         const data = await res.json();
         setBriefs(Array.isArray(data) ? data : (data.briefs || []));

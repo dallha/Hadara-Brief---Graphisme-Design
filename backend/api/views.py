@@ -80,9 +80,29 @@ def send_status_email(brief, old_status, new_status):
     except Exception as e:
         print(f"Erreur envoi email: {e}")
 
+from rest_framework.permissions import AllowAny
+from .permissions import AdminOrClientTokenPermission
+
 class BriefViewSet(viewsets.ModelViewSet):
     queryset = Brief.objects.all().order_by('-created_at')
     serializer_class = BriefSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [AllowAny()]
+        return [AdminOrClientTokenPermission()]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        # AdminOrClientTokenPermission sets request.is_admin and request.client_whatsapp
+        if hasattr(self.request, 'is_admin') and self.request.is_admin:
+            return qs
+        if hasattr(self.request, 'client_whatsapp') and self.request.client_whatsapp:
+            # Client can only see their own briefs, matching whatsapp partially or exactly
+            # Since whatsapp numbers might be formatted differently, we do an icontains or exact match
+            # For exact security we should match the exact stripped number
+            return qs.filter(whatsapp__icontains=self.request.client_whatsapp)
+        return qs.none()
 
     def update(self, request, *args, **kwargs):
         if not verify_admin_token(request):

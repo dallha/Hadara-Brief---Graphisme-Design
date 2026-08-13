@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BriefData, DeliverableVersion } from '../../types';
+import API_BASE from '../../config';
 import { 
   CheckCircle2, 
   Clock, 
@@ -53,32 +54,80 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   const [authenticatedPhone, setAuthenticatedPhone] = useState<string | null>(() => {
     return localStorage.getItem('hadara_client_phone') || null;
   });
+  const [clientToken, setClientToken] = useState<string | null>(() => {
+    return localStorage.getItem('hadara_client_token') || null;
+  });
+  const [clientBriefs, setClientBriefs] = useState<BriefData[]>([]);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [selectedBriefId, setSelectedBriefId] = useState<string | null>(null);
   const [revisionNote, setRevisionNote] = useState('');
   const [isSubmittingRevision, setIsSubmittingRevision] = useState(false);
   const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
-  // Filter client projects matching phone
-  const clientBriefs = authenticatedPhone
-    ? (briefs || []).filter(b => (b.whatsapp || '').replace(/\D/g, '').includes(authenticatedPhone.replace(/\D/g, '')))
-    : [];
-
   const activeBrief = clientBriefs.find(b => b.id === selectedBriefId) || clientBriefs[0];
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Fetch client briefs from backend using token (server-side filtering)
+  const fetchClientBriefs = async (token: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/briefs/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const items: BriefData[] = Array.isArray(data) ? data : (data.results || []);
+        setClientBriefs(items);
+        if (items.length > 0) setSelectedBriefId(items[0].id);
+      }
+    } catch {
+      console.warn('Impossible de charger les projets depuis le serveur.');
+    }
+  };
+
+  // Auto-load briefs if token is already stored
+  useEffect(() => {
+    if (clientToken) {
+      fetchClientBriefs(clientToken);
+    }
+  }, [clientToken]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clientPhoneInput.trim()) return;
-    setAuthenticatedPhone(clientPhoneInput);
-    localStorage.setItem('hadara_client_phone', clientPhoneInput);
-    const matched = (briefs || []).filter(b => (b.whatsapp || '').replace(/\D/g, '').includes(clientPhoneInput.replace(/\D/g, '')));
-    if (matched.length > 0) {
-      setSelectedBriefId(matched[0].id);
+    const phone = clientPhoneInput.trim();
+    if (!phone) return;
+    setLoginError(null);
+    setIsLoggingIn(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/client/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ whatsapp: phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setLoginError(data.error || 'Numéro non trouvé. Vérifiez votre numéro WhatsApp.');
+        setIsLoggingIn(false);
+        return;
+      }
+      const token = data.token as string;
+      localStorage.setItem('hadara_client_phone', phone);
+      localStorage.setItem('hadara_client_token', token);
+      setAuthenticatedPhone(phone);
+      setClientToken(token);
+      await fetchClientBriefs(token);
+    } catch {
+      setLoginError('Erreur de connexion. Vérifiez votre connexion internet.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('hadara_client_phone');
+    localStorage.removeItem('hadara_client_token');
     setAuthenticatedPhone(null);
+    setClientToken(null);
+    setClientBriefs([]);
     setSelectedBriefId(null);
   };
 
@@ -201,15 +250,20 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 placeholder="Numéro WhatsApp"
                 value={clientPhoneInput}
                 onChange={(e) => setClientPhoneInput(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 font-mono text-sm focus:border-amber-400 focus:outline-none shadow-inner"
+                className="w-full bg-slate-950/50 border border-slate-800 text-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/50 transition-all placeholder:text-slate-600"
+                required
+                disabled={isLoggingIn}
               />
             </div>
+            {loginError && (
+              <p className="text-red-400 text-xs text-left px-1">{loginError}</p>
+            )}
             <button
               type="submit"
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-400/20 active:scale-98 transition-all flex items-center justify-center space-x-2"
+              disabled={isLoggingIn}
+              className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-sm py-3 px-4 rounded-xl transition-all shadow-[0_0_20px_rgba(251,191,36,0.2)] hover:shadow-[0_0_30px_rgba(251,191,36,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>Accéder à mes Commandes</span>
-              <ChevronRight className="w-4 h-4" />
+              {isLoggingIn ? "Connexion en cours..." : "Accéder à mon espace"}
             </button>
           </form>
 

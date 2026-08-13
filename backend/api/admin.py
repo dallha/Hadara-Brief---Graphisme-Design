@@ -206,6 +206,8 @@ class BriefAdmin(admin.ModelAdmin):
         custom_urls = [
             path('<path:object_id>/publish-version/', self.admin_site.admin_view(self.publish_version_view), name='api_brief_publish_version'),
             path('<path:object_id>/analyze/', self.admin_site.admin_view(self.analyze_brief_view), name='api_brief_analyze'),
+            path('<path:object_id>/pay-wave/', self.admin_site.admin_view(self.pay_wave_view), name='api_brief_pay_wave'),
+            path('<path:object_id>/pay-especes/', self.admin_site.admin_view(self.pay_especes_view), name='api_brief_pay_especes'),
         ]
         return custom_urls + urls
 
@@ -282,6 +284,87 @@ class BriefAdmin(admin.ModelAdmin):
         
         self.message_user(request, f"Maquette V{v_num} publiée avec succès ! Elle est immédiatement visible par le client.", messages.SUCCESS)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    def pay_wave_view(self, request, object_id, *args, **kwargs):
+        from django.http import HttpResponseRedirect
+        from django.contrib import messages
+        from django.urls import reverse
+        from .models import BillingDocument, BillingLine, Payment
+        import datetime
+        
+        brief = self.get_object(request, object_id)
+        if brief:
+            doc = brief.billing_documents.filter(doc_type='facture').first()
+            if not doc:
+                amount = brief.quoted_price_fcfa or 0
+                if amount > 0:
+                    doc = BillingDocument.objects.create(
+                        brief=brief,
+                        client=brief.client,
+                        doc_type='facture',
+                        billing_client_name=brief.client_name or "Client Hadara",
+                        issue_date=datetime.date.today()
+                    )
+                    BillingLine.objects.create(
+                        document=doc,
+                        designation=f"Facturation globale - {brief.id}",
+                        quantity=1,
+                        unit_price=amount
+                    )
+                    doc.refresh_from_db()
+            
+            if doc and doc.balance_due > 0:
+                Payment.objects.create(
+                    billing_document=doc,
+                    amount=doc.balance_due,
+                    method=Payment.METHOD_WAVE,
+                    payment_date=datetime.date.today(),
+                    note="Encaissement rapide depuis le Brief"
+                )
+                brief.status = 'commande_validee'
+                brief.save(update_fields=['status'])
+                messages.success(request, f"Facture générée et encaissée (Wave) pour {brief.id}.")
+        return HttpResponseRedirect(reverse('admin:api_brief_changelist'))
+
+    def pay_especes_view(self, request, object_id, *args, **kwargs):
+        from django.http import HttpResponseRedirect
+        from django.contrib import messages
+        from django.urls import reverse
+        from .models import BillingDocument, BillingLine, Payment
+        import datetime
+        
+        brief = self.get_object(request, object_id)
+        if brief:
+            doc = brief.billing_documents.filter(doc_type='facture').first()
+            if not doc:
+                amount = brief.quoted_price_fcfa or 0
+                if amount > 0:
+                    doc = BillingDocument.objects.create(
+                        brief=brief,
+                        client=brief.client,
+                        doc_type='facture',
+                        billing_client_name=brief.client_name or "Client Hadara",
+                        issue_date=datetime.date.today()
+                    )
+                    BillingLine.objects.create(
+                        document=doc,
+                        designation=f"Facturation globale - {brief.id}",
+                        quantity=1,
+                        unit_price=amount
+                    )
+                    doc.refresh_from_db()
+            
+            if doc and doc.balance_due > 0:
+                Payment.objects.create(
+                    billing_document=doc,
+                    amount=doc.balance_due,
+                    method=Payment.METHOD_ESPECES,
+                    payment_date=datetime.date.today(),
+                    note="Encaissement rapide depuis le Brief"
+                )
+                brief.status = 'commande_validee'
+                brief.save(update_fields=['status'])
+                messages.success(request, f"Facture générée et encaissée (Espèces) pour {brief.id}.")
+        return HttpResponseRedirect(reverse('admin:api_brief_changelist'))
 
     @admin.display(description='Actions Directes')
     def direct_actions(self, obj):
@@ -302,6 +385,12 @@ class BriefAdmin(admin.ModelAdmin):
             html += f'<a href="{publish_url}" onclick="return confirm(\'Publier cette maquette en V{v_num} ? Elle sera immédiatement visible par le client.\');" class="direct-action-btn btn-publish" style="background:#D0A21C; border:1px solid #E7BE35; color:#070B18; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 5px rgba(208,162,28,0.3);">🎨 Publier V{v_num}</a>'
         elif obj.status == 'approved':
             html += f'<a href="{edit_url}" class="direct-action-btn btn-publish" style="background:#10B981; border:1px solid #34D399; color:#070B18; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 5px rgba(16,185,129,0.3);">📦 Préparer Livraison</a>'
+            
+        if obj.quoted_price_fcfa and obj.quoted_price_fcfa > 0 and obj.status != 'termine':
+            wave_url = reverse('admin:api_brief_pay_wave', args=[obj.id])
+            especes_url = reverse('admin:api_brief_pay_especes', args=[obj.id])
+            html += f'<a href="{wave_url}" onclick="return confirm(\'Générer la facture et encaisser via Wave ?\');" class="direct-action-btn" style="background:#6a0dad; border:1px solid #9c27b0; color:#fff; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 5px rgba(106,13,173,0.3);">💳 Wave</a>'
+            html += f'<a href="{especes_url}" onclick="return confirm(\'Générer la facture et encaisser via Espèces ?\');" class="direct-action-btn" style="background:#10B981; border:1px solid #34D399; color:#fff; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 5px rgba(16,185,129,0.3);">💵 Espèces</a>'
             
         html += '</div>'
         return mark_safe(html)
@@ -845,7 +934,7 @@ class PaymentInline(admin.StackedInline):
 
 @admin.register(BillingDocument)
 class BillingDocumentAdmin(admin.ModelAdmin):
-    list_display  = ('document_number', 'doc_type', 'billing_client_name', 'display_total', 'display_paid', 'display_balance', 'payment_status_badge', 'issue_date')
+    list_display  = ('document_number', 'doc_type', 'billing_client_name', 'display_total', 'display_paid', 'display_balance', 'payment_status_badge', 'direct_actions')
     list_filter   = ('doc_type', 'payment_status', 'issue_date')
     search_fields = ('document_number', 'billing_client_name', 'billing_organization')
     actions = ['encaissement_total_wave', 'encaissement_total_especes']
@@ -874,6 +963,72 @@ class BillingDocumentAdmin(admin.ModelAdmin):
             'fields': ('display_paid', 'display_balance', 'payment_status_badge'),
         }),
     )
+
+    @admin.display(description='Actions Rapides')
+    def direct_actions(self, obj):
+        from django.utils.safestring import mark_safe
+        from django.urls import reverse
+        
+        edit_url = reverse('admin:api_billingdocument_change', args=[obj.id])
+        
+        html = f'<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">'
+        html += f'<a href="{edit_url}" class="direct-action-btn btn-open" style="background:rgba(51,90,121,0.2); border:1px solid #335A79; color:#64B5F6; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap;">👁️ Ouvrir</a>'
+        
+        if obj.balance_due > 0 and obj.doc_type == 'facture':
+            wave_url = reverse('admin:api_billingdocument_pay_wave', args=[obj.id])
+            especes_url = reverse('admin:api_billingdocument_pay_especes', args=[obj.id])
+            html += f'<a href="{wave_url}" class="direct-action-btn" style="background:#6a0dad; border:1px solid #9c27b0; color:#fff; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 5px rgba(106,13,173,0.3);">💳 Wave</a>'
+            html += f'<a href="{especes_url}" class="direct-action-btn" style="background:#10B981; border:1px solid #34D399; color:#fff; padding:4px 10px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 5px rgba(16,185,129,0.3);">💵 Espèces</a>'
+            
+        html += '</div>'
+        return mark_safe(html)
+
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path('<path:object_id>/pay-wave/', self.admin_site.admin_view(self.pay_wave_view), name='api_billingdocument_pay_wave'),
+            path('<path:object_id>/pay-especes/', self.admin_site.admin_view(self.pay_especes_view), name='api_billingdocument_pay_especes'),
+        ]
+        return custom_urls + urls
+
+    def pay_wave_view(self, request, object_id, *args, **kwargs):
+        from django.http import HttpResponseRedirect
+        from django.contrib import messages
+        from django.urls import reverse
+        from .models import Payment
+        import datetime
+        
+        doc = self.get_object(request, object_id)
+        if doc and doc.balance_due > 0:
+            Payment.objects.create(
+                billing_document=doc,
+                amount=doc.balance_due,
+                method=Payment.METHOD_WAVE,
+                payment_date=datetime.date.today(),
+                note="Encaissement rapide (Wave)"
+            )
+            messages.success(request, f"Encaissement Wave réussi pour {doc.document_number}.")
+        return HttpResponseRedirect(reverse('admin:api_billingdocument_changelist'))
+
+    def pay_especes_view(self, request, object_id, *args, **kwargs):
+        from django.http import HttpResponseRedirect
+        from django.contrib import messages
+        from django.urls import reverse
+        from .models import Payment
+        import datetime
+        
+        doc = self.get_object(request, object_id)
+        if doc and doc.balance_due > 0:
+            Payment.objects.create(
+                billing_document=doc,
+                amount=doc.balance_due,
+                method=Payment.METHOD_ESPECES,
+                payment_date=datetime.date.today(),
+                note="Encaissement rapide (Espèces)"
+            )
+            messages.success(request, f"Encaissement Espèces réussi pour {doc.document_number}.")
+        return HttpResponseRedirect(reverse('admin:api_billingdocument_changelist'))
 
     def display_total(self, obj):
         total = int(obj.total) if obj.total is not None else 0

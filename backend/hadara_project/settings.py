@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'corsheaders',
     'api',
+    'hadara_ai',
 ]
 
 MIDDLEWARE = [

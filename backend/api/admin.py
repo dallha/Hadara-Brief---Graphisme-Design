@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db.models import Sum
 from django.utils.html import format_html
 from .models import Brief, PortfolioItem, StoreProduct, Template, ToolUsageLog, Client, BillingDocument, BillingLine, Payment
-from .ai_utils import analyze_brief_with_ai
+from hadara_ai.services.ai_service import analyze_brief_with_ai
 from django.contrib import messages
 
 

@@ -24,4 +24,9 @@ urlpatterns = [
         views.brief_pricing_agent,
         name="ai-brief-pricing-agent",
     ),
+    path(
+        "briefs/<str:brief_id>/creative-assistant/",
+        views.brief_creative_assistant,
+        name="ai-brief-creative-assistant",
+    ),
 ]

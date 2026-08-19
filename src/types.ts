@@ -288,6 +288,62 @@ export interface PricingAgentResult {
 
 export type PricingAgentStatus = 'idle' | 'loading' | 'success' | 'error';
 
+// ─── HADARA AI CREATIVE ASSISTANT ────────────────────────────────────────────
+
+export interface CreativeColor {
+  nom: string;
+  hex: string;
+  usage: string;
+}
+
+export interface CreativeTypography {
+  nom: string;
+  usage: string;
+  style: string;
+}
+
+export interface CreativeDirection {
+  concept_directeur: string;
+  ambiance: string;
+  palette: CreativeColor[];
+  typographies: CreativeTypography[];
+  composition: string[];
+  elements_visuels: string[];
+}
+
+export interface CreativeVisualConcept {
+  titre: string;
+  description: string;
+  direction_artistique: string;
+  angle_marketing: string;
+  ai_prompt: string;
+  difficulte: 'facile' | 'moyen' | 'complexe';
+  faisabilite: 'immédiat' | 'nécessite_maquette' | 'référence_requise';
+}
+
+export interface CreativeProductionAdvice {
+  logiciels_recommandes: string[];
+  formats_livraison: string[];
+  resolution: string;
+  erreurs_a_eviter: string[];
+}
+
+export interface CreativeDeliverable {
+  nom: string;
+  priorite: 'haute' | 'moyenne' | 'basse';
+  justification: string;
+}
+
+export interface CreativeAssistantResult {
+  direction_artistique: CreativeDirection;
+  concepts_visuels: CreativeVisualConcept[];
+  conseils_production: CreativeProductionAdvice;
+  livrables_recommandes: CreativeDeliverable[];
+  accroche_visuelle: string;
+}
+
+export type CreativeAssistantStatus = 'idle' | 'loading' | 'success' | 'error';
+
 export interface AIConcept {
   number: number;
   name: string;
@@ -394,6 +450,7 @@ export interface BriefData {
   aiAnalysis?: AIAnalysisResult;
   briefAnalystResult?: BriefAnalystResult;
   pricingAgentResult?: PricingAgentResult;
+  creativeAssistantResult?: CreativeAssistantResult;
 
   deliverableVersions?: DeliverableVersion[];
   activityLog?: ActivityLogItem[];

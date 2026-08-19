@@ -366,3 +366,25 @@ def brief_pricing_agent(request, brief_id=None):
         )
 
     return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([AIAuthenticatedPermission])
+def brief_creative_assistant(request, brief_id=None):
+    """POST /api/ai/v1/briefs/{brief_id}/creative-assistant/
+
+    Direction artistique IA pour un brief.
+    """
+    from hadara_ai.agents.creative_assistant_service import CreativeAssistantService
+
+    service = CreativeAssistantService()
+    result = service.analyze(str(brief_id))
+
+    concept = result.get("direction_artistique", {}).get("concept_directeur", "")
+    if concept == "Analyse creative indisponible":
+        return Response(
+            {"error": result["direction_artistique"]["ambiance"]},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+    return Response(result, status=status.HTTP_200_OK)

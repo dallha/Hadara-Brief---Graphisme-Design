@@ -4,10 +4,11 @@ import {
   Mail, MapPin, Layers, Copy, Check, CheckCircle2, Edit3, Trash2, 
   ExternalLink, FileImage, Maximize2, CreditCard, Tag, Monitor, FileText 
 } from 'lucide-react';
-import { BriefData, BriefStatus, AIAnalysisResult, BriefAnalystResult, PricingAgentResult, CreativeAssistantResult } from '../../../types';
+import { BriefData, BriefStatus, AIAnalysisResult, BriefAnalystResult, PricingAgentResult, CreativeAssistantResult, CommunicationResult } from '../../../types';
 import { BriefAnalysisPanel } from '../BriefAnalysisPanel';
 import { PricingAgentPanel } from '../PricingAgentPanel';
 import { CreativeAssistantPanel } from '../CreativeAssistantPanel';
+import { CommunicationAgentPanel } from '../CommunicationAgentPanel';
 
 interface BriefDetailsModalProps {
   selectedBrief: BriefData | null;
@@ -279,6 +280,15 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
               result={selectedBrief.creativeAssistantResult}
               onResultSaved={(result: CreativeAssistantResult) => {
                 selectedBrief.creativeAssistantResult = result;
+              }}
+            />
+
+            {/* Hadara AI Communication Agent Panel */}
+            <CommunicationAgentPanel
+              briefId={selectedBrief.id}
+              result={selectedBrief.communicationResult}
+              onResultSaved={(result: CommunicationResult) => {
+                selectedBrief.communicationResult = result;
               }}
             />
 

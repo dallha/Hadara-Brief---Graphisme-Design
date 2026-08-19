@@ -358,6 +358,28 @@ export interface CreativeQualityGate {
 
 export type CreativeAssistantStatus = 'idle' | 'loading' | 'success' | 'error';
 
+// ─── HADARA AI COMMUNICATION AGENT ───────────────────────────────────────────
+
+export interface CommunicationMessages {
+  whatsapp: string;
+  email: string;
+  sms: string;
+}
+
+export interface CommunicationResult {
+  type_message: string;
+  ton: string;
+  messages: CommunicationMessages;
+  objets_email: string[];
+  points_cles: string[];
+  prochaine_action: string;
+  timing_conseille: string;
+  alertes_internes: string[];
+}
+
+export type CommunicationType = 'proposition' | 'devis' | 'relance' | 'livraison' | 'acceptation' | 'complet';
+export type CommunicationStatus = 'idle' | 'loading' | 'success' | 'error';
+
 export interface AIConcept {
   number: number;
   name: string;
@@ -465,6 +487,7 @@ export interface BriefData {
   briefAnalystResult?: BriefAnalystResult;
   pricingAgentResult?: PricingAgentResult;
   creativeAssistantResult?: CreativeAssistantResult;
+  communicationResult?: CommunicationResult;
 
   deliverableVersions?: DeliverableVersion[];
   activityLog?: ActivityLogItem[];

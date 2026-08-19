@@ -400,3 +400,36 @@ def brand_context(request):
     from hadara_ai.brand.dna import HADARA_DNA
 
     return Response(HADARA_DNA, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([AIAuthenticatedPermission])
+def brief_communicate(request, brief_id=None):
+    """POST /api/ai/v1/briefs/{brief_id}/communicate/
+
+    Génère un message client (WhatsApp, email, SMS).
+    Body: {"type": "proposition|devis|relance|livraison|acceptation|complet"}
+    """
+    from hadara_ai.agents.communication_agent_service import CommunicationAgentService
+
+    message_type = request.data.get("type", "proposition")
+    analyst_result = request.data.get("analyst_result")
+    pricing_result = request.data.get("pricing_result")
+    creative_result = request.data.get("creative_result")
+
+    service = CommunicationAgentService()
+    result = service.generate(
+        str(brief_id),
+        message_type=message_type,
+        analyst_result=analyst_result,
+        pricing_result=pricing_result,
+        creative_result=creative_result,
+    )
+
+    if result.get("messages", {}).get("whatsapp", "").startswith("[Communication indisponible"):
+        return Response(
+            {"error": result["messages"]["whatsapp"]},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+    return Response(result, status=status.HTTP_200_OK)

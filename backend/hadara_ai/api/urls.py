@@ -9,4 +9,9 @@ urlpatterns = [
     path("executions/<int:pk>/", views.execution_detail, name="ai-execution-detail"),
     path("usage/", views.usage_summary, name="ai-usage-summary"),
     path("dashboard/", views.dashboard, name="ai-dashboard"),
+    path(
+        "briefs/<str:brief_id>/analyze/",
+        views.brief_analyze,
+        name="ai-brief-analyze",
+    ),
 ]

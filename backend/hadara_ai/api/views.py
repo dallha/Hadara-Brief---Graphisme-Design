@@ -278,3 +278,33 @@ def agent_list(request):
         for a in agents
     ]
     return Response(data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([AIAuthenticatedPermission])
+def brief_analyze(request, brief_id=None):
+    """POST /api/ai/v1/briefs/{brief_id}/analyze
+
+    Analyse un brief avec le Brief Analyst.
+    """
+    from hadara_ai.agents.brief_analyst_service import BriefAnalystService
+
+    try:
+        brief_id_str = str(brief_id)
+    except (TypeError, ValueError):
+        return Response(
+            {"error": "ID de brief invalide"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    service = BriefAnalystService()
+    result = service.analyze(brief_id_str)
+
+    # Vérifier si c'est une erreur
+    if result.get("decision_recommandee") == "ACCEPTER SOUS RÉSERVE" and result.get("score_completude") == 50:
+        return Response(
+            {"error": result.get("raison_decision", "Analyse indisponible")},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+    return Response(result, status=status.HTTP_200_OK)

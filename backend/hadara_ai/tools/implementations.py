@@ -17,6 +17,7 @@ def brief_get(arguments: dict[str, Any], context: ToolContext) -> dict[str, Any]
 
     return {
         "id": brief.id,
+        "client_id": brief.client_id,
         "project_type": brief.project_type or "",
         "project_type_custom": brief.project_type_custom or "",
         "status": brief.status,

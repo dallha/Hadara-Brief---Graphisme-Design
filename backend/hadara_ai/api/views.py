@@ -433,3 +433,20 @@ def brief_communicate(request, brief_id=None):
         )
 
     return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([AIAdminPermission])
+def brief_workflow(request, brief_id=None):
+    """POST /api/ai/v1/briefs/{brief_id}/workflow/
+
+    Execute la chaine complete: Analyst -> Pricing -> Creative -> Communication.
+    Body: {"skip_communication": false}
+    """
+    from hadara_ai.workflow.orchestrator import WorkflowOrchestrator
+
+    skip_comm = request.data.get("skip_communication", False)
+    orchestrator = WorkflowOrchestrator()
+    result = orchestrator.run(str(brief_id), skip_communication=skip_comm)
+
+    return Response(result.to_dict(), status=status.HTTP_200_OK)

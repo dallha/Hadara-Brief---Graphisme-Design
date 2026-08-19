@@ -4,11 +4,12 @@ import {
   Mail, MapPin, Layers, Copy, Check, CheckCircle2, Edit3, Trash2, 
   ExternalLink, FileImage, Maximize2, CreditCard, Tag, Monitor, FileText 
 } from 'lucide-react';
-import { BriefData, BriefStatus, AIAnalysisResult, BriefAnalystResult, PricingAgentResult, CreativeAssistantResult, CommunicationResult } from '../../../types';
+import { BriefData, BriefStatus, AIAnalysisResult, BriefAnalystResult, PricingAgentResult, CreativeAssistantResult, CommunicationResult, WorkflowResult } from '../../../types';
 import { BriefAnalysisPanel } from '../BriefAnalysisPanel';
 import { PricingAgentPanel } from '../PricingAgentPanel';
 import { CreativeAssistantPanel } from '../CreativeAssistantPanel';
 import { CommunicationAgentPanel } from '../CommunicationAgentPanel';
+import { WorkflowPanel } from '../WorkflowPanel';
 
 interface BriefDetailsModalProps {
   selectedBrief: BriefData | null;
@@ -255,6 +256,15 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Hadara AI — Workflow Complet */}
+            <WorkflowPanel
+              briefId={selectedBrief.id}
+              result={selectedBrief.workflowResult}
+              onResultSaved={(result: WorkflowResult) => {
+                selectedBrief.workflowResult = result;
+              }}
+            />
 
             {/* Hadara AI Brief Analyst Panel */}
             <BriefAnalysisPanel

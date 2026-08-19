@@ -215,6 +215,21 @@ class BriefViewSet(viewsets.ModelViewSet):
                 # Launch thread
                 thread = threading.Thread(target=send_telegram_alert, args=(response.data, telegram_token, telegram_chat_id))
                 thread.start()
+
+            # Auto-trigger Hadara AI Workflow (async)
+            try:
+                import threading as _threading
+                brief_id = response.data.get('id')
+                if brief_id:
+                    def _run_ai_workflow(bid):
+                        try:
+                            from hadara_ai.workflow.orchestrator import WorkflowOrchestrator
+                            WorkflowOrchestrator().run(str(bid), skip_communication=True)
+                        except Exception as e:
+                            print(f"Erreur Hadara AI Workflow: {e}")
+                    _threading.Thread(target=_run_ai_workflow, args=(brief_id,), daemon=True).start()
+            except Exception:
+                pass
             
             # Send Email Confirmation to Client
             client_email = response.data.get('email')

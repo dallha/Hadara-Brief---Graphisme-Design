@@ -39,4 +39,9 @@ urlpatterns = [
         views.brief_communicate,
         name="ai-brief-communicate",
     ),
+    path(
+        "briefs/<str:brief_id>/workflow/",
+        views.brief_workflow,
+        name="ai-brief-workflow",
+    ),
 ]

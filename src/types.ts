@@ -380,6 +380,29 @@ export interface CommunicationResult {
 export type CommunicationType = 'proposition' | 'devis' | 'relance' | 'livraison' | 'acceptation' | 'complet';
 export type CommunicationStatus = 'idle' | 'loading' | 'success' | 'error';
 
+// ─── HADARA AI WORKFLOW ──────────────────────────────────────────────────────
+
+export interface WorkflowStep {
+  name: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+  error: string | null;
+  duration_ms: number;
+  has_data: boolean;
+}
+
+export interface WorkflowResult {
+  brief_id: string;
+  overall_status: string;
+  total_duration_ms: number;
+  steps: WorkflowStep[];
+  analyst_result: BriefAnalystResult | null;
+  pricing_result: PricingAgentResult | null;
+  creative_result: CreativeAssistantResult | null;
+  communication_result: CommunicationResult | null;
+}
+
+export type WorkflowStatus = 'idle' | 'running' | 'completed' | 'failed';
+
 export interface AIConcept {
   number: number;
   name: string;
@@ -488,6 +511,7 @@ export interface BriefData {
   pricingAgentResult?: PricingAgentResult;
   creativeAssistantResult?: CreativeAssistantResult;
   communicationResult?: CommunicationResult;
+  workflowResult?: WorkflowResult;
 
   deliverableVersions?: DeliverableVersion[];
   activityLog?: ActivityLogItem[];

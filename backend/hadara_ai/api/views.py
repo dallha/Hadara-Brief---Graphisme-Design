@@ -388,3 +388,15 @@ def brief_creative_assistant(request, brief_id=None):
         )
 
     return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AIAuthenticatedPermission])
+def brand_context(request):
+    """GET /api/ai/v1/brand-context/
+
+    Retourne le Hadara Design DNA (identité visuelle, principes, interdits).
+    """
+    from hadara_ai.brand.dna import HADARA_DNA
+
+    return Response(HADARA_DNA, status=status.HTTP_200_OK)

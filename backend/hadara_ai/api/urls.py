@@ -29,4 +29,9 @@ urlpatterns = [
         views.brief_creative_assistant,
         name="ai-brief-creative-assistant",
     ),
+    path(
+        "brand-context/",
+        views.brand_context,
+        name="ai-brand-context",
+    ),
 ]

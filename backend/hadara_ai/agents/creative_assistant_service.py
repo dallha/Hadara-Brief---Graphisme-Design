@@ -5,7 +5,7 @@ import uuid
 from typing import Any
 
 from hadara_ai.agents.creative_assistant import (
-    CREATIVE_ASSISTANT_SYSTEM_PROMPT,
+    get_system_prompt_with_dna,
     build_creative_context,
     parse_creative_response,
     _get_creative_fallback,
@@ -46,7 +46,7 @@ class CreativeAssistantService:
         )
 
         messages = [
-            {"role": "system", "content": CREATIVE_ASSISTANT_SYSTEM_PROMPT},
+            {"role": "system", "content": get_system_prompt_with_dna()},
             {"role": "user", "content": user_prompt},
         ]
 

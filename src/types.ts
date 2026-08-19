@@ -188,8 +188,58 @@ export interface BusinessIntelligenceMetrics {
   quoteConversionRate: number;
   averageProductionDays: number;
   topClientLTV: { clientName: string; ltvFCFA: number }[];
-  revenueByMonth: { month: string; amountFCFA: number }[];
+  revenueByMonth: { month: string; amount: number }[];
 }
+
+// ─── HADARA AI BRIEF ANALYST ─────────────────────────────────────────────────
+
+export type BriefAnalystStatut =
+  | 'exploitable'
+  | 'exploitable_sous_reserve'
+  | 'incomplet'
+  | 'refuser';
+
+export type BriefAnalystDecision =
+  | 'ACCEPTER'
+  | 'ACCEPTER SOUS RÉSERVE'
+  | 'CLARIFIER'
+  | 'REFUSER';
+
+export type BriefAnalystPriorite = 'Normal' | 'Urgent';
+
+export type ClientFidelite = 'nouveau' | 'régulier' | 'ancien';
+
+export interface BriefAnalystPricing {
+  prix_min_fcfa: number;
+  prix_max_fcfa: number;
+  heures_min: number;
+  heures_max: number;
+  source: 'pricing_engine';
+}
+
+export interface BriefAnalystContexteClient {
+  fidélité: ClientFidelite;
+  nb_projets_precedents: number;
+  facturation_totale_fcfa: number;
+  solde_du_fcfa: number;
+}
+
+export interface BriefAnalystResult {
+  statut_brief: BriefAnalystStatut;
+  score_completude: number;
+  complexite_percue: number;
+  decision_recommandee: BriefAnalystDecision;
+  raison_decision: string;
+  informations_manquantes: string[];
+  questions_client: string[];
+  risques: string[];
+  niveau_priorite: BriefAnalystPriorite;
+  brouillon_whatsapp: string;
+  pricing: BriefAnalystPricing;
+  contexte_client: BriefAnalystContexteClient;
+}
+
+export type BriefAnalystStatus = 'idle' | 'loading' | 'success' | 'error' | 'fallback';
 
 export interface AIConcept {
   number: number;
@@ -295,6 +345,7 @@ export interface BriefData {
   designerNotes?: string;
   quotedPriceFCFA?: number;
   aiAnalysis?: AIAnalysisResult;
+  briefAnalystResult?: BriefAnalystResult;
 
   deliverableVersions?: DeliverableVersion[];
   activityLog?: ActivityLogItem[];

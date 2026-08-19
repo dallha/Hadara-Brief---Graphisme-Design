@@ -4,7 +4,8 @@ import {
   Mail, MapPin, Layers, Copy, Check, CheckCircle2, Edit3, Trash2, 
   ExternalLink, FileImage, Maximize2, CreditCard, Tag, Monitor, FileText 
 } from 'lucide-react';
-import { BriefData, BriefStatus, AIAnalysisResult } from '../../../types';
+import { BriefData, BriefStatus, AIAnalysisResult, BriefAnalystResult } from '../../../types';
+import { BriefAnalysisPanel } from '../BriefAnalysisPanel';
 
 interface BriefDetailsModalProps {
   selectedBrief: BriefData | null;
@@ -251,6 +252,15 @@ export const BriefDetailsModal: React.FC<BriefDetailsModalProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Hadara AI Brief Analyst Panel */}
+            <BriefAnalysisPanel
+              briefId={selectedBrief.id}
+              result={selectedBrief.briefAnalystResult}
+              onResultSaved={(result: BriefAnalystResult) => {
+                selectedBrief.briefAnalystResult = result;
+              }}
+            />
 
             {/* Quick Status & Price Editor */}
             <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">

@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import {
   Palette, RefreshCw, ChevronDown, ChevronUp, Lightbulb, Sparkles,
-  AlertTriangle, Check, Copy, Layers, FileText, Target,
+  AlertTriangle, Check, Copy, Layers, FileText, Target, ShieldCheck,
 } from 'lucide-react';
-import { CreativeAssistantResult, CreativeAssistantStatus } from '../../types';
+import { CreativeAssistantResult, CreativeAssistantStatus, CreativeQualityGate } from '../../types';
 import API_BASE from '../../config';
 
 const DIFFICULTE_COLOR: Record<string, string> = {
@@ -164,6 +164,11 @@ export const CreativeAssistantPanel: React.FC<CreativeAssistantPanelProps> = ({
 
       {expanded && (
         <div className="px-5 pb-5 space-y-4 border-t border-slate-800/50 pt-4">
+
+          {/* Quality Gate */}
+          {data._quality_gate && (
+            <QualityGateBar gate={data._quality_gate} />
+          )}
 
           {/* Direction artistique */}
           <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
@@ -354,6 +359,47 @@ export const CreativeAssistantPanel: React.FC<CreativeAssistantPanelProps> = ({
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+// ─── Quality Gate Bar ─────────────────────────────────────────────────────────
+
+const QualityGateBar: React.FC<{ gate: CreativeQualityGate }> = ({ gate }) => {
+  const pct = Math.round(gate.overall_score * 100);
+  const barColor = gate.passed
+    ? gate.overall_score >= 0.8 ? 'from-emerald-500 to-emerald-400' : 'from-amber-500 to-amber-400'
+    : 'from-red-500 to-red-400';
+
+  return (
+    <div className={`p-3 rounded-xl border ${gate.passed ? 'bg-emerald-950/20 border-emerald-900/40' : 'bg-red-950/20 border-red-900/40'}`}>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center space-x-2">
+          <ShieldCheck className={`w-4 h-4 ${gate.passed ? 'text-emerald-400' : 'text-red-400'}`} />
+          <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Quality Gate</span>
+        </div>
+        <span className={`text-sm font-bold ${gate.passed ? 'text-emerald-400' : 'text-red-400'}`}>
+          {pct}%
+        </span>
+      </div>
+
+      {/* Bar */}
+      <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden mb-2">
+        <div className={`h-full rounded-full bg-gradient-to-r ${barColor} transition-all duration-700`} style={{ width: `${pct}%` }} />
+      </div>
+
+      {/* Checks */}
+      <div className="space-y-1">
+        {gate.checks.map((c, i) => (
+          <div key={i} className="flex items-center justify-between text-[10px]">
+            <div className="flex items-center space-x-1.5">
+              {c.passed ? <Check className="w-2.5 h-2.5 text-emerald-400" /> : <AlertTriangle className="w-2.5 h-2.5 text-red-400" />}
+              <span className={c.passed ? 'text-slate-300' : 'text-red-300'}>{c.name}</span>
+            </div>
+            <span className="text-slate-500">{c.detail}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

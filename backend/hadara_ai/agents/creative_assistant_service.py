@@ -10,6 +10,7 @@ from hadara_ai.agents.creative_assistant import (
     parse_creative_response,
     _get_creative_fallback,
 )
+from hadara_ai.brand.quality_gate import validate_creative_output
 from hadara_ai.models import BriefAIAnalysis
 from hadara_ai.services.ai_service import get_ai_response
 from hadara_ai.tools.context import ToolContext, ToolRole
@@ -58,6 +59,9 @@ class CreativeAssistantService:
             )
 
             result = parse_creative_response(response.content)
+
+            quality = validate_creative_output(result)
+            result["_quality_gate"] = quality.to_dict()
 
             self._save_history(brief_id, result, response, "completed")
             return result

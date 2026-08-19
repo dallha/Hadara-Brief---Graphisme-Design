@@ -340,6 +340,20 @@ export interface CreativeAssistantResult {
   conseils_production: CreativeProductionAdvice;
   livrables_recommandes: CreativeDeliverable[];
   accroche_visuelle: string;
+  _quality_gate?: CreativeQualityGate;
+}
+
+export interface CreativeQualityCheck {
+  name: string;
+  passed: boolean;
+  score: number;
+  detail: string;
+}
+
+export interface CreativeQualityGate {
+  overall_score: number;
+  passed: boolean;
+  checks: CreativeQualityCheck[];
 }
 
 export type CreativeAssistantStatus = 'idle' | 'loading' | 'success' | 'error';

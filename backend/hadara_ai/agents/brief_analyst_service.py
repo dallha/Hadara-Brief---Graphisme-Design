@@ -12,7 +12,7 @@ from hadara_ai.agents.brief_analyst import (
     parse_brief_analyst_response,
     _get_fallback_response,
 )
-from hadara_ai.models import AgentDefinition
+from hadara_ai.models import AgentDefinition, BriefAIAnalysis
 from hadara_ai.models.trace import ExecutionStatus
 from hadara_ai.services.ai_service import get_ai_response
 from hadara_ai.tools.context import ToolContext, ToolRole
@@ -163,6 +163,14 @@ class BriefAnalystService:
                 response_content=response.content[:2000],
             )
 
+            # Historisation
+            self._save_analysis_history(
+                brief_id=brief_id,
+                result=result,
+                response=response,
+                model="llama-3.1-8b-instant",
+            )
+
             return result
 
         except Exception as e:
@@ -190,3 +198,44 @@ class BriefAnalystService:
             logger.error("Brief introuvable pour sauvegarde: %s", brief_id)
 
         return result
+
+    def _save_analysis_history(
+        self,
+        brief_id: str,
+        result: dict,
+        response,
+        model: str = "llama-3.1-8b-instant",
+    ) -> None:
+        """Sauvegarde l'analyse dans BriefAIAnalysis pour historisation."""
+        pricing = result.get("pricing", {})
+        ctx_client = result.get("contexte_client", {})
+
+        try:
+            BriefAIAnalysis.objects.create(
+                brief_id=brief_id,
+                agent="brief_analyst",
+                model=model,
+                score_completude=result.get("score_completude", 0),
+                complexite_percue=result.get("complexite_percue", 0),
+                decision_recommandee=result.get("decision_recommandee", ""),
+                statut_brief=result.get("statut_brief", ""),
+                niveau_priorite=result.get("niveau_priorite", "Normal"),
+                raison_decision=result.get("raison_decision", ""),
+                informations_manquantes=result.get("informations_manquantes", []),
+                questions_client=result.get("questions_client", []),
+                risques=result.get("risques", []),
+                pricing_prix_min=pricing.get("prix_min_fcfa", 0),
+                pricing_prix_max=pricing.get("prix_max_fcfa", 0),
+                pricing_heures_min=pricing.get("heures_min", 0),
+                pricing_heures_max=pricing.get("heures_max", 0),
+                client_fidelite=ctx_client.get("fidélité", "nouveau"),
+                client_nb_projets=ctx_client.get("nb_projets_precedents", 0),
+                client_solde_du=ctx_client.get("solde_du_fcfa", 0),
+                input_tokens=getattr(response, "input_tokens", 0),
+                output_tokens=getattr(response, "output_tokens", 0),
+                cost_usd=getattr(response, "cost_usd", 0),
+                duration_ms=getattr(response, "duration_ms", 0),
+                full_response=result,
+            )
+        except Exception as e:
+            logger.error("Erreur sauvegarde analyse IA: %s", e)

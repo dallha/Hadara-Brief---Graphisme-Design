@@ -308,3 +308,40 @@ def brief_analyze(request, brief_id=None):
         )
 
     return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AIAdminPermission])
+def brief_analysis_history(request, brief_id=None):
+    """GET /api/ai/v1/briefs/{brief_id}/analyses/
+
+    Historique des analyses IA d'un brief (admin only).
+    """
+    from hadara_ai.models import BriefAIAnalysis
+
+    analyses = BriefAIAnalysis.objects.filter(brief_id=str(brief_id))[:20]
+
+    data = [
+        {
+            "id": str(a.id),
+            "agent": a.agent,
+            "model": a.model,
+            "score_completude": a.score_completude,
+            "decision_recommandee": a.decision_recommandee,
+            "statut_brief": a.statut_brief,
+            "niveau_priorite": a.niveau_priorite,
+            "risques": a.risques,
+            "informations_manquantes": a.informations_manquantes,
+            "pricing_prix_min": a.pricing_prix_min,
+            "pricing_prix_max": a.pricing_prix_max,
+            "client_fidelite": a.client_fidelite,
+            "input_tokens": a.input_tokens,
+            "output_tokens": a.output_tokens,
+            "cost_usd": float(a.cost_usd),
+            "duration_ms": a.duration_ms,
+            "created_at": a.created_at.isoformat(),
+        }
+        for a in analyses
+    ]
+
+    return Response(data, status=status.HTTP_200_OK)

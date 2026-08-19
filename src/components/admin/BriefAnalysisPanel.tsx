@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Brain, RefreshCw, AlertTriangle, CheckCircle2, XCircle, Clock,
   MessageCircle, Copy, Check, ShieldAlert, TrendingUp, User, FileText,
-  Sparkles, ChevronDown, ChevronUp,
+  Sparkles, ChevronDown, ChevronUp, History, Cpu,
 } from 'lucide-react';
 import {
   BriefAnalystResult, BriefAnalystStatus, BriefAnalystStatut,
@@ -104,6 +104,27 @@ export const BriefAnalysisPanel: React.FC<BriefAnalysisPanelProps> = ({
   const [copiedWhatsApp, setCopiedWhatsApp] = useState(false);
   const [expanded, setExpanded] = useState(true);
   const [data, setData] = useState<BriefAnalystResult | null>(result || null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const fetchHistory = useCallback(async () => {
+    const token = sessionStorage.getItem('hadara_admin_token');
+    if (!token) return;
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/ai/v1/briefs/${briefId}/analyses/`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setHistory(await res.json());
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [briefId]);
 
   const handleAnalyze = useCallback(async () => {
     setStatus('loading');
@@ -453,6 +474,69 @@ export const BriefAnalysisPanel: React.FC<BriefAnalysisPanelProps> = ({
               </p>
             </div>
           )}
+
+          {/* Analysis History */}
+          <div className="border-t border-slate-800/50 pt-3">
+            <button
+              onClick={() => {
+                setShowHistory(!showHistory);
+                if (!showHistory && history.length === 0) fetchHistory();
+              }}
+              className="flex items-center space-x-2 text-[11px] text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <History className="w-3.5 h-3.5" />
+              <span>Historique des analyses ({history.length})</span>
+              {showHistory ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+
+            {showHistory && (
+              <div className="mt-3 space-y-2">
+                {historyLoading ? (
+                  <div className="space-y-2">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-12 rounded-lg bg-slate-900 animate-pulse" />
+                    ))}
+                  </div>
+                ) : history.length === 0 ? (
+                  <p className="text-[11px] text-slate-500 italic">Aucune analyse précédente</p>
+                ) : (
+                  history.map((h) => (
+                    <div
+                      key={h.id}
+                      className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-2 h-2 rounded-full ${
+                          h.score_completude >= 80 ? 'bg-emerald-400' :
+                          h.score_completude >= 60 ? 'bg-amber-400' : 'bg-red-400'
+                        }`} />
+                        <div>
+                          <p className="text-[11px] text-slate-200 font-bold">
+                            {h.decision_recommandee}
+                            <span className="text-slate-500 font-normal ml-2">
+                              {h.score_completude}%
+                            </span>
+                          </p>
+                          <p className="text-[10px] text-slate-500">
+                            {h.model} · {new Date(h.created_at).toLocaleDateString('fr-FR', {
+                              day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2 text-[10px] text-slate-500">
+                        <span className="flex items-center space-x-1">
+                          <Cpu className="w-3 h-3" />
+                          <span>{h.input_tokens + h.output_tokens} tok</span>
+                        </span>
+                        <span>${h.cost_usd.toFixed(4)}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Refresh Button */}
           <div className="flex justify-end pt-2">

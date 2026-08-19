@@ -14,4 +14,9 @@ urlpatterns = [
         views.brief_analyze,
         name="ai-brief-analyze",
     ),
+    path(
+        "briefs/<str:brief_id>/analyses/",
+        views.brief_analysis_history,
+        name="ai-brief-analysis-history",
+    ),
 ]

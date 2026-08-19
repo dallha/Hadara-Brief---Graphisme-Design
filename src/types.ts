@@ -241,6 +241,53 @@ export interface BriefAnalystResult {
 
 export type BriefAnalystStatus = 'idle' | 'loading' | 'success' | 'error' | 'fallback';
 
+// ─── HADARA AI PRICING AGENT ─────────────────────────────────────────────────
+
+export interface PricingFactor {
+  facteur: string;
+  impact: 'faible' | 'moyen' | 'élevé';
+  detail: string;
+}
+
+export interface PricingExplication {
+  resume: string;
+  niveau_complexite: 'faible' | 'moyen' | 'élevé' | 'très_élevé';
+  facteurs: PricingFactor[];
+  heures_estimees: { min: number; max: number; justification: string };
+}
+
+export interface PricingStrategie {
+  positionnement: 'standard' | 'premium' | 'économique';
+  argument_client: string;
+  approche: string;
+  acompte_conseille_pourcentage: number;
+  justification_acompte: string;
+}
+
+export interface PricingRisqueCommercial {
+  risque: string;
+  probabilité: 'faible' | 'moyenne' | 'élevée';
+  mitigation: string;
+}
+
+export interface PricingAgentResult {
+  prix_recommande: {
+    source: 'pricing_engine';
+    min: number;
+    max: number;
+  };
+  explication: PricingExplication;
+  strategie_commerciale: PricingStrategie;
+  risques_commerciaux: PricingRisqueCommercial[];
+  contexte_client: {
+    type_relation: string;
+    note: string;
+  };
+  brouillon_devis: string;
+}
+
+export type PricingAgentStatus = 'idle' | 'loading' | 'success' | 'error';
+
 export interface AIConcept {
   number: number;
   name: string;
@@ -346,6 +393,7 @@ export interface BriefData {
   quotedPriceFCFA?: number;
   aiAnalysis?: AIAnalysisResult;
   briefAnalystResult?: BriefAnalystResult;
+  pricingAgentResult?: PricingAgentResult;
 
   deliverableVersions?: DeliverableVersion[];
   activityLog?: ActivityLogItem[];

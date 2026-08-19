@@ -345,3 +345,24 @@ def brief_analysis_history(request, brief_id=None):
     ]
 
     return Response(data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([AIAuthenticatedPermission])
+def brief_pricing_agent(request, brief_id=None):
+    """POST /api/ai/v1/briefs/{brief_id}/pricing-agent/
+
+    Explique le prix calculé par le Pricing Engine.
+    """
+    from hadara_ai.agents.pricing_agent_service import PricingAgentService
+
+    service = PricingAgentService()
+    result = service.analyze(str(brief_id))
+
+    if result.get("explication", {}).get("resume", "").endswith("indisponible"):
+        return Response(
+            {"error": result["explication"]["resume"]},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+    return Response(result, status=status.HTTP_200_OK)

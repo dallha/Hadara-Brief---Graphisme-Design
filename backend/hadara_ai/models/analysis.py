@@ -22,6 +22,18 @@ class BriefAIAnalysis(models.Model):
     agent = models.CharField(max_length=50, default="brief_analyst")
     model = models.CharField(max_length=100, default="llama-3.1-8b-instant")
     prompt_version = models.CharField(max_length=50, default="v1")
+    analysis_status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "En attente"),
+            ("running", "En cours"),
+            ("completed", "Termin\u00e9"),
+            ("failed", "\u00c9chou\u00e9"),
+            ("fallback", "Fallback"),
+        ],
+        default="completed",
+        db_index=True,
+    )
 
     # Résultat de l'analyse
     score_completude = models.IntegerField(default=0)

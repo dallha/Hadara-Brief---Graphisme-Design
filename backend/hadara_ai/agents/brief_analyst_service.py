@@ -169,6 +169,7 @@ class BriefAnalystService:
                 result=result,
                 response=response,
                 model="llama-3.1-8b-instant",
+                status="completed",
             )
 
             return result
@@ -182,7 +183,16 @@ class BriefAnalystService:
                 error_message=str(e),
             )
 
-            return _get_fallback_response(str(e))
+            fallback = _get_fallback_response(str(e))
+            self._save_analysis_history(
+                brief_id=brief_id,
+                result=fallback,
+                response=None,
+                model="llama-3.1-8b-instant",
+                status="failed",
+            )
+
+            return fallback
 
     def analyze_and_save(self, brief_id: str) -> dict[str, Any]:
         """Analyse un brief et sauvegarde le résultat dans brief.ai_analysis."""
@@ -205,6 +215,7 @@ class BriefAnalystService:
         result: dict,
         response,
         model: str = "llama-3.1-8b-instant",
+        status: str = "completed",
     ) -> None:
         """Sauvegarde l'analyse dans BriefAIAnalysis pour historisation."""
         pricing = result.get("pricing", {})
@@ -215,6 +226,7 @@ class BriefAnalystService:
                 brief_id=brief_id,
                 agent="brief_analyst",
                 model=model,
+                analysis_status=status,
                 score_completude=result.get("score_completude", 0),
                 complexite_percue=result.get("complexite_percue", 0),
                 decision_recommandee=result.get("decision_recommandee", ""),

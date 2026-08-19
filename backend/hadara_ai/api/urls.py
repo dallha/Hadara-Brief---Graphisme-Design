@@ -19,4 +19,9 @@ urlpatterns = [
         views.brief_analysis_history,
         name="ai-brief-analysis-history",
     ),
+    path(
+        "briefs/<str:brief_id>/pricing-agent/",
+        views.brief_pricing_agent,
+        name="ai-brief-pricing-agent",
+    ),
 ]

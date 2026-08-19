@@ -472,3 +472,47 @@ def brief_workflow_history(request, brief_id=None):
         })
 
     return Response(data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AIAdminPermission])
+def analytics_dashboard(request):
+    """GET /api/ai/v1/analytics/dashboard/?days=30"""
+    from hadara_ai.analytics.service import AnalyticsService
+
+    days = int(request.query_params.get("days", 30))
+    service = AnalyticsService()
+    return Response(service.get_dashboard(days), status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AIAdminPermission])
+def analytics_agents(request):
+    """GET /api/ai/v1/analytics/agents/?days=30"""
+    from hadara_ai.analytics.service import AnalyticsService
+
+    days = int(request.query_params.get("days", 30))
+    service = AnalyticsService()
+    return Response(service.get_agent_breakdown(days), status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AIAdminPermission])
+def analytics_trend(request):
+    """GET /api/ai/v1/analytics/trend/?days=30"""
+    from hadara_ai.analytics.service import AnalyticsService
+
+    days = int(request.query_params.get("days", 30))
+    service = AnalyticsService()
+    return Response(service.get_daily_trend(days), status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AIAdminPermission])
+def analytics_models(request):
+    """GET /api/ai/v1/analytics/models/?days=30"""
+    from hadara_ai.analytics.service import AnalyticsService
+
+    days = int(request.query_params.get("days", 30))
+    service = AnalyticsService()
+    return Response(service.get_model_breakdown(days), status=status.HTTP_200_OK)

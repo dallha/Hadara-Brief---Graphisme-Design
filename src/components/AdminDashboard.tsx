@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { BriefData, BriefStatus, UserRole } from '../types';
 import { KanbanTab } from './admin/KanbanTab';
 import { Project360Modal } from './admin/Project360Modal';
 import { MigrationTool } from './admin/MigrationTool';
 import { BillingTool } from './BillingTool';
-import { LayoutDashboard, LogOut, Briefcase, FileText, Download } from 'lucide-react';
+import { LayoutDashboard, LogOut, Briefcase, FileText, Download, BarChart3 } from 'lucide-react';
+
+const AnalyticsDashboardPanel = lazy(() => import('./admin/AnalyticsDashboardPanel').then(m => ({ default: m.AnalyticsDashboardPanel })));
 
 interface AdminDashboardProps {
   briefs: BriefData[];
@@ -19,7 +21,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const [userRole] = useState<UserRole>('admin');
   const [selected360Brief, setSelected360Brief] = useState<BriefData | null>(null);
-  const [activeTab, setActiveTab] = useState<'kanban' | 'billing' | 'migration'>('kanban');
+  const [activeTab, setActiveTab] = useState<'kanban' | 'billing' | 'migration' | 'analytics'>('kanban');
 
   // Safe parsing for briefs in case any fields are missing
   const safeBriefs = (briefs || []).map(b => ({
@@ -74,6 +76,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <Download className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Migration</span>
               </button>
+              <button 
+                onClick={() => setActiveTab('analytics')}
+                className={`px-3 py-1 flex items-center space-x-1.5 text-xs font-bold rounded-md transition-colors ${activeTab === 'analytics' ? 'bg-amber-500 text-slate-900' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Analytics AI</span>
+              </button>
             </div>
 
             {onLogout && (
@@ -104,6 +113,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         )}
         {activeTab === 'migration' && (
           <MigrationTool />
+        )}
+        {activeTab === 'analytics' && (
+          <Suspense fallback={<div className="text-center py-12 text-slate-500">Chargement...</div>}>
+            <div className="max-w-4xl mx-auto">
+              <AnalyticsDashboardPanel />
+            </div>
+          </Suspense>
         )}
       </main>
 

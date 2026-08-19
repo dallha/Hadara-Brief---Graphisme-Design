@@ -49,4 +49,24 @@ urlpatterns = [
         views.brief_workflow_history,
         name="ai-brief-workflow-history",
     ),
+    path(
+        "analytics/dashboard/",
+        views.analytics_dashboard,
+        name="ai-analytics-dashboard",
+    ),
+    path(
+        "analytics/agents/",
+        views.analytics_agents,
+        name="ai-analytics-agents",
+    ),
+    path(
+        "analytics/trend/",
+        views.analytics_trend,
+        name="ai-analytics-trend",
+    ),
+    path(
+        "analytics/models/",
+        views.analytics_models,
+        name="ai-analytics-models",
+    ),
 ]

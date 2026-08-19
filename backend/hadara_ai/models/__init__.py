@@ -7,6 +7,7 @@ from .trace import (
     RetentionPolicy, ExecutionStatus,
 )
 from .workflow import AIWorkflowExecution, AIWorkflowStepExecution
+from .analytics import AIAgentUsageLog, AIDailyAggregate
 
 __all__ = [
     'AIProvider', 'AIProviderConfig',
@@ -16,4 +17,5 @@ __all__ = [
     'AIExecution', 'ToolExecution', 'UsageLog', 'CostLog',
     'RetentionPolicy', 'ExecutionStatus',
     'AIWorkflowExecution', 'AIWorkflowStepExecution',
+    'AIAgentUsageLog', 'AIDailyAggregate',
 ]

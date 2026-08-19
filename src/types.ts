@@ -419,6 +419,50 @@ export interface WorkflowResult {
 
 export type WorkflowStatus = 'idle' | 'running' | 'completed' | 'failed';
 
+// ─── HADARA AI ANALYTICS ─────────────────────────────────────────────────────
+
+export interface AnalyticsDashboard {
+  period_days: number;
+  total_cost_usd: number;
+  total_tokens: number;
+  total_workflows: number;
+  completed_workflows: number;
+  failed_workflows: number;
+  partial_workflows: number;
+  success_rate: number;
+  avg_duration_ms: number;
+  briefs_analyzed: number;
+  briefs_accepted: number;
+  acceptance_rate: number;
+  revenue_attributed_fcfa: number;
+  cost_per_brief: number;
+  roi_ratio: number;
+}
+
+export interface AgentAnalytics {
+  agent: string;
+  label: string;
+  total_calls: number;
+  total_cost_usd: number;
+  total_tokens: number;
+  avg_duration_ms: number;
+  cost_per_call: number;
+}
+
+export interface DailyTrend {
+  date: string;
+  cost_usd: number;
+  tokens: number;
+  calls: number;
+}
+
+export interface ModelAnalytics {
+  model: string;
+  calls: number;
+  cost_usd: number;
+  tokens: number;
+}
+
 export interface AIConcept {
   number: number;
   name: string;

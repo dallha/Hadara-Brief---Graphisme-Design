@@ -449,4 +449,26 @@ def brief_workflow(request, brief_id=None):
     orchestrator = WorkflowOrchestrator()
     result = orchestrator.run(str(brief_id), skip_communication=skip_comm)
 
-    return Response(result.to_dict(), status=status.HTTP_200_OK)
+    return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AIAdminPermission])
+def brief_workflow_history(request, brief_id=None):
+    """GET /api/ai/v1/briefs/{brief_id}/workflows/
+
+    Historique des workflows IA d'un brief (admin only).
+    """
+    from hadara_ai.models import AIWorkflowExecution, AIWorkflowStepExecution
+
+    workflows = AIWorkflowExecution.objects.filter(brief_id=str(brief_id))[:10]
+
+    data = []
+    for wf in workflows:
+        steps = AIWorkflowStepExecution.objects.filter(workflow=wf).order_by("step_order")
+        data.append({
+            **wf.to_dict(),
+            "steps": [s.to_dict() for s in steps],
+        })
+
+    return Response(data, status=status.HTTP_200_OK)

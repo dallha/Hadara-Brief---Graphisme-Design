@@ -6,6 +6,7 @@ from .trace import (
     AIExecution, ToolExecution, UsageLog, CostLog,
     RetentionPolicy, ExecutionStatus,
 )
+from .workflow import AIWorkflowExecution, AIWorkflowStepExecution
 
 __all__ = [
     'AIProvider', 'AIProviderConfig',
@@ -14,4 +15,5 @@ __all__ = [
     'BriefAIAnalysis',
     'AIExecution', 'ToolExecution', 'UsageLog', 'CostLog',
     'RetentionPolicy', 'ExecutionStatus',
+    'AIWorkflowExecution', 'AIWorkflowStepExecution',
 ]

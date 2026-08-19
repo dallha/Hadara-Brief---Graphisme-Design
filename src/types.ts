@@ -383,17 +383,33 @@ export type CommunicationStatus = 'idle' | 'loading' | 'success' | 'error';
 // ─── HADARA AI WORKFLOW ──────────────────────────────────────────────────────
 
 export interface WorkflowStep {
-  name: string;
-  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
-  error: string | null;
-  duration_ms: number;
+  id: string;
+  step_name: string;
+  step_order: number;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped' | 'retrying';
   has_data: boolean;
+  error_message: string;
+  duration_ms: number;
+  cost_usd: number;
+  input_tokens: number;
+  output_tokens: number;
+  model: string;
+  started_at: string | null;
+  completed_at: string | null;
 }
 
 export interface WorkflowResult {
+  id: string;
   brief_id: string;
   overall_status: string;
   total_duration_ms: number;
+  total_cost_usd: number;
+  current_step: string;
+  retry_count: number;
+  error_message: string;
+  created_at: string | null;
+  started_at: string | null;
+  completed_at: string | null;
   steps: WorkflowStep[];
   analyst_result: BriefAnalystResult | null;
   pricing_result: PricingAgentResult | null;

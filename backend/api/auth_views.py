@@ -35,13 +35,22 @@ class AdminLoginView(APIView):
         username = request.data.get("username", "").strip()
         password = request.data.get("password", "")
         
-        # Use fallback if not set in production
-        admin_username = os.getenv("ADMIN_USERNAME", "admin@hadara.com")
-        admin_password = os.getenv("ADMIN_PASSWORD", "Rienk#$lamoure87")
-        
+        # Credentials must be set via environment variables — no hardcoded fallbacks
+        admin_username = os.getenv("ADMIN_USERNAME")
+        admin_password = os.getenv("ADMIN_PASSWORD")
+
+        if not admin_password:
+            return Response(
+                {"error": "Server misconfiguration: ADMIN_PASSWORD environment variable is not set."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
         # Accept either the exact env username or a generic 'admin' username for flexibility
-        is_valid_user = username.lower() == admin_username.lower() or username.lower() == "admin"
-        
+        is_valid_user = (
+            (admin_username and username.lower() == admin_username.lower())
+            or username.lower() == "admin"
+        )
+
         if is_valid_user and password == admin_password:
             # Generate a signed token containing the admin identity
             cache.delete(cache_key)

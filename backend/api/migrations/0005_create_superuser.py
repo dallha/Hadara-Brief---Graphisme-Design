@@ -16,10 +16,10 @@ def create_superuser(apps, schema_editor):
     )
     
     if created:
-        admin_user.password = make_password('')
+        admin_user.password = make_password(os.environ.get('ADMIN_PASSWORD', ''))
         admin_user.save()
     else:
-        admin_user.password = make_password('')
+        admin_user.password = make_password(os.environ.get('ADMIN_PASSWORD', ''))
         admin_user.is_superuser = True
         admin_user.is_staff = True
         admin_user.save()

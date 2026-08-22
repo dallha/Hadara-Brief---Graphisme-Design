@@ -8,7 +8,7 @@ def create_superuser(apps, schema_editor):
     admin_user, created = User.objects.get_or_create(
         username='admin',
         defaults={
-            'email': 'admin@hadara.com',
+            'email': '',
             'is_superuser': True,
             'is_staff': True,
             'is_active': True,
@@ -16,10 +16,10 @@ def create_superuser(apps, schema_editor):
     )
     
     if created:
-        admin_user.password = make_password('hadara2026')
+        admin_user.password = make_password('')
         admin_user.save()
     else:
-        admin_user.password = make_password('hadara2026')
+        admin_user.password = make_password('')
         admin_user.is_superuser = True
         admin_user.is_staff = True
         admin_user.save()

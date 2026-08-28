@@ -50,7 +50,7 @@ class TestChatNormalResponse(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_normal_response_returns_reply(self, mock_get_ai):
         mock_get_ai.return_value = MockAIResponse("Bonjour ! Je suis Mme Niass Madina.")
 
@@ -65,7 +65,7 @@ class TestChatNormalResponse(TestCase):
         self.assertIn("reply", response.data)
         self.assertEqual(response.data["reply"], "Bonjour ! Je suis Mme Niass Madina.")
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_normal_response_uses_groq_model(self, mock_get_ai):
         mock_get_ai.return_value = MockAIResponse("OK")
 
@@ -80,7 +80,7 @@ class TestChatNormalResponse(TestCase):
         call_kwargs = mock_get_ai.call_args
         self.assertEqual(call_kwargs[1].get("model", call_kwargs[0][1] if len(call_kwargs[0]) > 1 else None), "llama-3.1-8b-instant")
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_system_prompt_included(self, mock_get_ai):
         mock_get_ai.return_value = MockAIResponse("OK")
 
@@ -106,7 +106,7 @@ class TestChatProviderUnavailable(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_provider_error_returns_fallback_message(self, mock_get_ai):
         mock_get_ai.side_effect = Exception("Provider Groq indisponible")
 
@@ -122,7 +122,7 @@ class TestChatProviderUnavailable(TestCase):
         self.assertIn("problème technique", response.data["reply"])
         self.assertIn("WhatsApp", response.data["reply"])
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_provider_error_does_not_expose_internal_error(self, mock_get_ai):
         mock_get_ai.side_effect = Exception("SECRET_KEY=abc123 Internal DB error")
 
@@ -148,7 +148,7 @@ class TestChatMissingAPIKey(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_missing_api_key_returns_fallback(self, mock_get_ai):
         mock_get_ai.side_effect = ValueError("Provider non disponible pour le modèle: llama-3.1-8b-instant")
 
@@ -173,7 +173,7 @@ class TestChatTimeout(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_timeout_returns_fallback(self, mock_get_ai):
         import requests
         mock_get_ai.side_effect = requests.Timeout("Connection timed out")
@@ -199,7 +199,7 @@ class TestChatMalformedResponse(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_empty_content_returns_fallback(self, mock_get_ai):
         mock_response = MockAIResponse(content="")
         mock_get_ai.return_value = mock_response
@@ -215,7 +215,7 @@ class TestChatMalformedResponse(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("reply", response.data)
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_none_content_handled(self, mock_get_ai):
         mock_response = MockAIResponse(content=None)
         mock_get_ai.return_value = mock_response
@@ -244,7 +244,7 @@ class TestChatServerError(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_http_500_returns_fallback(self, mock_get_ai):
         import requests
         mock_resp = MagicMock()
@@ -272,7 +272,7 @@ class TestChatLongConversation(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_long_conversation_handled(self, mock_get_ai):
         mock_get_ai.return_value = MockAIResponse("Réponse")
 
@@ -296,7 +296,7 @@ class TestChatLongConversation(TestCase):
         messages_sent = mock_get_ai.call_args[0][0]
         self.assertEqual(len(messages_sent), 21)  # 20 + system prompt
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_many_messages_no_crash(self, mock_get_ai):
         mock_get_ai.return_value = MockAIResponse("OK")
 
@@ -364,7 +364,7 @@ class TestChatPermissions(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_no_auth_header_accepted(self, mock_get_ai):
         mock_get_ai.return_value = MockAIResponse("OK")
 
@@ -379,7 +379,7 @@ class TestChatPermissions(TestCase):
         # L'endpoint public doit fonctionner sans auth
         self.assertEqual(response.status_code, 200)
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_invalid_auth_header_still_accepted(self, mock_get_ai):
         mock_get_ai.return_value = MockAIResponse("OK")
 
@@ -404,7 +404,7 @@ class TestChatErrorIsolation(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_database_error_hidden(self, mock_get_ai):
         from django.db import DatabaseError
         mock_get_ai.side_effect = DatabaseError("connection to database lost")
@@ -420,7 +420,7 @@ class TestChatErrorIsolation(TestCase):
         self.assertNotIn("database", str(response.data).lower())
         self.assertNotIn("connection lost", str(response.data))
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_import_error_hidden(self, mock_get_ai):
         mock_get_ai.side_effect = ImportError("No module named 'secret_module'")
 
@@ -444,7 +444,7 @@ class TestChatLogging(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_error_is_logged(self, mock_get_ai):
         mock_get_ai.side_effect = Exception("Test error")
 
@@ -454,12 +454,12 @@ class TestChatLogging(TestCase):
             content_type="application/json",
         )
 
-        with self.assertLogs("api.ai_utils", level="ERROR") as cm:
+        with self.assertLogs("hadara_ai.services.compatibility", level="ERROR") as cm:
             response = chat_api_view(request)
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(len(cm.output) > 0)
-        self.assertIn("Erreur chat_with_assistant", cm.output[0])
+        self.assertIn("Erreur compatibility.chat", cm.output[0])
 
 
 # ---------------------------------------------------------------------------
@@ -471,7 +471,7 @@ class TestChatResponseFormat(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_response_is_string_not_json(self, mock_get_ai):
         mock_get_ai.return_value = MockAIResponse("Réponse en texte")
 
@@ -485,7 +485,7 @@ class TestChatResponseFormat(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.data["reply"], str)
 
-    @patch("hadara_ai.services.ai_service.get_ai_response")
+    @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_response_not_wrapped_in_json_markdown(self, mock_get_ai):
         mock_get_ai.return_value = MockAIResponse("```json\n{'reply': 'test'}\n```")
 

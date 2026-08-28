@@ -35,7 +35,7 @@ const MockupTool = lazy(() => import('./components/MockupTool').then(m => ({ def
 const WordCloudTool = lazy(() => import('./components/WordCloudTool').then(m => ({ default: m.WordCloudTool })));
 const UpscaleTool = lazy(() => import('./components/UpscaleTool').then(m => ({ default: m.UpscaleTool })));
 const ToolsHub = lazy(() => import('./components/ToolsHub').then(m => ({ default: m.ToolsHub })));
-import { BriefData, BriefStatus, AIAnalysisResult, SamplePortfolioItem, StoreProduct } from './types';
+import { BriefData, BriefStatus, SamplePortfolioItem, StoreProduct } from './types';
 
 import { Lock, Eye, EyeOff, MapPin, Phone, Mail, Palette, User } from 'lucide-react';
 import API_BASE from './config';
@@ -455,14 +455,6 @@ export default function App() {
     } catch (err) {
       console.error('Error syncing enriched brief to backend:', err);
     }
-  };
-
-  const handleAnalyzeWithAI = async (briefId: string): Promise<AIAnalysisResult | null> => {
-    try {
-      const res = await fetch(`${API_BASE}/api/briefs/${briefId}/analyze/`, { method: 'POST' });
-      if (res.ok) { const d = await res.json(); if (d.analysis) { fetchBriefs(); return d.analysis; } }
-    } catch (err) { console.error(err); }
-    return null;
   };
 
   const handleDeleteBrief = async (briefId: string) => {

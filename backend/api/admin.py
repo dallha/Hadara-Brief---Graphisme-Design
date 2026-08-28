@@ -754,9 +754,11 @@ class BriefAdmin(admin.ModelAdmin):
 
     @admin.action(description='Générer l\'Analyse IA du Brief (Gratuit)')
     def generate_ai_analysis(self, request, queryset):
+        from .pricing_engine import pricing_engine
         count = 0
         for brief in queryset:
-            analysis_result = analyze_brief_with_ai(brief)
+            pricing_result = pricing_engine.calculate(brief)
+            analysis_result = analyze_brief_with_ai(brief, pricing_result)
             brief.ai_analysis = analysis_result
             brief.save(update_fields=['ai_analysis'])
             count += 1

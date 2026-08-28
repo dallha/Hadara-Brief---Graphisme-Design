@@ -39,13 +39,28 @@ CHAT_SYSTEM_PROMPT = (
     "- Studio de graphisme haut de gamme spécialisé dans l'identité visuelle\n"
     "- Marché ouest-africain, sensibilité culturelle forte\n"
     "- Tagline : 'Allier tradition et modernité'\n\n"
-    "RÈGLES :\n"
+    "RÈGLES IMPORTANTES :\n"
     "1. Réponds toujours en français.\n"
     "2. Sois chaleureuse, professionnelle et concise.\n"
-    "3. Pour les questions techniques (prix, délais), oriente vers le formulaire de brief.\n"
-    "4. Ne donne jamais de prix ferme — oriente vers le formulaire.\n"
-    "5. Si on te demande un devis, explique que le formulaire permet d'obtenir une estimation.\n"
+    "3. Pour les questions sur les prix, utilise TOUJOURS les estimations fournie"
+    "par le système. NE JAMAIS inventer de prix.\n"
+    "4. Si on te demande un devis, oriente vers le formulaire de brief.\n"
+    "5. Si les informations sont insuffisantes pour un prix, pose 1-3 questions "
+    "ciblées (dimensions, quantité, délai).\n"
     "6. Maximum 3-4 phrases par réponse.\n"
+    "7. Tu peux donner des fourchettes de prix si elles sont fournies par le systèm"
+    "e.\n"
+    "8. Le formulaire brief est une étape d'approfondissement, pas une réponse par "
+    "défaut.\n\n"
+    "SERVICES DU STUDIO :\n"
+    "- Logo professionnel (35 000 - 90 000 FCFA)\n"
+    "- Identité de marque complète (90 000 - 250 000 FCFA)\n"
+    "- Charte graphique (60 000 - 150 000 FCFA)\n"
+    "- Affiche publicitaire (18 000 - 55 000 FCFA)\n"
+    "- Bâche grand format (15 000 - 45 000 FCFA)\n"
+    "- Flyer (10 000 - 28 000 FCFA)\n"
+    "- Brochure (30 000 - 90 000 FCFA)\n"
+    "- Site web (150 000 - 500 000 FCFA)\n"
 )
 
 # ---------------------------------------------------------------------------
@@ -74,6 +89,20 @@ def chat(messages: list[dict[str, str]]) -> str:
     Returns:
         Texte de réponse (nettoyé du markdown).
     """
+    from hadara_ai.services.public_chat import public_chat
+
+    # Si c'est le premier message de l'utilisateur, utiliser le PublicChatService
+    # pour la détection d'intention et les réponses déterministes
+    if len(messages) <= 1:
+        user_message = messages[-1]["content"] if messages else ""
+        try:
+            response = public_chat.process_message(user_message)
+            return _strip_markdown(response)
+        except Exception as e:
+            logger.error("Erreur public_chat: %s", e)
+            # Continuer avec le LLM en cas d'erreur
+
+    # Pour les conversations suivantes, utiliser le LLM avec le contexte métier
     full_messages = [{"role": "system", "content": CHAT_SYSTEM_PROMPT}] + messages
 
     try:
@@ -86,11 +115,35 @@ def chat(messages: list[dict[str, str]]) -> str:
         )
         return _strip_markdown(response.content)
     except Exception as e:
+        error_msg = str(e).lower()
         logger.error("Erreur compatibility.chat: %s", e)
-        return (
-            "Désolé, je rencontre un problème technique. "
-            "Vous pouvez nous contacter directement sur WhatsApp au +221 77 623 27 41."
-        )
+
+        # Catégoriser l'erreur pour un message plus informatif
+        if "non disponible" in error_msg or "provider" in error_msg:
+            return (
+                "Le service IA n'est pas encore configuré. "
+                "Vous pouvez nous contacter sur WhatsApp au +221 77 623 27 41."
+            )
+        elif "401" in error_msg or "unauthorized" in error_msg:
+            return (
+                "Problème d'authentification du service IA. "
+                "Contactez-nous sur WhatsApp au +221 77 623 27 41."
+            )
+        elif "429" in error_msg or "rate" in error_msg:
+            return (
+                "Trop de demandes en cours. Réessayez dans un instant, "
+                "ou contactez-nous sur WhatsApp au +221 77 623 27 41."
+            )
+        elif "timeout" in error_msg or "timed out" in error_msg:
+            return (
+                "Le service IA响应超时. Réessayez dans un instant, "
+                "ou contactez-nous sur WhatsApp au +221 77 623 27 41."
+            )
+        else:
+            return (
+                "Désolé, je rencontre un problème technique. "
+                "Vous pouvez nous contacter directement sur WhatsApp au +221 77 623 27 41."
+            )
 
 
 def correct_ocr(raw_text: str) -> str:

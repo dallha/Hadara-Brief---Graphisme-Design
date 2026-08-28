@@ -61,7 +61,7 @@ export const AIChatWidget: React.FC = () => {
 
   const handleWhatsApp = () => {
     const text = encodeURIComponent("Bonjour MrNiass, je vous contacte depuis le site web.");
-    window.open(`https://wa.me/221773099958?text=${text}`, '_blank');
+    window.open(`https://wa.me/221776232741?text=${text}`, '_blank');
   };
 
   return (

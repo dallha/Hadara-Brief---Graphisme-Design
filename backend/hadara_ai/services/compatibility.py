@@ -89,7 +89,7 @@ def chat(messages: list[dict[str, str]]) -> str:
         logger.error("Erreur compatibility.chat: %s", e)
         return (
             "Désolé, je rencontre un problème technique. "
-            "Vous pouvez nous contacter directement sur WhatsApp au +221 77 309 99 58."
+            "Vous pouvez nous contacter directement sur WhatsApp au +221 77 623 27 41."
         )
 
 

@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.http import HttpResponse
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
 from google import genai
 from google.genai import types
@@ -278,6 +278,7 @@ def chat_api_view(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
+@permission_classes([AdminTokenPermission])
 def ocr_correct_api_view(request):
     try:
         raw_text = request.data.get('text', '')
@@ -292,6 +293,7 @@ def ocr_correct_api_view(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
+@permission_classes([AdminTokenPermission])
 def ai_analyze_brief(request, pk):
     try:
         brief = Brief.objects.get(pk=pk)

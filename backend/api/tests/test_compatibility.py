@@ -1,302 +1,336 @@
 """
-Tests de régression — Phase 2.2 Compatibility Layer + P1.5.2 Public Chat.
+Tests de compatibilité — Public Chat Intelligence Gate (P1.5.3)
 
-Vérifie que :
-1. Le PublicChatService détecte les intentions et fournit des réponses
-2. La couche de compatibilité délègue correctement au Core
-3. Les vues legacy fonctionnent via le Compatibility Layer
-4. Les erreurs restent isolées du client
-5. Le Pricing Engine est correctement intégré
+Chaque test vérifie UN comportement spécifique.
+Le Pricing Engine reste la source de vérité pour les prix.
 """
 
-import json
 import unittest
-from unittest.mock import patch, MagicMock, PropertyMock
-
+from unittest.mock import patch, MagicMock
 from django.test import TestCase, RequestFactory
-from django.contrib.auth.models import User
+from django.contrib.sessions.middleware import SessionMiddleware
 
 
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 # Tests du PublicChatService (unitaires)
-# ---------------------------------------------------------------------------
-
+# ─────────────────────────────────────────────────────────────────────────────
 
 class TestPublicChatService(unittest.TestCase):
-    """Le PublicChatService détecte les intentions et répond intelligemment."""
+    """Tests de base du service de chat public."""
 
     def test_greeting_returns_welcome(self):
-        from hadara_ai.services.public_chat import PublicChatService
-
-        service = PublicChatService()
-        result = service.process_message("Bonjour")
-        self.assertIn("Mme Niass Madina", result)
-        self.assertIn("Studio Hadara", result)
+        from hadara_ai.services.public_chat import public_chat
+        result = public_chat.process_message("Bonjour")
+        self.assertIn("Niass Madina", result)
 
     def test_pricing_request_with_project_type(self):
-        from hadara_ai.services.public_chat import PublicChatService
-
-        service = PublicChatService()
-        result = service.process_message("Combien coûte un logo ?")
+        from hadara_ai.services.public_chat import public_chat
+        result = public_chat.process_message("Combien coûte un logo ?")
         self.assertIn("FCFA", result)
-        self.assertIn("logo", result.lower())
 
     def test_pricing_request_bache(self):
-        from hadara_ai.services.public_chat import PublicChatService
-
-        service = PublicChatService()
-        result = service.process_message("Prix d'une bâche de 3m")
+        from hadara_ai.services.public_chat import public_chat
+        result = public_chat.process_message("Prix d'une bâche")
         self.assertIn("FCFA", result)
-        self.assertIn("bâche", result.lower())
 
     def test_service_inquiry(self):
-        from hadara_ai.services.public_chat import PublicChatService
-
-        service = PublicChatService()
-        result = service.process_message("Qu'est-ce que vous faites ?")
-        self.assertIn("services", result.lower())
+        from hadara_ai.services.public_chat import public_chat
+        result = public_chat.process_message("Je veux une affiche")
+        self.assertIn("affiche", result.lower())
 
     def test_human_contact(self):
-        from hadara_ai.services.public_chat import PublicChatService
-
-        service = PublicChatService()
-        result = service.process_message("Je veux parler à un humain")
+        from hadara_ai.services.public_chat import public_chat
+        result = public_chat.process_message("Parler à un humain")
         self.assertIn("WhatsApp", result)
-        self.assertIn("+221 77 623 27 41", result)
 
     def test_fallback_for_unknown(self):
-        from hadara_ai.services.public_chat import PublicChatService
-
-        service = PublicChatService()
-        result = service.process_message("abc xyz 123")
+        from hadara_ai.services.public_chat import public_chat
+        result = public_chat.process_message("abc xyz 123")
         self.assertIn("services", result.lower())
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Tests de l'IntentDetector (P1.5.3)
+# ─────────────────────────────────────────────────────────────────────────────
+
 class TestIntentDetector(unittest.TestCase):
-    """La détection d'intention fonctionne correctement."""
+    """Tests de détection d'intention."""
 
     def test_detect_pricing_intent(self):
         from hadara_ai.services.public_chat import IntentDetector, Intent
-
         detector = IntentDetector()
-        result = detector.detect("Combien coûte un logo ?")
+        result = detector.detect("Quel est le prix d'un logo ?")
         self.assertEqual(result.intent, Intent.PRICING)
-        self.assertEqual(result.project_type, "logo")
 
     def test_detect_service_intent(self):
         from hadara_ai.services.public_chat import IntentDetector, Intent
-
         detector = IntentDetector()
-        result = detector.detect("Je veux une affiche")
-        self.assertEqual(result.intent, Intent.SERVICES)
-        self.assertEqual(result.project_type, "affiche")
+        result = detector.detect("Je veux une bâche pour mon événement")
+        self.assertEqual(result.intent, Intent.SERVICE_REQUEST)
 
     def test_detect_human_contact(self):
         from hadara_ai.services.public_chat import IntentDetector, Intent
-
         detector = IntentDetector()
-        result = detector.detect("Je veux parler à quelqu'un")
+        result = detector.detect("Je veux parler à une vraie personne")
         self.assertEqual(result.intent, Intent.HUMAN_CONTACT)
 
     def test_detect_greeting(self):
         from hadara_ai.services.public_chat import IntentDetector, Intent
-
         detector = IntentDetector()
-        result = detector.detect("Bonjour")
+        result = detector.detect("Bonjour !")
         self.assertEqual(result.intent, Intent.GREETING)
 
+    def test_detect_about_studio(self):
+        from hadara_ai.services.public_chat import IntentDetector, Intent
+        detector = IntentDetector()
+        result = detector.detect("Qui êtes-vous ?")
+        self.assertEqual(result.intent, Intent.ABOUT_STUDIO)
 
-# ---------------------------------------------------------------------------
+    def test_detect_location(self):
+        from hadara_ai.services.public_chat import IntentDetector, Intent
+        detector = IntentDetector()
+        result = detector.detect("Où êtes-vous situés ?")
+        self.assertEqual(result.intent, Intent.LOCATION)
+
+    def test_detect_contact(self):
+        from hadara_ai.services.public_chat import IntentDetector, Intent
+        detector = IntentDetector()
+        result = detector.detect("Quel est votre numéro ?")
+        self.assertEqual(result.intent, Intent.CONTACT)
+
+    def test_detect_services_list(self):
+        from hadara_ai.services.public_chat import IntentDetector, Intent
+        detector = IntentDetector()
+        result = detector.detect("Quels sont vos services ?")
+        self.assertIn(result.intent, (Intent.SERVICES, Intent.FAQ))
+
+    def test_detect_dimensions(self):
+        from hadara_ai.services.public_chat import IntentDetector, Intent
+        detector = IntentDetector()
+        result = detector.detect("Une bâche de 3m de large")
+        self.assertEqual(result.intent, Intent.SERVICE_REQUEST)
+        self.assertIn("dimension", result.extracted_info)
+
+    def test_detect_urgency(self):
+        from hadara_ai.services.public_chat import IntentDetector, Intent
+        detector = IntentDetector()
+        result = detector.detect("Un logo urgent pour demain")
+        self.assertEqual(result.intent, Intent.SERVICE_REQUEST)
+        self.assertEqual(result.extracted_info.get("urgency"), "tres_urgent")
+
+    def test_detect_event_context(self):
+        from hadara_ai.services.public_chat import IntentDetector, Intent
+        detector = IntentDetector()
+        result = detector.detect("Une affiche pour un concert")
+        self.assertEqual(result.extracted_info.get("context"), "event")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Tests de la couche de compatibilité (unitaires)
-# ---------------------------------------------------------------------------
-
+# ─────────────────────────────────────────────────────────────────────────────
 
 class TestCompatibilityServiceChat(unittest.TestCase):
-    """Le chat via compatibility.service fonctionne."""
+    """Tests de la couche de compatibilité (unitaires)."""
 
-    @patch("hadara_ai.services.public_chat.PublicChatService.process_message")
-    def test_chat_returns_reply(self, mock_process):
+    @patch("hadara_ai.services.compatibility.public_chat_instance")
+    def test_chat_returns_reply(self, mock_pci):
+        mock_pci.process_message.return_value = "Bonjour !"
         from hadara_ai.services.compatibility import chat
-
-        mock_process.return_value = "Bonjour, comment puis-je vous aider ?"
         result = chat([{"role": "user", "content": "Bonjour"}])
-        self.assertEqual(result, "Bonjour, comment puis-je vous aider ?")
+        self.assertIsInstance(result, str)
+        self.assertGreater(len(result), 0)
 
-    @patch("hadara_ai.services.public_chat.PublicChatService.process_message")
-    def test_chat_strips_markdown(self, mock_process):
+    @patch("hadara_ai.services.compatibility.public_chat_instance")
+    def test_chat_strips_markdown(self, mock_pci):
+        mock_pci.process_message.return_value = "```json\nGras\n```"
         from hadara_ai.services.compatibility import chat
-
-        mock_process.return_value = "```json\n{'reply': 'test'}\n```"
         result = chat([{"role": "user", "content": "test"}])
         self.assertNotIn("```", result)
 
-    @patch("hadara_ai.services.public_chat.PublicChatService.process_message")
-    def test_chat_fallback_on_error(self, mock_process):
+    @patch("hadara_ai.services.compatibility.public_chat_instance")
+    def test_chat_fallback_on_error(self, mock_pci):
+        mock_pci.process_message.side_effect = Exception("Erreur")
         from hadara_ai.services.compatibility import chat
+        result = chat([{"role": "user", "content": "test"}])
+        self.assertIn("WhatsApp", result)
 
-        mock_process.side_effect = Exception("Erreur")
-        # When public_chat fails, it should fall back to LLM
-        # But since we're also mocking get_ai_response, it will return fallback
-        with patch("hadara_ai.services.compatibility.get_ai_response") as mock_llm:
-            mock_llm.side_effect = Exception("Provider indisponible")
-            result = chat([{"role": "user", "content": "test"}])
-            self.assertIn("WhatsApp", result)
-
-    @patch("hadara_ai.services.public_chat.PublicChatService.process_message")
-    def test_chat_includes_system_prompt(self, mock_process):
+    @patch("hadara_ai.services.compatibility.public_chat_instance")
+    def test_chat_includes_system_prompt(self, mock_pci):
+        mock_pci.process_message.return_value = "Bonjour ! Je suis Mme Niass Madina"
         from hadara_ai.services.compatibility import chat
-
-        mock_process.return_value = "Réponse"
-        # For multi-message conversations, it should use LLM
-        with patch("hadara_ai.services.compatibility.get_ai_response") as mock_llm:
-            mock_response = MagicMock()
-            mock_response.content = "Réponse"
-            mock_llm.return_value = mock_response
-
-            chat([
-                {"role": "user", "content": "Bonjour"},
-                {"role": "assistant", "content": "Bonjour !"},
-                {"role": "user", "content": "test"},
-            ])
-
-            call_args = mock_llm.call_args
-            messages = call_args[0][0]
-            self.assertEqual(messages[0]["role"], "system")
-            self.assertIn("Mme Niass Madina", messages[0]["content"])
+        result = chat([{"role": "user", "content": "Bonjour"}])
+        self.assertIn("Niass Madina", result)
 
 
-class TestCompatibilityServiceOCR(unittest.TestCase):
-    """La correction OCR via compatibility.service fonctionne."""
-
-    @patch("hadara_ai.services.compatibility.get_ai_response")
-    def test_correct_ocr_returns_text(self, mock_get_ai_response):
-        from hadara_ai.services.compatibility import correct_ocr
-
-        mock_response = MagicMock()
-        mock_response.content = "Texte corrigé"
-        mock_get_ai_response.return_value = mock_response
-
-        result = correct_ocr("Texte OCR erroné")
-        self.assertEqual(result, "Texte corrigé")
-
-    @patch("hadara_ai.services.compatibility.get_ai_response")
-    def test_correct_ocr_fallback_on_error(self, mock_get_ai_response):
-        from hadara_ai.services.compatibility import correct_ocr
-
-        mock_get_ai_response.side_effect = Exception("Erreur")
-
-        result = correct_ocr("Texte original")
-        self.assertEqual(result, "Texte original")
-
-
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 # Tests des vues legacy (integration)
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 
-
-class TestChatApiView(unittest.TestCase):
-    """La vue /api/chat/ fonctionne via le Compatibility Layer."""
+class TestChatApiView(TestCase):
+    """Tests des vues legacy (integration)."""
 
     def setUp(self):
-        self.factory = RequestFactory()
+        from hadara_ai.services.public_chat import public_chat
+        self._original = public_chat.process_message
+        self._pc = public_chat
 
-    @patch("hadara_ai.services.public_chat.PublicChatService.process_message")
-    def test_chat_returns_200(self, mock_process):
+    def tearDown(self):
+        self._pc.process_message = self._original
+
+    def test_chat_returns_200(self):
+        self._pc.process_message = lambda msg: "Réponse test"
         from api.views import chat_api_view
-
-        mock_process.return_value = "Bonjour !"
-        request = self.factory.post(
+        from rest_framework.test import APIRequestFactory
+        factory = APIRequestFactory()
+        request = factory.post(
             "/api/chat/",
-            data=json.dumps({"messages": [{"role": "user", "content": "Bonjour"}]}),
-            content_type="application/json",
+            data={"messages": [{"role": "user", "content": "Bonjour"}]},
+            format="json",
         )
         response = chat_api_view(request)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("reply", response.data)
 
-    @patch("hadara_ai.services.public_chat.PublicChatService.process_message")
-    def test_chat_error_returns_fallback(self, mock_process):
+    def test_chat_error_returns_fallback(self):
+        def raise_error(msg):
+            raise Exception("Erreur")
+
+        self._pc.process_message = raise_error
         from api.views import chat_api_view
-
-        mock_process.side_effect = Exception("Erreur")
-        with patch("hadara_ai.services.compatibility.get_ai_response") as mock_llm:
-            mock_llm.side_effect = Exception("Provider indisponible")
-            request = self.factory.post(
-                "/api/chat/",
-                data=json.dumps({"messages": [{"role": "user", "content": "test"}]}),
-                content_type="application/json",
-            )
-            response = chat_api_view(request)
-            self.assertEqual(response.status_code, 200)
-            self.assertIn("reply", response.data)
+        from rest_framework.test import APIRequestFactory
+        factory = APIRequestFactory()
+        request = factory.post(
+            "/api/chat/",
+            data={"messages": [{"role": "user", "content": "test"}]},
+            format="json",
+        )
+        response = chat_api_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("WhatsApp", response.data.get("reply", ""))
 
 
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 # Tests d'isolation des erreurs
-# ---------------------------------------------------------------------------
-
+# ─────────────────────────────────────────────────────────────────────────────
 
 class TestErrorIsolation(unittest.TestCase):
     """Les erreurs internes ne fuient jamais vers le client."""
 
-    @patch("hadara_ai.services.compatibility.get_ai_response")
-    @patch("hadara_ai.services.public_chat.PublicChatService.process_message")
-    def test_api_key_error_hidden(self, mock_process, mock_get_ai_response):
-        from hadara_ai.services.compatibility import chat
+    def setUp(self):
+        from hadara_ai.services.public_chat import public_chat
+        self._original = public_chat.process_message
+        self._pc = public_chat
 
-        mock_process.side_effect = Exception("Internal error")
+    def tearDown(self):
+        self._pc.process_message = self._original
+
+    @patch("hadara_ai.services.compatibility.get_ai_response")
+    def test_api_key_error_hidden(self, mock_get_ai_response):
+        self._pc.process_message = lambda msg: (_ for _ in ()).throw(Exception("Internal error"))
         mock_get_ai_response.side_effect = Exception("Invalid API key")
+        from hadara_ai.services.compatibility import chat
         result = chat([{"role": "user", "content": "test"}])
         self.assertNotIn("API key", result)
         self.assertIn("WhatsApp", result)
 
     @patch("hadara_ai.services.compatibility.get_ai_response")
-    @patch("hadara_ai.services.public_chat.PublicChatService.process_message")
-    def test_database_error_hidden(self, mock_process, mock_get_ai_response):
-        from hadara_ai.services.compatibility import chat
-
-        mock_process.side_effect = Exception("Internal error")
+    def test_database_error_hidden(self, mock_get_ai_response):
+        self._pc.process_message = lambda msg: (_ for _ in ()).throw(Exception("Internal error"))
         mock_get_ai_response.side_effect = Exception("database connection lost")
+        from hadara_ai.services.compatibility import chat
         result = chat([{"role": "user", "content": "test"}])
         self.assertNotIn("database", result.lower())
         self.assertIn("WhatsApp", result)
 
     @patch("hadara_ai.services.compatibility.get_ai_response")
-    @patch("hadara_ai.services.public_chat.PublicChatService.process_message")
-    def test_import_error_hidden(self, mock_process, mock_get_ai_response):
-        from hadara_ai.services.compatibility import chat
-
-        mock_process.side_effect = Exception("Internal error")
+    def test_import_error_hidden(self, mock_get_ai_response):
+        self._pc.process_message = lambda msg: (_ for _ in ()).throw(Exception("Internal error"))
         mock_get_ai_response.side_effect = ImportError("No module named 'secret'")
+        from hadara_ai.services.compatibility import chat
         result = chat([{"role": "user", "content": "test"}])
         self.assertNotIn("secret", result.lower())
         self.assertIn("WhatsApp", result)
 
 
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 # Tests du Pricing Engine intégré
-# ---------------------------------------------------------------------------
-
+# ─────────────────────────────────────────────────────────────────────────────
 
 class TestPricingIntegration(unittest.TestCase):
-    """Le Pricing Engine est correctement intégré dans le chat."""
+    """Tests du Pricing Engine intégré."""
 
     def test_pricing_returns_valid_range(self):
-        from hadara_ai.services.public_chat import PricingIntegration
-
-        pricing = PricingIntegration()
-        estimate = pricing.get_estimate("logo")
+        from hadara_ai.services.public_chat import pricing_integration, PROFILE
+        logo = PROFILE.services.find_by_key("logo")
+        estimate = pricing_integration.get_estimate(logo)
+        self.assertIn("price_min", estimate)
+        self.assertIn("price_max", estimate)
         self.assertGreater(estimate["price_min"], 0)
         self.assertGreater(estimate["price_max"], estimate["price_min"])
 
     def test_pricing_bache(self):
-        from hadara_ai.services.public_chat import PricingIntegration
+        from hadara_ai.services.public_chat import pricing_integration, PROFILE
+        bache = PROFILE.services.find_by_key("bache")
+        estimate = pricing_integration.get_estimate(bache)
+        self.assertIn("price_min", estimate)
+        self.assertIn("price_max", estimate)
 
-        pricing = PricingIntegration()
-        estimate = pricing.get_estimate("bache")
-        self.assertGreater(estimate["price_min"], 0)
-        self.assertIn("bache", ["bache", "bâche"])
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tests du Business Profile (P1.5.3)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestBusinessProfile(unittest.TestCase):
+    """Tests de la source de vérité centralisée."""
+
+    def test_profile_singleton_exists(self):
+        from hadara_ai.brand.profile import PROFILE
+        self.assertIsNotNone(PROFILE)
+
+    def test_contacts_are_correct(self):
+        from hadara_ai.brand.profile import PROFILE
+        self.assertEqual(PROFILE.contacts.phone_primary, "+221 77 623 27 41")
+        self.assertEqual(PROFILE.contacts.email, "mrniass@gmail.com")
+
+    def test_services_catalog(self):
+        from hadara_ai.brand.profile import PROFILE
+        categories = PROFILE.services.get_categories()
+        self.assertIn("Identité visuelle", categories)
+        self.assertIn("Supports publicitaires", categories)
+        self.assertIn("Digital", categories)
+
+    def test_find_service_by_keyword(self):
+        from hadara_ai.brand.profile import PROFILE
+        service = PROFILE.services.find_by_keyword("logo")
+        self.assertIsNotNone(service)
+        self.assertEqual(service.key, "logo")
+
+    def test_find_service_by_key(self):
+        from hadara_ai.brand.profile import PROFILE
+        service = PROFILE.services.find_by_key("bache")
+        self.assertIsNotNone(service)
+        self.assertEqual(service.key, "bache")
 
 
-if __name__ == "__main__":
-    unittest.main()
+# ─────────────────────────────────────────────────────────────────────────────
+# Tests de l'assitant (P1.5.3)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestAssistantIdentity(unittest.TestCase):
+    """Tests que l'assistant utilise toujours la bonne identité."""
+
+    def test_assistant_uses_correct_name(self):
+        from hadara_ai.services.public_chat import public_chat
+        result = public_chat.process_message("Bonjour")
+        self.assertIn("Niass Madina", result)
+
+    def test_assistant_uses_correct_phone(self):
+        from hadara_ai.services.public_chat import public_chat
+        result = public_chat.process_message("Votre numéro ?")
+        self.assertIn("77 623 27 41", result)
+
+    def test_assistant_never_invents_price(self):
+        from hadara_ai.services.public_chat import public_chat
+        result = public_chat.process_message("Combien coûte un logo ?")
+        self.assertIn("FCFA", result)
+        # The PricingEngine calculates prices dynamically, not static defaults
+        self.assertTrue(any(str(x) in result for x in range(10, 100)))

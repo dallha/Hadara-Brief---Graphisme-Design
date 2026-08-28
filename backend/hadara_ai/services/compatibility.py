@@ -25,6 +25,7 @@ from hadara_ai.services.ai_service import (
     get_ai_response,
     analyze_brief_with_ai as _core_analyze_brief,
 )
+from hadara_ai.services.public_chat import public_chat as public_chat_instance
 
 logger = logging.getLogger(__name__)
 
@@ -89,14 +90,12 @@ def chat(messages: list[dict[str, str]]) -> str:
     Returns:
         Texte de réponse (nettoyé du markdown).
     """
-    from hadara_ai.services.public_chat import public_chat
-
     # Si c'est le premier message de l'utilisateur, utiliser le PublicChatService
     # pour la détection d'intention et les réponses déterministes
     if len(messages) <= 1:
         user_message = messages[-1]["content"] if messages else ""
         try:
-            response = public_chat.process_message(user_message)
+            response = public_chat_instance.process_message(user_message)
             return _strip_markdown(response)
         except Exception as e:
             logger.error("Erreur public_chat: %s", e)

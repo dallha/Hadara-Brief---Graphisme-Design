@@ -516,3 +516,180 @@ def analytics_models(request):
     days = int(request.query_params.get("days", 30))
     service = AnalyticsService()
     return Response(service.get_model_breakdown(days), status=status.HTTP_200_OK)
+
+
+# ──────────────────────────────────────────────────────────────
+# P1.5.2 — Health & Diagnostic Endpoints
+# ──────────────────────────────────────────────────────────────
+
+import os
+import time
+
+
+def _check_provider_health() -> dict:
+    """Vérifie la santé du provider Groq sans exposer de secrets."""
+    from hadara_ai.providers.registry import ProviderRegistry
+
+    registry = ProviderRegistry()
+    model_id = "openai/gpt-oss-20b"
+
+    result = {
+        "configured": False,
+        "provider_active": False,
+        "model": model_id,
+        "reachable": False,
+        "error_category": None,
+    }
+
+    # Check API key existence (never log the value)
+    api_key = os.environ.get("GROQ_API_KEY")
+    result["configured"] = bool(api_key)
+
+    if not result["configured"]:
+        result["error_category"] = "NO_API_KEY"
+        return result
+
+    # Check provider registry
+    provider = registry.get_provider(model_id)
+    result["provider_active"] = provider is not None
+
+    if not result["provider_active"]:
+        result["error_category"] = "PROVIDER_NOT_ACTIVE"
+        return result
+
+    # Test actual connectivity with a minimal request
+    import requests
+
+    try:
+        resp = requests.get(
+            "https://api.groq.com/openai/v1/models",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            timeout=5,
+        )
+        if resp.status_code == 200:
+            result["reachable"] = True
+        elif resp.status_code == 401:
+            result["error_category"] = "INVALID_API_KEY"
+        elif resp.status_code == 403:
+            result["error_category"] = "AUTHORIZATION_DENIED"
+        elif resp.status_code == 429:
+            result["error_category"] = "RATE_LIMITED"
+        else:
+            result["error_category"] = f"HTTP_{resp.status_code}"
+    except requests.exceptions.Timeout:
+        result["error_category"] = "TIMEOUT"
+    except requests.exceptions.ConnectionError:
+        result["error_category"] = "CONNECTION_ERROR"
+    except Exception as e:
+        result["error_category"] = f"UNKNOWN:{type(e).__name__}"
+
+    return result
+
+
+@api_view(["GET"])
+@permission_classes([AIAdminPermission])
+def health_check(request):
+    """GET /api/ai/v1/health/
+
+    Diagnostic read-only de l'état du système IA.
+    Accessible aux admins uniquement. Ne expose jamais de secrets.
+    """
+    provider_health = _check_provider_health()
+
+    # Check last execution from trace
+    last_execution = None
+    try:
+        from hadara_ai.models.trace import AIExecution
+
+        last = AIExecution.objects.order_by("-created_at").first()
+        if last:
+            last_execution = {
+                "status": last.status,
+                "model": last.model,
+                "created_at": last.created_at.isoformat() if last.created_at else None,
+            }
+    except Exception:
+        pass
+
+    overall = "ok" if provider_health["reachable"] else "degraded"
+
+    return Response(
+        {
+            "status": overall,
+            "ai_core": "ok",
+            "groq": provider_health,
+            "last_execution": last_execution,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["POST"])
+@permission_classes([AIAdminPermission])
+def health_chat_test(request):
+    """POST /api/ai/v1/health/chat-test/
+
+    Teste un appel réel minimal au modèle. Admin only.
+    Retourne la réponse du modèle ou l'erreur catégorisée.
+    """
+    from hadara_ai.services.ai_service import get_ai_response
+
+    try:
+        start = time.time()
+        response = get_ai_response(
+            messages=[
+                {"role": "system", "content": "Réponds en un seul mot."},
+                {"role": "user", "content": "Bonjour"},
+            ],
+            model="openai/gpt-oss-20b",
+            json_mode=False,
+            temperature=0.5,
+            max_tokens=10,
+        )
+        elapsed = time.time() - start
+
+        return Response(
+            {
+                "status": "ok",
+                "model": "openai/gpt-oss-20b",
+                "response": response.content,
+                "latency_ms": round(elapsed * 1000),
+            },
+            status=status.HTTP_200_OK,
+        )
+    except ValueError as e:
+        # Provider not available
+        error_msg = str(e)
+        if "non disponible" in error_msg:
+            category = "PROVIDER_NOT_ACTIVE"
+        else:
+            category = "VALUE_ERROR"
+        return Response(
+            {"status": "error", "error_category": category, "detail": error_msg},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+    except Exception as e:
+        # Categorize the error
+        error_type = type(e).__name__
+        if "401" in str(e) or "Unauthorized" in str(e):
+            category = "INVALID_API_KEY"
+        elif "403" in str(e) or "Forbidden" in str(e):
+            category = "AUTHORIZATION_DENIED"
+        elif "404" in str(e) or "Not Found" in str(e):
+            category = "MODEL_NOT_FOUND"
+        elif "429" in str(e) or "Too Many" in str(e):
+            category = "RATE_LIMITED"
+        elif "timeout" in str(e).lower():
+            category = "TIMEOUT"
+        elif "Connection" in error_type:
+            category = "CONNECTION_ERROR"
+        else:
+            category = f"UNKNOWN:{error_type}"
+
+        return Response(
+            {"status": "error", "error_category": category, "detail": str(e)},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )

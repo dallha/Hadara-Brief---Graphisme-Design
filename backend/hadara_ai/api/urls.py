@@ -3,6 +3,8 @@ from django.urls import path
 from hadara_ai.api import views
 
 urlpatterns = [
+    path("health/", views.health_check, name="ai-health-check"),
+    path("health/chat-test/", views.health_chat_test, name="ai-health-chat-test"),
     path("agents/", views.agent_list, name="ai-agent-list"),
     path("agents/<int:pk>/run/", views.agent_run, name="ai-agent-run"),
     path("executions/", views.execution_list, name="ai-execution-list"),

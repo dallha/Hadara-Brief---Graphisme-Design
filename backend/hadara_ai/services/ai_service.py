@@ -20,7 +20,7 @@ def get_registry() -> ProviderRegistry:
 
 def get_ai_response(
     messages: list[dict[str, str]],
-    model: str = "llama-3.1-8b-instant",
+    model: str = "openai/gpt-oss-20b",
     json_mode: bool = False,
     **kwargs: Any,
 ) -> AIResponse:
@@ -118,7 +118,7 @@ def analyze_brief_with_ai(brief: Any, pricing_result: dict) -> dict:
 
     try:
         response = get_ai_response(
-            messages, model="llama-3.1-8b-instant", json_mode=True
+            messages, model="openai/gpt-oss-20b", json_mode=True
         )
         ai_data = json.loads(response.content)
         final_result["ai"] = ai_data

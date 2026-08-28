@@ -78,7 +78,7 @@ class TestChatNormalResponse(TestCase):
 
         # Vérifie que le bon modèle est utilisé
         call_kwargs = mock_get_ai.call_args
-        self.assertEqual(call_kwargs[1].get("model", call_kwargs[0][1] if len(call_kwargs[0]) > 1 else None), "llama-3.1-8b-instant")
+        self.assertEqual(call_kwargs[1].get("model", call_kwargs[0][1] if len(call_kwargs[0]) > 1 else None), "openai/gpt-oss-20b")
 
     @patch("hadara_ai.services.compatibility.get_ai_response")
     def test_system_prompt_included(self, mock_get_ai):

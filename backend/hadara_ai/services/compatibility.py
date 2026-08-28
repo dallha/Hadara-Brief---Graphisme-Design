@@ -79,7 +79,7 @@ def chat(messages: list[dict[str, str]]) -> str:
     try:
         response = get_ai_response(
             full_messages,
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",
             json_mode=False,
             temperature=0.7,
             max_tokens=256,
@@ -115,7 +115,7 @@ def correct_ocr(raw_text: str) -> str:
     try:
         response = get_ai_response(
             messages,
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",
             json_mode=False,
             temperature=0.1,
             max_tokens=1024,

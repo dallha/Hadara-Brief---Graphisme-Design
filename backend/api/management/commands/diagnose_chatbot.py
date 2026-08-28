@@ -36,7 +36,7 @@ class Command(BaseCommand):
         # Step 3: List available models from Groq API
         self.step_list_models()
 
-        # Step 4: Test actual chat completion with llama-3.1-8b-instant
+        # Step 4: Test actual chat completion with openai/gpt-oss-20b
         self.step_test_chat()
 
         # Step 5: Test fallback path
@@ -100,9 +100,9 @@ class Command(BaseCommand):
                 for m in sorted(models):
                     marker = " ← USED" if "llama-3.1-8b" in m else ""
                     self.stdout.write(f"    - {m}{marker}")
-                if not any("llama-3.1-8b" in m for m in models):
+                if not any("gpt-oss" in m for m in models):
                     self.stdout.write(self.style.WARNING(
-                        "  ⚠ llama-3.1-8b-instant NOT in available models!"
+                        "  ⚠ openai/gpt-oss-20b NOT in available models!"
                     ))
             else:
                 self.stdout.write(self.style.ERROR(f"  Error: {resp.text[:200]}"))
@@ -119,7 +119,7 @@ class Command(BaseCommand):
             return
 
         payload = {
-            "model": "llama-3.1-8b-instant",
+            "model": "openai/gpt-oss-20b",
             "messages": [
                 {"role": "system", "content": "Tu es un assistant test. Réponds en 1 mot."},
                 {"role": "user", "content": "Bonjour"},

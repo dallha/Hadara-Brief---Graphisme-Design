@@ -1,4 +1,5 @@
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,13 @@ CHAT_SYSTEM_PROMPT = (
     "5. Si on te demande un devis, explique que le formulaire permet d'obtenir une estimation.\n"
     "6. Maximum 3-4 phrases par réponse.\n"
 )
+
+
+def _strip_markdown(text: str) -> str:
+    """Supprime les blocs de code Markdown (```json, ``` etc.)."""
+    text = re.sub(r"```(?:json|python|text)?\s*\n?", "", text)
+    text = re.sub(r"```\s*$", "", text, flags=re.MULTILINE)
+    return text.strip()
 
 
 def chat_with_assistant(messages: list[dict[str, str]]) -> str:
@@ -47,7 +55,7 @@ def chat_with_assistant(messages: list[dict[str, str]]) -> str:
             temperature=0.7,
             max_tokens=256,
         )
-        return response.content.strip()
+        return _strip_markdown(response.content)
     except Exception as e:
         logger.error("Erreur chat_with_assistant: %s", e)
         return (
